@@ -1,0 +1,982 @@
+@charset "UTF-8";
+
+/*!
+Theme Name: Cocoon Child
+Description: ContentFreaks専用テーマ
+Theme URI: https://wp-cocoon.com/
+Author: ContentFreaks Team
+Template: cocoon-master
+Version: 2.0.0
+*/
+
+/************************************
+** ContentFreaks基本設定
+** - CSS変数定義
+** - ベースフォント・色設定
+** - 共通ユーティリティ
+************************************/
+
+/* ===== CSS変数（統一管理） ===== */
+:root {
+    /* ブランドカラー */
+    --primary: #f7ff0b;
+    --primary-dark: #e6f000;
+    --primary-light: #fbff7a;
+    --accent: #ff6b35;
+    --accent-light: #ff8c66;
+
+    /* モノクロ */
+    --black: #1a1a1a;
+    --dark: #2d2d2d;
+    --white: #ffffff;
+    --gray-50: #fafafa;
+    --gray-100: #f5f5f5;
+    --gray-200: #eeeeee;
+    --gray-300: #e0e0e0;
+    --gray-400: #bdbdbd;
+    --gray-500: #9e9e9e;
+    --gray-600: #757575;
+    --gray-700: #616161;
+    --gray-800: #424242;
+    --gray-900: #212121;
+
+    /* テキスト */
+    --text-primary: #2d3748;
+    --text-secondary: #718096;
+    --text-light: #a0aec0;
+
+    /* レイアウト */
+    --container-width: 1200px;
+    /* ヘッダー高さはfunctions.phpの動的CSSで管理 */
+
+    /* エフェクト */
+    --transition: all 0.3s ease;
+    --transition-fast: all 0.15s ease;
+    --transition-slow: all 0.5s ease;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.12);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+    --blur: blur(20px);
+
+    /* グラデーション */
+    --gradient-header: linear-gradient(135deg, var(--black) 0%, var(--dark) 100%);
+    --gradient-header-transparent: linear-gradient(135deg, rgba(26, 26, 26, 0.98) 0%, rgba(45, 45, 45, 0.98) 100%);
+
+    /* ===== セクション・ページ別カラー ===== */
+    /* ヒーローセクション */
+    --hero-bg: var(--gradient-header);
+    --hero-text: var(--white);
+    --hero-text-secondary: var(--gray-300);
+    --hero-accent: var(--primary);
+
+    /* ホスト紹介セクション */
+    --hosts-bg: var(--white);
+    --hosts-card-bg: var(--white);
+    --hosts-card-border: var(--gray-200);
+    --hosts-card-border-hover: var(--primary);
+    --hosts-card-shadow: var(--shadow-md);
+    --hosts-card-shadow-hover: var(--shadow-lg);
+    --hosts-accent: var(--primary);
+    --hosts-title-gradient: linear-gradient(135deg, var(--hosts-accent), var(--accent));
+
+    /* エピソードセクション */
+    --episodes-bg: var(--gray-50);
+    --episodes-card-bg: var(--white);
+    --episodes-card-border: var(--gray-200);
+    --episodes-card-hover: var(--primary-light);
+    --episodes-meta: var(--accent);
+    --episodes-text: var(--text-secondary);
+
+    /* ブログセクション */
+    --blog-bg: var(--white);
+    --blog-card-bg: var(--gray-50);
+    --blog-card-border: var(--gray-300);
+    --blog-card-hover: var(--accent-light);
+    --blog-category: var(--accent);
+    --blog-text: var(--text-primary);
+
+    /* プロフィールセクション */
+    --profile-bg: linear-gradient(135deg, var(--gray-50) 0%, var(--white) 100%);
+    --profile-card-bg: var(--white);
+    --profile-card-border: var(--primary);
+    --profile-accent: var(--accent);
+    --profile-social: var(--gray-100);
+    --profile-social-hover: var(--primary);
+
+    /* 履歴・タイムライン */
+    --history-bg: var(--gray-50);
+    --history-timeline-line: var(--gray-300);
+    --history-timeline-dot: var(--primary);
+    --history-card-bg: var(--white);
+    --history-card-border: var(--gray-200);
+    --history-accent: var(--accent);
+    --history-btn-gradient: linear-gradient(45deg, #8e24aa, #9c27b0);
+
+    /* 履歴ページ装飾 */
+    --history-particle-primary: rgba(247, 255, 11, 0.2);
+    --history-particle-secondary: rgba(255, 107, 53, 0.2);
+    --history-particle-light: rgba(247, 255, 11, 0.15);
+    --history-particle-subtle: rgba(255, 107, 53, 0.1);
+    --history-wave-primary: rgba(247, 255, 11, 0.15);
+    --history-wave-secondary: rgba(255, 107, 53, 0.1);
+    --history-glow-primary: rgba(247, 255, 11, 0.3);
+    --history-glow-secondary: rgba(255, 107, 53, 0.3);
+
+    /* 履歴ページシャドウ */
+    --history-shadow-primary: rgba(247, 255, 11, 0.3);
+    --history-shadow-secondary: rgba(0, 0, 0, 0.1);
+    --history-shadow-hover: rgba(0, 0, 0, 0.15);
+    --history-shadow-strong: rgba(0, 0, 0, 0.2);
+    --history-shadow-intense: rgba(247, 255, 11, 0.4);
+
+    /* 履歴ページアルファ */
+    --history-overlay-light: rgba(255, 255, 255, 0.1);
+    --history-overlay-medium: rgba(255, 255, 255, 0.2);
+    --history-border-light: rgba(255, 255, 255, 0.2);
+
+    /* ナビゲーション */
+    --nav-bg: var(--white);
+    --nav-border: var(--gray-200);
+    --nav-text: var(--text-primary);
+    --nav-text-hover: var(--primary);
+    --nav-active: var(--primary);
+    --nav-shadow: var(--shadow-sm);
+
+    /* フッター */
+    --footer-bg: var(--dark);
+    --footer-text: var(--gray-300);
+    --footer-text-hover: var(--primary);
+    --footer-border: var(--gray-700);
+    --footer-accent: var(--primary);
+
+    /* サイドバー・ウィジェット */
+    --sidebar-bg: var(--white);
+    --sidebar-border: var(--gray-200);
+    --sidebar-title: var(--text-primary);
+    --sidebar-text: var(--text-secondary);
+    --sidebar-accent: var(--primary);
+
+    /* フォーム要素 */
+    --form-bg: var(--white);
+    --form-border: var(--gray-300);
+    --form-border-focus: var(--primary);
+    --form-text: var(--text-primary);
+    --form-placeholder: var(--text-light);
+
+    /* ボタン・CTA */
+    --btn-primary-bg: var(--primary);
+    --btn-primary-text: var(--black);
+    --btn-primary-hover: var(--primary-dark);
+    --btn-accent-bg: var(--accent);
+    --btn-accent-text: var(--white);
+    --btn-accent-hover: var(--accent-light);
+
+    /* 状態表示 */
+    --status-success: #38a169;
+    --status-warning: #d69e2e;
+    --status-error: #e53e3e;
+    --status-info: #3182ce;
+
+    /* 特殊効果・アニメーション */
+    --loading-bg: var(--gray-100);
+    --skeleton-bg: var(--gray-200);
+    --overlay-bg: rgba(0, 0, 0, 0.5);
+
+
+
+    /* フロントページ専用カラー - 新色彩フロー */
+    /* ヒーローセクション（現状維持） */
+    --front-hero-bg: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    --front-hero-text: var(--white);
+    --front-hero-particle: rgba(255, 255, 255, 0.6);
+    --front-hero-grain: rgba(255, 255, 255, 0.1);
+    --front-hero-title-gradient: linear-gradient(45deg, #ffffff, #f0f8ff);
+    --front-hero-artwork-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    --front-hero-artwork-glow: rgba(255, 255, 255, 0.15);
+
+    /* 最新エピソードセクション - ヒーローから自然に続く薄い紫〜白 */
+    --latest-episode-bg: linear-gradient(135deg, #f3f0ff 0%, #ffffff 100%);
+    --latest-episode-card-bg: var(--white);
+    --latest-episode-card-shadow: 0 20px 60px rgba(102, 126, 234, 0.08);
+    --latest-episode-badge-bg: linear-gradient(45deg, #8b7cf8, #667eea);
+    --latest-episode-title: #4c5270;
+    --latest-episode-text: #6b7088;
+    --latest-episode-btn-primary: linear-gradient(45deg, #667eea, #764ba2);
+    --latest-episode-btn-primary-shadow: rgba(102, 126, 234, 0.25);
+    --latest-episode-btn-secondary: rgba(102, 126, 234, 0.08);
+    --latest-episode-btn-secondary-text: #667eea;
+    --latest-episode-title-gradient: linear-gradient(135deg, #667eea, #764ba2);
+
+    /* 最近のエピソードセクション - 白ベース+薄いブルーグレー */
+    --recent-episodes-bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    --recent-episodes-card-bg: var(--white);
+    --recent-episodes-card-border: #e2e8f0;
+    --recent-episodes-card-shadow: 0 10px 25px rgba(71, 85, 105, 0.08);
+    --recent-episodes-title: #334155;
+    --recent-episodes-text: #64748b;
+    --recent-episodes-meta: #94a3b8;
+    --recent-episodes-title-gradient: linear-gradient(135deg, #334155, #64748b);
+    --recent-episodes-btn-primary: linear-gradient(45deg, #334155, #64748b);
+    --recent-episodes-btn-primary-shadow: rgba(51, 65, 85, 0.25);
+    --recent-episodes-btn-secondary: rgba(51, 65, 85, 0.08);
+    --recent-episodes-btn-secondary-text: #334155;
+
+    /* ホスト紹介セクション - ソフトベージュ〜薄いグリーン */
+    --hosts-bg: linear-gradient(135deg, #fef7ed 0%, #f0fdf4 100%);
+    --hosts-card-bg: var(--white);
+    --hosts-card-border: #e7f5e7;
+    --hosts-card-border-hover: #22c55e;
+    --hosts-card-shadow: 0 10px 25px rgba(34, 197, 94, 0.1);
+    --hosts-card-shadow-hover: 0 20px 40px rgba(34, 197, 94, 0.15);
+    --hosts-accent: #16a34a;
+    --hosts-title-gradient: linear-gradient(135deg, #166534, #22c55e);
+    --hosts-text: #374151;
+
+    /* リスナーの声セクション - 薄いゴールド〜クリーム */
+    --testimonials-bg: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    --testimonials-card-bg: var(--white);
+    --testimonials-card-border: #fde68a;
+    --testimonials-card-shadow: 0 10px 25px rgba(245, 158, 11, 0.1);
+    --testimonials-accent: #d97706;
+    --testimonials-title: #92400e;
+    --testimonials-text: #78716c;
+    --testimonials-quote: #a16207;
+
+    /* プラットフォームセクション - 薄いピンク〜コーラル */
+    --platforms-bg: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+    --platforms-bg-pattern: rgba(236, 72, 153, 0.08);
+    --platforms-title: linear-gradient(135deg, #be185d, #ec4899);
+    --platforms-subtitle: #be185d;
+    --platforms-card-bg: var(--white);
+    --platforms-card-border: #f9a8d4;
+    --platforms-card-border-hover: #ec4899;
+    --platforms-card-shadow: 0 10px 25px rgba(236, 72, 153, 0.12);
+
+    /* 統計情報カラー */
+    --front-stats-bg: transparent;
+    --front-stats-number: var(--white);
+    --front-stats-label: rgba(255, 255, 255, 0.8);
+
+    /* ===== エピソードページ専用カラー ===== */
+    /* エピソード一覧ページのヒーローセクション */
+    --episodes-hero-bg: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8e2de2 100%);
+    --episodes-hero-text: var(--white);
+    --episodes-hero-particle: rgba(255, 255, 255, 0.7);
+    --episodes-hero-pattern: rgba(247, 255, 11, 0.1);
+    --episodes-hero-pattern-accent: rgba(255, 107, 53, 0.2);
+    --episodes-hero-pattern-alt: rgba(247, 255, 11, 0.15);
+    --episodes-hero-title-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --episodes-hero-icon-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --episodes-hero-stats-bg: rgba(255, 255, 255, 0.15);
+    --episodes-hero-stats-border: rgba(255, 255, 255, 0.2);
+    --episodes-hero-stats-hover: rgba(255, 255, 255, 0.2);
+    --episodes-hero-stats-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+
+    /* エピソード一覧のフィルターセクション */
+    --episodes-filters-bg: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    --episodes-filters-title: #333;
+    --episodes-filters-bg-alt: #f8f9fa;
+    --episodes-filters-text: #555;
+    --episodes-filters-border: #e9ecef;
+    --episodes-filters-hover: #e2e6ea;
+    --episodes-filters-active: var(--primary);
+    --episodes-filters-active-text: #333;
+
+    /* エピソードカード */
+    --episodes-card-bg: var(--white);
+    --episodes-card-border: #e9ecef;
+    --episodes-card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --episodes-card-hover-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    --episodes-card-hover-transform: translateY(-2px);
+    --episodes-card-title: #333;
+    --episodes-card-meta: #6c757d;
+    --episodes-card-excerpt: #495057;
+    --episodes-card-btn-bg: linear-gradient(45deg, var(--primary), var(--accent));
+    --episodes-card-btn-text: #333;
+    --episodes-card-btn-shadow: 0 4px 15px rgba(247, 255, 11, 0.4);
+    --episodes-card-btn-hover: linear-gradient(45deg, var(--primary-dark), var(--accent-light));
+
+    /* エピソードグリッド */
+    --episodes-grid-bg: var(--white);
+    --episodes-grid-pagination-bg: var(--white);
+    --episodes-grid-pagination-border: #dee2e6;
+    --episodes-grid-pagination-text: #495057;
+    --episodes-grid-pagination-hover: #e9ecef;
+    --episodes-grid-pagination-active: var(--primary);
+    --episodes-grid-pagination-active-text: #333;
+
+    /* ===== ブログページ専用カラー ===== */
+    /* ブログページのヒーローセクション */
+    --blog-hero-bg: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ff8a65 100%);
+    --blog-hero-text: var(--white);
+    --blog-hero-particle: rgba(255, 255, 255, 0.7);
+    --blog-hero-pattern: rgba(247, 255, 11, 0.1);
+    --blog-hero-pattern-accent: rgba(255, 107, 53, 0.2);
+    --blog-hero-pattern-alt: rgba(247, 255, 11, 0.15);
+    --blog-hero-title-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    --blog-hero-icon-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --blog-hero-stats-bg: rgba(255, 255, 255, 0.15);
+    --blog-hero-stats-border: rgba(255, 255, 255, 0.2);
+    --blog-hero-stats-hover: rgba(255, 255, 255, 0.2);
+    --blog-hero-stats-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    --blog-hero-stats-label: rgba(255, 255, 255, 0.8);
+
+    /* ブログコンテンツセクション */
+    --blog-content-bg: linear-gradient(135deg, #fff8f3 0%, #ffffff 100%);
+    --blog-content-shimmer: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    --blog-filters-bg: rgba(255, 255, 255, 0.8);
+    --blog-filters-title: #bf360c;
+    --blog-filters-text: #333;
+    --blog-filters-border: #e9ecef;
+    --blog-filters-hover: #e2e6ea;
+    --blog-filters-active: var(--accent);
+    --blog-filters-active-text: var(--white);
+
+    /* ブログカード */
+    --blog-card-bg: var(--white);
+    --blog-card-border: #f5f5f5;
+    --blog-card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --blog-card-hover-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    --blog-card-hover-transform: translateY(-5px);
+    --blog-card-title: #333;
+    --blog-card-meta: #666;
+    --blog-card-excerpt: #555;
+    --blog-card-category-bg: var(--accent);
+    --blog-card-category-text: var(--white);
+    --blog-card-btn-bg: linear-gradient(45deg, #ff6b35, #f7931e);
+    --blog-card-btn-text: var(--white);
+    --blog-card-btn-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+    --blog-card-btn-hover: linear-gradient(45deg, #e55a2b, #e6851a);
+    --blog-title-gradient: linear-gradient(135deg, #ff6b35, #f7931e);
+    --blog-btn-primary: linear-gradient(45deg, #ff6b35, #f7931e);
+    --blog-btn-primary-shadow: rgba(255, 107, 53, 0.4);
+    --blog-btn-secondary: rgba(255, 107, 53, 0.08);
+    --blog-btn-secondary-text: #ff6b35;
+
+    /* ブログプレースホルダー */
+    --blog-featured-placeholder: linear-gradient(135deg, var(--primary), var(--accent));
+    --blog-category-placeholder: linear-gradient(135deg, #667eea, #764ba2);
+    --blog-popular-placeholder: linear-gradient(135deg, #f093fb, #f5576c);
+    --blog-placeholder-text: var(--white);
+
+    /* ナビゲーション（フロント専用） */
+    --front-nav-link-bg: rgba(255, 255, 255, 0.1);
+    --front-nav-link-border: rgba(255, 255, 255, 0.2);
+    --front-nav-link-text: var(--white);
+    --front-nav-link-hover: rgba(255, 255, 255, 0.2);
+
+    /* CTAボタン（フロント専用） */
+    --front-cta-primary-bg: var(--primary);
+    --front-cta-primary-text: var(--black);
+    --front-cta-primary-shadow: 0 8px 25px rgba(247, 255, 11, 0.3);
+    --front-cta-secondary-bg: transparent;
+    --front-cta-secondary-text: var(--white);
+    --front-cta-secondary-border: rgba(255, 255, 255, 0.3);
+
+    /* フォントサイズ - 統一体系 */
+    --font-size-xs: 0.75rem;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
+    --font-size-2xl: 1.5rem;
+    --font-size-3xl: 1.875rem;
+
+    /* 新しい統一フォントサイズ定義 */
+    /* ヒーロー・メインタイトル */
+    --hero-title: clamp(2.2rem, 4.5vw, 3.5rem);
+    --page-title: clamp(1.8rem, 3.5vw, 2.5rem);
+    --hero-subtitle: clamp(1.7rem, 3.5vw, 2.5rem);
+
+    /* 記事・エピソードタイトル */
+    --card-title: 1.1rem;
+    --card-title-large: 1.2rem;
+    --single-title: clamp(1.4rem, 2.5vw, 1.8rem);
+
+    /* 本文・説明文 */
+    --body-text: 1rem;
+    --description: 0.95rem;
+    --caption: 0.875rem;
+
+    /* メタ情報 */
+    --meta-primary: 0.85rem;
+    --meta-secondary: 0.8rem;
+    --meta-small: 0.75rem;
+
+    /* ナビゲーション */
+    --nav-primary: 1rem;
+    --nav-secondary: 0.9rem;
+    --breadcrumb: 0.85rem;
+
+    /* モバイル用フォントサイズ */
+    --mobile-hero-title: clamp(1.8rem, 4vw, 2.5rem);
+    --mobile-card-title: 1rem;
+    --mobile-body-text: 0.95rem;
+    --mobile-meta: 0.8rem;
+}
+
+/* ===== ベーススタイル ===== */
+/* 基本的なレイアウト調整のみ */
+
+/* 基本タイポグラフィ */
+body {
+    font-family: 'Inter', 'Noto Sans JP', sans-serif;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+/* リンクスタイル */
+a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+/* コンテナ */
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* ユーティリティクラス */
+.text-center {
+    text-align: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.transition {
+    transition: var(--transition);
+}
+
+/* ===== ホスト紹介セクション（AboutUS） - 完全レスポンシブ対応 ===== */
+.hosts-section {
+    padding: clamp(2rem, 8vw, 4rem) 0;
+    background: var(--hosts-bg);
+}
+
+.hosts-container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 clamp(1rem, 4vw, 2rem);
+}
+
+.hosts-header {
+    text-align: center;
+    margin-bottom: clamp(2rem, 6vw, 3rem);
+}
+
+.hosts-header h2 {
+    font-size: var(--page-title);
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.hosts-header p {
+    font-size: var(--description);
+    color: var(--text-secondary);
+    margin-top: 1rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* レスポンシブグリッドレイアウト */
+.hosts-grid {
+    display: grid;
+    gap: clamp(1rem, 4vw, 2rem);
+    margin-top: 2rem;
+}
+
+/* デスクトップ: 2カラム */
+@media (min-width: 1024px) {
+    .hosts-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 900px;
+        margin: 2rem auto 0;
+    }
+}
+
+/* タブレット: 1-2カラム */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .hosts-grid {
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        max-width: 800px;
+        margin: 2rem auto 0;
+    }
+}
+
+/* モバイル: 1カラム */
+@media (max-width: 767px) {
+    .hosts-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 2rem auto 0;
+    }
+}
+
+.host-card {
+    background: var(--hosts-card-bg);
+    border-radius: clamp(1rem, 3vw, 1.5rem);
+    padding: clamp(1.5rem, 4vw, 2rem);
+    text-align: center;
+    box-shadow: var(--hosts-card-shadow);
+    transition: var(--transition);
+    border: 1px solid var(--hosts-card-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.host-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--hosts-accent), var(--accent));
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+/* ホバー効果（デスクトップのみ） */
+@media (hover: hover) {
+    .host-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--hosts-card-shadow-hover);
+        border-color: var(--hosts-card-border-hover);
+    }
+
+    .host-card:hover::before {
+        transform: scaleX(1);
+    }
+}
+
+/* タッチデバイス用のアクティブ効果 */
+@media (hover: none) {
+    .host-card:active {
+        transform: scale(0.98);
+        transition: transform 0.1s ease;
+    }
+}
+
+.host-image {
+    width: clamp(80px, 20vw, 120px);
+    height: clamp(80px, 20vw, 120px);
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto clamp(1rem, 3vw, 1.5rem);
+    border: 4px solid var(--hosts-accent);
+    position: relative;
+}
+
+.host-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+@media (hover: hover) {
+    .host-card:hover .host-image img {
+        transform: scale(1.1);
+    }
+}
+
+.host-name {
+    font-size: var(--card-title-large);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.host-role {
+    font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: clamp(0.75rem, 2vw, 1rem);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.host-bio {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: clamp(1rem, 3vw, 1.5rem);
+    font-size: clamp(0.85rem, 2.2vw, 1rem);
+}
+
+.host-social {
+    display: flex;
+    justify-content: center;
+    gap: clamp(0.5rem, 2vw, 1rem);
+    flex-wrap: wrap;
+}
+
+.social-link {
+    width: clamp(36px, 10vw, 44px);
+    height: clamp(36px, 10vw, 44px);
+    min-width: 44px;
+    /* アクセシビリティ: 最小タッチターゲット */
+    min-height: 44px;
+    border-radius: 50%;
+    background: var(--profile-social);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    transition: var(--transition);
+    text-decoration: none;
+    color: var(--text-primary);
+}
+
+@media (hover: hover) {
+    .social-link:hover {
+        background: var(--profile-social-hover);
+        color: var(--black);
+        transform: translateY(-2px);
+        text-decoration: none;
+    }
+}
+
+/* タッチデバイス用フィードバック */
+@media (hover: none) {
+    .social-link:active {
+        background: var(--profile-social-hover);
+        color: var(--black);
+        transform: scale(0.95);
+    }
+}
+
+/* ===== 超小型デバイス対応 ===== */
+@media (max-width: 360px) {
+    .hosts-section {
+        padding: 1.5rem 0;
+    }
+
+    .hosts-container {
+        padding: 0 0.75rem;
+    }
+
+    .host-card {
+        padding: 1.25rem;
+        border-radius: 1rem;
+    }
+
+    .host-image {
+        width: 70px;
+        height: 70px;
+        margin-bottom: 0.75rem;
+        border-width: 3px;
+    }
+
+    .host-name {
+        font-size: 1rem;
+    }
+
+    .host-role {
+        font-size: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .host-bio {
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .social-link {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ===== モバイル対応のフォントサイズ調整 ===== */
+@media (max-width: 768px) {
+    :root {
+        --card-title: var(--mobile-card-title);
+        --body-text: var(--mobile-body-text);
+        --description: var(--mobile-body-text);
+        --meta-primary: var(--mobile-meta);
+        --meta-secondary: calc(var(--mobile-meta) - 0.05rem);
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --hero-title: var(--mobile-hero-title);
+        --card-title: 0.95rem;
+        --body-text: 0.9rem;
+        --meta-primary: 0.75rem;
+        --meta-secondary: 0.7rem;
+    }
+}
+
+/* ===== フォントファミリーの完全統一 ===== */
+
+/* 全体のフォントファミリー統一 */
+* {
+    font-family: 'Inter', 'Noto Sans JP', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+}
+
+/* 特定要素のフォントファミリー強制統一 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.hero-title,
+.page-title,
+.section-title,
+.card-title,
+.nav-link,
+.menu-item,
+.btn,
+.button {
+    font-family: 'Inter', 'Noto Sans JP', sans-serif !important;
+}
+
+/* 本文・段落のフォントファミリー */
+p,
+.content-body,
+.description,
+.excerpt,
+.post-content,
+.entry-content {
+    font-family: 'Inter', 'Noto Sans JP', sans-serif !important;
+}
+
+/* 日本語テキストの最適化 */
+:lang(ja),
+[lang="ja"],
+.japanese-text {
+    font-family: 'Noto Sans JP', 'Inter', sans-serif !important;
+}
+
+/* ===== レスポンシブタイポグラフィ追加改善 ===== */
+
+/* 極小デバイス用フォントサイズ（320px未満） */
+@media (max-width: 320px) {
+    :root {
+        --hero-title: clamp(1.5rem, 8vw, 2rem);
+        --page-title: clamp(1.3rem, 6vw, 1.8rem);
+        --card-title: 0.9rem;
+        --body-text: 0.85rem;
+        --meta-primary: 0.7rem;
+    }
+}
+
+/* 大型デスクトップ用フォントサイズ（1920px以上） */
+@media (min-width: 1920px) {
+    :root {
+        --hero-title: clamp(3.5rem, 4vw, 4rem);
+        --page-title: clamp(2.5rem, 3vw, 3rem);
+        --card-title: 1.25rem;
+        --body-text: 1.1rem;
+    }
+}
+
+/* ===== 読みやすさの向上 ===== */
+
+/* 行間の最適化 */
+p,
+.content-body,
+.description {
+    line-height: 1.7;
+}
+
+/* 見出しの行間最適化 */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    line-height: 1.3;
+}
+
+/* 長文の可読性向上 */
+.long-content {
+    max-width: 65ch;
+    line-height: 1.8;
+}
+
+
+/* ===== フロントページ専用ユーティリティクラス ===== */
+
+/* フロントページヒーロー */
+.front-hero-section {
+    background: var(--front-hero-bg);
+    color: var(--front-hero-text);
+}
+
+.front-hero-title-gradient {
+    background: var(--front-hero-title-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.front-hero-particle {
+    background: var(--front-hero-particle);
+}
+
+.front-hero-artwork-shadow {
+    box-shadow: var(--front-hero-artwork-shadow);
+}
+
+/* フロントページプラットフォーム */
+.front-platforms-section {
+    background: var(--platforms-bg);
+}
+
+.front-platforms-title {
+    background: var(--platforms-title);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.front-platforms-subtitle {
+    color: var(--platforms-subtitle);
+}
+
+.front-platforms-card {
+    background: var(--platforms-card-bg);
+    border-color: var(--platforms-card-border);
+}
+
+.front-platforms-card:hover {
+    border-color: var(--platforms-card-border-hover);
+    box-shadow: var(--platforms-card-shadow);
+}
+
+/* フロントページ最新エピソード */
+.front-latest-episode-section {
+    background: var(--latest-episode-bg);
+}
+
+.front-latest-episode-card {
+    background: var(--latest-episode-card-bg);
+    box-shadow: var(--latest-episode-card-shadow);
+}
+
+.front-latest-episode-badge {
+    background: var(--latest-episode-badge-bg);
+}
+
+.front-latest-episode-title {
+    color: var(--latest-episode-title);
+}
+
+.front-latest-episode-text {
+    color: var(--latest-episode-text);
+}
+
+.front-latest-episode-title-gradient {
+    background: var(--latest-episode-title-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.front-episode-btn-primary {
+    background: var(--latest-episode-btn-primary);
+    box-shadow: 0 8px 25px var(--latest-episode-btn-primary-shadow);
+}
+
+.front-episode-btn-secondary {
+    background: var(--latest-episode-btn-secondary);
+    color: var(--latest-episode-btn-secondary-text);
+    border-color: var(--latest-episode-btn-secondary-text);
+}
+
+/* フロントページ最近のエピソード */
+.front-recent-episodes-section {
+    background: var(--recent-episodes-bg);
+}
+
+.front-recent-episodes-title-gradient {
+    background: var(--recent-episodes-title-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.front-recent-episodes-btn-primary {
+    background: var(--recent-episodes-btn-primary);
+    box-shadow: 0 8px 25px var(--recent-episodes-btn-primary-shadow);
+}
+
+.front-recent-episodes-btn-secondary {
+    background: var(--recent-episodes-btn-secondary);
+    color: var(--recent-episodes-btn-secondary-text);
+    border-color: var(--recent-episodes-btn-secondary-text);
+}
+
+/* フロントページブログセクション */
+.front-blog-section {
+    background: var(--blog-bg);
+}
+
+.front-blog-title-gradient {
+    background: var(--blog-title-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.front-blog-btn-primary {
+    background: var(--blog-btn-primary);
+    box-shadow: 0 8px 25px var(--blog-btn-primary-shadow);
+}
+
+.front-blog-btn-secondary {
+    background: var(--blog-btn-secondary);
+    color: var(--blog-btn-secondary-text);
+    border-color: var(--blog-btn-secondary-text);
+}
+
+/* フロントページ統計 */
+.front-stats-number {
+    color: var(--front-stats-number);
+}
+
+.front-stats-label {
+    color: var(--front-stats-label);
+}
+
+/* フロントページナビゲーション */
+.front-nav-link {
+    background: var(--front-nav-link-bg);
+    border-color: var(--front-nav-link-border);
+    color: var(--front-nav-link-text);
+}
+
+.front-nav-link:hover {
+    background: var(--front-nav-link-hover);
+}
+
+/* フロントページCTA */
+.front-cta-primary {
+    background: var(--front-cta-primary-bg);
+    color: var(--front-cta-primary-text);
+    box-shadow: var(--front-cta-primary-shadow);
+}
+
+.front-cta-secondary {
+    background: var(--front-cta-secondary-bg);
+    color: var(--front-cta-secondary-text);
+    border-color: var(--front-cta-secondary-border);
+}

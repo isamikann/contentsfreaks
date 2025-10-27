@@ -1,0 +1,267 @@
+/* ====== ContentFreaks 共通コンポーネント v2.0 ====== */
+/* 再利用可能なUIコンポーネントのスタイル定義 */
+/* ページ固有のスタイルは各PHPファイル内で管理 */
+
+.site-tagline {
+    font-size: var(--font-size-sm);
+    color: rgba(255, 255, 255, 0.7);
+    margin-top: 0.25rem;
+}
+
+.search-toggle {
+    background: transparent;
+    color: var(--white);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.search-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: scale(1.05);
+}
+
+/* ===== ContentFreaks専用フッター ===== */
+#contentfreaks-footer {
+    background: linear-gradient(135deg, var(--black) 0%, #2d2d2d 100%);
+    color: var(--white);
+    padding: 3rem 0 1rem;
+    border-top: 3px solid var(--primary);
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+}
+
+.footer-section h3 {
+    color: var(--primary);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--primary);
+    padding-bottom: 0.5rem;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links li {
+    margin-bottom: 0.5rem;
+}
+
+.footer-links a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: var(--primary);
+}
+
+.footer-bottom {
+    background: rgba(0, 0, 0, 0.3);
+    margin-top: 2rem;
+    padding: 1rem 0;
+    text-align: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-bottom p {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.9rem;
+}
+
+/* ===== 検索モーダル ===== */
+.search-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.search-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.search-modal-content {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 500px;
+    width: 90%;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.search-modal.active .search-modal-content {
+    transform: scale(1);
+}
+
+.search-form {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 15px 60px 15px 20px;
+    border: 2px solid var(--gray-200);
+    border-radius: 30px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    background: var(--gray-50);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(247, 255, 11, 0.1);
+}
+
+.search-submit {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    width: 40px;
+    height: 40px;
+    background: var(--primary);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-submit:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+.search-close {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 30px;
+    height: 30px;
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.search-close:hover {
+    background: var(--black);
+    transform: scale(1.1);
+}
+
+
+/* ===== ポッドキャスト専用ヒーローセクション ===== */
+/* front-page.phpで詳細なスタイルを管理 - ここには共通の基本スタイルのみ */
+
+/* ===== レスポンシブ対応 ===== */
+@media (max-width: 767px) {
+    /* height: functions.phpで管理 */
+
+    .site-branding {
+        gap: 0.5rem;
+    }
+
+    .logo-image {
+        max-height: 50px;
+    }
+
+    .site-title {
+        font-size: 1.2rem;
+    }
+
+    .site-tagline {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+    .search-modal-content {
+        width: 95%;
+        max-width: 400px;
+    }
+}
+
+/* ===== 全ページ共通：ブレッドクラムナビゲーション統一 ===== */
+/* 古い重複定義は削除 - 下の統一定義を使用 */
+
+.breadcrumb-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* モバイルでの調整 */
+@media (max-width: 768px) {
+    .breadcrumb-container {
+        padding: 0 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+.breadcrumb-home {
+    color: #007acc !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    transition: color 0.3s ease !important;
+}
+
+.breadcrumb-home:hover {
+    color: #005a99 !important;
+}
+
+.breadcrumb-separator {
+    color: #666 !important;
+    margin: 0 0.25rem !important;
+}
+
+.breadcrumb-current {
+    color: #333 !important;
+    font-weight: 500 !important;
+}
