@@ -1,6 +1,7 @@
 <?php
 /**
  * 子テーマのスタイルとスクリプトを読み込み
+ * HTTP/2 Server Push最適化対応
  */
 function contentfreaks_enqueue_scripts() {
     // Google Fontsの読み込み（パフォーマンス最適化済み）
@@ -14,15 +15,18 @@ function contentfreaks_enqueue_scripts() {
     // 親テーマのスタイルを読み込み
     wp_enqueue_style('cocoon-style', get_template_directory_uri() . '/style.css');
     
-    // 子テーマのメインスタイル（WordPressの標準）
+    // 子テーマのメインスタイル（WordPressの標準）- 高優先度
     wp_enqueue_style('contentfreaks-main-style', get_stylesheet_directory_uri() . '/style.css', array('cocoon-style', 'contentfreaks-fonts'), '1.2.0');
+    wp_style_add_data('contentfreaks-main-style', 'priority', 'high');
     
-    // 共通コンポーネントのスタイル（フッター等）
+    // 共通コンポーネントのスタイル（フッター等）- 高優先度
     wp_enqueue_style('contentfreaks-components', get_stylesheet_directory_uri() . '/components.css', array('contentfreaks-main-style'), '2.0.2');
+    wp_style_add_data('contentfreaks-components', 'priority', 'high');
     
     // ページ別専用CSS（パフォーマンス最適化：必要なページでのみ読み込み）
     if (is_front_page()) {
         wp_enqueue_style('contentfreaks-front-page', get_stylesheet_directory_uri() . '/front-page.css', array('contentfreaks-components'), '1.0.0');
+        wp_style_add_data('contentfreaks-front-page', 'priority', 'high');
     } elseif (is_page('episodes')) {
         wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.0.0');
     } elseif (is_page('blog')) {
@@ -51,3 +55,45 @@ function contentfreaks_enqueue_scripts() {
     // ));
 }
 add_action('wp_enqueue_scripts', 'contentfreaks_enqueue_scripts');
+
+/**
+ * リソースヒントを追加してパフォーマンスを最適化
+ */
+function contentfreaks_resource_hints($hints, $relation_type) {
+    if ('dns-prefetch' === $relation_type) {
+        $hints[] = '//fonts.googleapis.com';
+        $hints[] = '//fonts.gstatic.com';
+    }
+    
+    if ('preconnect' === $relation_type) {
+        $hints[] = array(
+            'href' => 'https://fonts.googleapis.com',
+            'crossorigin',
+        );
+        $hints[] = array(
+            'href' => 'https://fonts.gstatic.com',
+            'crossorigin',
+        );
+    }
+    
+    return $hints;
+}
+add_filter('wp_resource_hints', 'contentfreaks_resource_hints', 10, 2);
+
+/**
+ * クリティカルCSSの後に非クリティカルCSSを非同期で読み込む
+ */
+function contentfreaks_async_styles($html, $handle) {
+    // 特定のスタイルを非同期で読み込む（優先度が低いもの）
+    $async_styles = array(
+        'cocoon-style',
+    );
+    
+    if (in_array($handle, $async_styles)) {
+        $html = str_replace("rel='stylesheet'", "rel='preload' as='style' onload=\"this.onload=null;this.rel='stylesheet'\"", $html);
+        $html .= '<noscript><link rel="stylesheet" href="' . esc_url(get_template_directory_uri() . '/style.css') . '"></noscript>';
+    }
+    
+    return $html;
+}
+add_filter('style_loader_tag', 'contentfreaks_async_styles', 10, 2);

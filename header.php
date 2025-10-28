@@ -12,10 +12,43 @@
     <meta name="google-site-verification" content="Z9v6pZ2Afg4DhkWq57tbHZYr9xo78IqWw3k1tTBNvDA" />
     <link rel="profile" href="https://gmpg.org/xfn/11">
     
+    <!-- DNS Prefetch for external resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    
     <!-- フォントプリロード（パフォーマンス最適化） -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+    
+    <!-- クリティカルCSS（インライン） -->
+    <style>
+    /* Above-the-fold Critical CSS */
+    :root {
+        --primary: #f7ff0b;
+        --accent: #ff6b35;
+        --black: #1a1a1a;
+        --white: #ffffff;
+        --text-primary: #1a1a1a;
+    }
+    body {
+        margin: 0;
+        font-family: 'Inter', 'Noto Sans JP', sans-serif;
+        color: var(--text-primary);
+        background: var(--white);
+    }
+    .minimal-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        z-index: 1000;
+        height: 70px;
+    }
+    </style>
     
     <?php wp_head(); ?>
     

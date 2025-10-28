@@ -1018,6 +1018,34 @@ function contentfreaks_disable_conflicting_styles() {
 add_action('wp_enqueue_scripts', 'contentfreaks_disable_conflicting_styles', 5);
 
 /**
+ * HTTP/2 Server Push ヘッダーを追加してパフォーマンスを最適化
+ */
+function contentfreaks_http2_server_push() {
+    // クリティカルリソースをServer Pushで先行送信
+    $push_resources = array();
+    
+    // メインスタイルシート
+    $push_resources[] = '<' . get_stylesheet_directory_uri() . '/style.css>; rel=preload; as=style';
+    $push_resources[] = '<' . get_stylesheet_directory_uri() . '/components.css>; rel=preload; as=style';
+    
+    // ページ別CSS
+    if (is_front_page()) {
+        $push_resources[] = '<' . get_stylesheet_directory_uri() . '/front-page.css>; rel=preload; as=style';
+    } elseif (is_single()) {
+        $push_resources[] = '<' . get_stylesheet_directory_uri() . '/single.css>; rel=preload; as=style';
+    }
+    
+    // フォント（重要度が高いもの）
+    $push_resources[] = '<https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap>; rel=preload; as=style';
+    
+    // Linkヘッダーとして送信
+    if (!empty($push_resources)) {
+        header('Link: ' . implode(', ', $push_resources), false);
+    }
+}
+add_action('send_headers', 'contentfreaks_http2_server_push');
+
+/**
  * 管理画面のカスタムスタイル
  */
 function contentfreaks_admin_styles() {
