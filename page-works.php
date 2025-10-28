@@ -47,46 +47,19 @@ get_header(); ?>
                         }
                     }
                     
-                    // カスタムフィールドがない場合、投稿タイトルとタグから作品を抽出
+                    // カスタムフィールドがない場合、タグから作品を抽出
                     if (empty($mentioned_works)) {
-                        // 投稿タイトルから作品名を抽出（例: "EP123: 作品名 レビュー" → "作品名"）
-                        $title_parts = preg_split('/[：:|【】『』「」]/u', $post_title);
-                        $work_from_title = '';
-                        
-                        if (count($title_parts) > 1) {
-                            // タイトルの2番目の部分を作品名として使用
-                            $work_from_title = trim($title_parts[1]);
-                            // 余分な文字を削除（レビュー、感想など）
-                            $work_from_title = preg_replace('/\s*(レビュー|感想|考察|ネタバレ|について|を語る).*$/u', '', $work_from_title);
-                        }
-                        
                         // タグから作品情報を取得
                         $tags = get_the_tags();
                         if ($tags && !is_wp_error($tags)) {
                             foreach ($tags as $tag) {
                                 $tag_name = $tag->name;
                                 
-                                // タグ名から作品名を判定
-                                // ジャンルタグは除外
-                                $genre_tags = array('映画', 'ドラマ', 'アニメ', 'ゲーム', '書籍', '漫画', 'ポッドキャスト', 'レビュー', '考察');
-                                if (in_array($tag_name, $genre_tags)) {
-                                    continue;
-                                }
-                                
                                 // タグを作品として登録
                                 if (!isset($all_works[$tag_name])) {
-                                    // ジャンルを推測
-                                    $genre = 'その他';
-                                    if (has_tag('映画', $post_id)) $genre = '映画';
-                                    elseif (has_tag('ドラマ', $post_id)) $genre = 'ドラマ';
-                                    elseif (has_tag('アニメ', $post_id)) $genre = 'アニメ';
-                                    elseif (has_tag('ゲーム', $post_id)) $genre = 'ゲーム';
-                                    elseif (has_tag('書籍', $post_id) || has_tag('小説', $post_id)) $genre = '書籍';
-                                    elseif (has_tag('漫画', $post_id)) $genre = '漫画';
-                                    
                                     $all_works[$tag_name] = array(
                                         'title' => $tag_name,
-                                        'genre' => $genre,
+                                        'genre' => '',
                                         'year' => get_the_date('Y', $post_id),
                                         'rating' => 0,
                                         'image' => get_the_post_thumbnail_url($post_id, 'medium') ?: '',
@@ -100,51 +73,16 @@ get_header(); ?>
                                 }
                             }
                         }
-                        
-                        // タイトルから抽出した作品名も追加
-                        if ($work_from_title && !isset($all_works[$work_from_title])) {
-                            $genre = 'その他';
-                            if (has_tag('映画', $post_id)) $genre = '映画';
-                            elseif (has_tag('ドラマ', $post_id)) $genre = 'ドラマ';
-                            elseif (has_tag('アニメ', $post_id)) $genre = 'アニメ';
-                            elseif (has_tag('ゲーム', $post_id)) $genre = 'ゲーム';
-                            elseif (has_tag('書籍', $post_id) || has_tag('小説', $post_id)) $genre = '書籍';
-                            elseif (has_tag('漫画', $post_id)) $genre = '漫画';
-                            
-                            $all_works[$work_from_title] = array(
-                                'title' => $work_from_title,
-                                'genre' => $genre,
-                                'year' => get_the_date('Y', $post_id),
-                                'rating' => 0,
-                                'image' => get_the_post_thumbnail_url($post_id, 'medium') ?: '',
-                                'url' => '',
-                                'episodes' => array($post_id)
-                            );
-                        }
                     }
                 endwhile;
                 wp_reset_postdata();
                 
                 $total_works = count($all_works);
-                
-                // ジャンル別集計
-                $genres = array();
-                foreach ($all_works as $work) {
-                    $genre = isset($work['genre']) ? $work['genre'] : 'その他';
-                    if (!isset($genres[$genre])) {
-                        $genres[$genre] = 0;
-                    }
-                    $genres[$genre]++;
-                }
                 ?>
                 
                 <div class="works-stat-item">
                     <span class="works-stat-number"><?php echo $total_works; ?></span>
                     <span class="works-stat-label">作品</span>
-                </div>
-                <div class="works-stat-item">
-                    <span class="works-stat-number"><?php echo count($genres); ?></span>
-                    <span class="works-stat-label">ジャンル</span>
                 </div>
                 <div class="works-stat-item">
                     <span class="works-stat-number"><?php echo $works_query->found_posts; ?></span>
@@ -168,19 +106,6 @@ get_header(); ?>
             
             <!-- フィルター -->
             <div class="works-filters">
-                <!-- ジャンルフィルター -->
-                <div class="filter-group">
-                    <label class="filter-label">ジャンル</label>
-                    <select id="genre-filter" class="filter-select">
-                        <option value="all">すべて</option>
-                        <?php foreach (array_keys($genres) as $genre): ?>
-                            <option value="<?php echo esc_attr($genre); ?>">
-                                <?php echo esc_html($genre); ?> (<?php echo $genres[$genre]; ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                
                 <!-- ソート -->
                 <div class="filter-group">
                     <label class="filter-label">並び順</label>
@@ -188,8 +113,6 @@ get_header(); ?>
                         <option value="episodes-desc">登場回数順</option>
                         <option value="title-asc">作品名順（昇順）</option>
                         <option value="title-desc">作品名順（降順）</option>
-                        <option value="year-desc">リリース年（新しい順）</option>
-                        <option value="year-asc">リリース年（古い順）</option>
                     </select>
                 </div>
                 
@@ -263,19 +186,7 @@ get_header(); ?>
                                      loading="lazy">
                             <?php else: ?>
                                 <div class="work-card-placeholder">
-                                    <span class="work-placeholder-icon">
-                                        <?php 
-                                        switch($genre) {
-                                            case '映画': echo '🎬'; break;
-                                            case 'ドラマ': echo '📺'; break;
-                                            case 'アニメ': echo '🎨'; break;
-                                            case 'ゲーム': echo '🎮'; break;
-                                            case '書籍': echo '📚'; break;
-                                            case '漫画': echo '📖'; break;
-                                            default: echo '🎭';
-                                        }
-                                        ?>
-                                    </span>
+                                    <span class="work-placeholder-icon">🎭</span>
                                 </div>
                             <?php endif; ?>
                             
@@ -287,14 +198,6 @@ get_header(); ?>
                         
                         <!-- 作品情報 -->
                         <div class="work-card-content">
-                            <!-- ジャンル・年 -->
-                            <div class="work-meta">
-                                <span class="work-genre"><?php echo esc_html($genre); ?></span>
-                                <?php if ($year): ?>
-                                    <span class="work-year"><?php echo esc_html($year); ?></span>
-                                <?php endif; ?>
-                            </div>
-                            
                             <!-- タイトル -->
                             <h3 class="work-title"><?php echo esc_html($title); ?></h3>
                             

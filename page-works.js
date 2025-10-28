@@ -7,7 +7,6 @@
     
     // DOM要素
     const searchInput = document.getElementById('works-search');
-    const genreFilter = document.getElementById('genre-filter');
     const sortFilter = document.getElementById('sort-filter');
     const viewBtns = document.querySelectorAll('.view-btn');
     const worksGrid = document.getElementById('works-grid');
@@ -21,7 +20,6 @@
     // 現在のフィルター状態
     let currentFilters = {
         search: '',
-        genre: 'all',
         sort: 'episodes-desc'
     };
     
@@ -32,10 +30,6 @@
         // イベントリスナー
         if (searchInput) {
             searchInput.addEventListener('input', handleSearch);
-        }
-        
-        if (genreFilter) {
-            genreFilter.addEventListener('change', handleGenreFilter);
         }
         
         if (sortFilter) {
@@ -66,13 +60,6 @@
         updateActiveFilters();
     }
     
-    // ジャンルフィルター処理
-    function handleGenreFilter(e) {
-        currentFilters.genre = e.target.value;
-        applyFilters();
-        updateActiveFilters();
-    }
-    
     // ソート処理
     function handleSort(e) {
         currentFilters.sort = e.target.value;
@@ -85,18 +72,13 @@
         
         workCards.forEach(card => {
             const title = card.dataset.title || '';
-            const genre = card.dataset.genre || '';
             
             // 検索条件チェック
             const matchesSearch = !currentFilters.search || 
                                  title.includes(currentFilters.search);
             
-            // ジャンル条件チェック
-            const matchesGenre = currentFilters.genre === 'all' || 
-                                genre === currentFilters.genre;
-            
             // 表示/非表示
-            if (matchesSearch && matchesGenre) {
+            if (matchesSearch) {
                 card.style.display = '';
                 card.style.animation = 'fade-in 0.3s ease';
                 visibleCount++;
@@ -133,16 +115,6 @@
                     
                 case 'title-desc':
                     return (b.dataset.title || '').localeCompare(a.dataset.title || '', 'ja');
-                    
-                case 'year-desc':
-                    const yearB = parseInt(b.dataset.year) || 0;
-                    const yearA = parseInt(a.dataset.year) || 0;
-                    return yearB - yearA;
-                    
-                case 'year-asc':
-                    const yearA2 = parseInt(a.dataset.year) || 0;
-                    const yearB2 = parseInt(b.dataset.year) || 0;
-                    return yearA2 - yearB2;
                     
                 default:
                     return 0;
@@ -185,15 +157,6 @@
             });
         }
         
-        // ジャンルタグ
-        if (currentFilters.genre !== 'all') {
-            tags.push({
-                type: 'genre',
-                label: `ジャンル: ${currentFilters.genre}`,
-                value: currentFilters.genre
-            });
-        }
-        
         // タグ表示
         if (tags.length > 0) {
             activeFiltersEl.style.display = 'flex';
@@ -223,9 +186,6 @@
         if (type === 'search') {
             currentFilters.search = '';
             if (searchInput) searchInput.value = '';
-        } else if (type === 'genre') {
-            currentFilters.genre = 'all';
-            if (genreFilter) genreFilter.value = 'all';
         }
         
         applyFilters();
@@ -236,12 +196,10 @@
     function clearFilters() {
         currentFilters = {
             search: '',
-            genre: 'all',
             sort: currentFilters.sort
         };
         
         if (searchInput) searchInput.value = '';
-        if (genreFilter) genreFilter.value = 'all';
         
         applyFilters();
         updateActiveFilters();
