@@ -129,12 +129,8 @@ get_header(); ?>
                 </div>
             </div>
 
-            <!-- ========== デバッグ開始：あっきープロフィール ========== -->
-            <?php echo '<!-- DEBUG: あっきープロフィールセクション開始 -->'; ?>
-            
             <!-- あっきープロフィール -->
-            <div class="host-profile-card host-card-secondary" style="background: #ffcccc !important; border: 5px solid red !important; display: block !important; visibility: visible !important;">
-                <?php echo '<!-- DEBUG: あっきープロフィールカード内部 -->'; ?>
+            <div class="host-profile-card host-card-secondary">
                 <div class="host-profile-header">
                     <div class="host-profile-avatar">
                         <?php 
@@ -206,8 +202,6 @@ get_header(); ?>
                     </div>
                 </div>
             </div>
-            <!-- ========== デバッグ終了：あっきープロフィール ========== -->
-            <?php echo '<!-- DEBUG: あっきープロフィールセクション終了 -->'; ?>
         </div>
     </section>
 
