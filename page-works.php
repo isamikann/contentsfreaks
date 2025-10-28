@@ -23,17 +23,23 @@ get_header(); ?>
                 $works_query = new WP_Query(array(
                     'post_type' => 'post',
                     'posts_per_page' => -1,
-                    'meta_query' => array(
-                        array(
-                            'key' => 'mentioned_works',
-                            'compare' => 'EXISTS'
-                        )
-                    )
+                    'post_status' => 'publish'
                 ));
                 
                 $all_works = array();
+                $debug_info = array(); // デバッグ用
+                
                 while ($works_query->have_posts()) : $works_query->the_post();
                     $mentioned_works = get_post_meta(get_the_ID(), 'mentioned_works', true);
+                    
+                    // デバッグ情報を収集
+                    $debug_info[] = array(
+                        'post_id' => get_the_ID(),
+                        'post_title' => get_the_title(),
+                        'has_meta' => !empty($mentioned_works),
+                        'is_array' => is_array($mentioned_works)
+                    );
+                    
                     if ($mentioned_works && is_array($mentioned_works)) {
                         foreach ($mentioned_works as $work) {
                             $work_title = isset($work['title']) ? $work['title'] : '';
@@ -48,6 +54,66 @@ get_header(); ?>
                 endwhile;
                 wp_reset_postdata();
                 
+                // サンプルデータを追加（実データがない場合）
+                if (empty($all_works)) {
+                    $all_works = array(
+                        'ブレードランナー 2049' => array(
+                            'title' => 'ブレードランナー 2049',
+                            'genre' => '映画',
+                            'year' => '2017',
+                            'rating' => 5,
+                            'image' => '',
+                            'url' => 'https://www.imdb.com/title/tt1856101/',
+                            'episodes' => array(1)
+                        ),
+                        'デューン 砂の惑星' => array(
+                            'title' => 'デューン 砂の惑星',
+                            'genre' => '映画',
+                            'year' => '2021',
+                            'rating' => 5,
+                            'image' => '',
+                            'url' => 'https://www.imdb.com/title/tt1160419/',
+                            'episodes' => array(1)
+                        ),
+                        'ゼルダの伝説 ティアーズ オブ ザ キングダム' => array(
+                            'title' => 'ゼルダの伝説 ティアーズ オブ ザ キングダム',
+                            'genre' => 'ゲーム',
+                            'year' => '2023',
+                            'rating' => 5,
+                            'image' => '',
+                            'url' => 'https://www.nintendo.co.jp/zelda/',
+                            'episodes' => array(1)
+                        ),
+                        '進撃の巨人' => array(
+                            'title' => '進撃の巨人',
+                            'genre' => 'アニメ',
+                            'year' => '2013',
+                            'rating' => 5,
+                            'image' => '',
+                            'url' => 'https://shingeki.tv/',
+                            'episodes' => array(1)
+                        ),
+                        'ザ・ラスト・オブ・アス' => array(
+                            'title' => 'ザ・ラスト・オブ・アス',
+                            'genre' => 'ドラマ',
+                            'year' => '2023',
+                            'rating' => 5,
+                            'image' => '',
+                            'url' => 'https://www.hbo.com/the-last-of-us',
+                            'episodes' => array(1)
+                        ),
+                        '三体' => array(
+                            'title' => '三体',
+                            'genre' => '書籍',
+                            'year' => '2008',
+                            'rating' => 5,
+                            'image' => '',
+                            'url' => '',
+                            'episodes' => array(1)
+                        )
+                    );
+                }
+                
                 $total_works = count($all_works);
                 
                 // ジャンル別集計
@@ -58,6 +124,15 @@ get_header(); ?>
                         $genres[$genre] = 0;
                     }
                     $genres[$genre]++;
+                }
+                
+                // デバッグ情報を表示（開発時のみ）
+                if (current_user_can('administrator') && isset($_GET['debug'])) {
+                    echo '<div style="background: #f0f0f0; padding: 20px; margin: 20px; border-radius: 8px;">';
+                    echo '<h3>デバッグ情報</h3>';
+                    echo '<p>投稿数: ' . $works_query->found_posts . '</p>';
+                    echo '<pre>' . print_r($debug_info, true) . '</pre>';
+                    echo '</div>';
                 }
                 ?>
                 
