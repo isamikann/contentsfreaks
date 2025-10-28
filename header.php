@@ -417,11 +417,13 @@
         margin: 0;
         padding: 0;
         text-align: left;
+        width: 100%;
     }
 
     .nav-item {
         margin: 0;
         text-align: left;
+        width: 100%;
     }
 
     .nav-link {
@@ -434,6 +436,8 @@
         transition: all 0.2s ease;
         position: relative;
         text-align: left;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .nav-link:hover {
