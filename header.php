@@ -410,27 +410,30 @@
         margin: 0 2rem 1rem;
         padding-bottom: 0.5rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        text-align: left;
     }
 
     .nav-list {
         list-style: none;
         margin: 0;
         padding: 0;
+        text-align: left;
     }
 
     .nav-item {
         margin: 0;
+        text-align: left;
     }
 
     .nav-link {
         display: flex;
         align-items: center;
+        justify-content: flex-start;
         padding: 1rem 2rem;
         text-decoration: none;
         color: #333;
         transition: all 0.2s ease;
         position: relative;
+        text-align: left;
     }
 
     .nav-link:hover {
@@ -454,7 +457,6 @@
         font-size: 1rem;
         font-weight: 500;
         flex: 1;
-        text-align: left;
     }
 
     /* プラットフォームリンク */
@@ -499,7 +501,6 @@
     .platform-text {
         font-size: 0.95rem;
         font-weight: 500;
-        text-align: left;
     }
 
     .external-indicator {
@@ -518,7 +519,7 @@
     .copyright-text {
         font-size: 0.8rem;
         color: #999;
-        text-align: left;
+        text-align: center;
         margin: 0;
     }
 
@@ -574,19 +575,6 @@
         
         .section-title {
             margin: 0 1.5rem 1rem;
-            text-align: left;
-        }
-        
-        .nav-text {
-            text-align: left;
-        }
-        
-        .platform-text {
-            text-align: left;
-        }
-        
-        .copyright-text {
-            text-align: left;
         }
         
         .menu-footer {
@@ -634,22 +622,6 @@
         
         .slide-menu-container {
             width: 100vw;
-        }
-        
-        .section-title {
-            text-align: left;
-        }
-        
-        .nav-text {
-            text-align: left;
-        }
-        
-        .platform-text {
-            text-align: left;
-        }
-        
-        .copyright-text {
-            text-align: left;
         }
     }
 
@@ -712,19 +684,6 @@
         .section-title {
             color: #666;
             border-bottom-color: rgba(255, 255, 255, 0.05);
-            text-align: left;
-        }
-        
-        .nav-text {
-            text-align: left;
-        }
-        
-        .platform-text {
-            text-align: left;
-        }
-        
-        .copyright-text {
-            text-align: left;
         }
         
         .menu-footer {
