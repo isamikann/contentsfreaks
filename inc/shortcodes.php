@@ -110,12 +110,10 @@ function contentfreaks_hosts_shortcode() {
     foreach ($hosts as $host) {
         echo '<div class="host-card">';
         
-        // 画像の表示処理を改善
-        if (!empty($host['image']) && $host['image'] !== '') {
-            echo '<div class="host-image"><img src="' . esc_url($host['image']) . '" alt="' . esc_attr($host['name']) . '" loading="lazy"></div>';
+        if ($host['image']) {
+            echo '<div class="host-image"><img src="' . esc_url($host['image']) . '" alt="' . esc_attr($host['name']) . '"></div>';
         } else {
-            // 画像が設定されていない場合のフォールバック表示
-            echo '<div class="host-image host-image-placeholder" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 3rem; color: white; border-radius: 50%; width: 150px; height: 150px; margin: 0 auto;">🎙️</div>';
+            echo '<div class="host-image" style="background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 3rem;">🎙️</div>';
         }
         
         echo '<div class="host-content">';
