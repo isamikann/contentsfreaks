@@ -423,6 +423,8 @@ body {
     font-family: 'Inter', 'Noto Sans JP', sans-serif;
     line-height: 1.6;
     color: var(--text-primary);
+    /* フォント表示最適化: テキストを即座に表示（システムフォント → Webフォント） */
+    font-display: swap;
 }
 
 /* リンクスタイル */
