@@ -574,6 +574,19 @@
         
         .section-title {
             margin: 0 1.5rem 1rem;
+            text-align: left;
+        }
+        
+        .nav-text {
+            text-align: left;
+        }
+        
+        .platform-text {
+            text-align: left;
+        }
+        
+        .copyright-text {
+            text-align: left;
         }
         
         .menu-footer {
@@ -621,6 +634,22 @@
         
         .slide-menu-container {
             width: 100vw;
+        }
+        
+        .section-title {
+            text-align: left;
+        }
+        
+        .nav-text {
+            text-align: left;
+        }
+        
+        .platform-text {
+            text-align: left;
+        }
+        
+        .copyright-text {
+            text-align: left;
         }
     }
 
@@ -683,6 +712,19 @@
         .section-title {
             color: #666;
             border-bottom-color: rgba(255, 255, 255, 0.05);
+            text-align: left;
+        }
+        
+        .nav-text {
+            text-align: left;
+        }
+        
+        .platform-text {
+            text-align: left;
+        }
+        
+        .copyright-text {
+            text-align: left;
         }
         
         .menu-footer {
