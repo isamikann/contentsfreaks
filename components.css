@@ -16,11 +16,12 @@
     height: 44px;
     border-radius: 50%;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.1rem;
+    will-change: transform;
 }
 
 .search-toggle:hover {
@@ -69,7 +70,7 @@
 .footer-links a {
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
-    transition: color 0.3s ease;
+    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .footer-links a:hover {
@@ -104,7 +105,7 @@
     justify-content: center;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .search-modal.active {
@@ -119,7 +120,8 @@
     max-width: 500px;
     width: 90%;
     transform: scale(0.9);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
 }
 
 .search-modal.active .search-modal-content {
@@ -137,7 +139,7 @@
     border: 2px solid var(--gray-200);
     border-radius: 30px;
     font-size: 1.1rem;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     background: var(--gray-50);
 }
 
@@ -158,10 +160,11 @@
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
+    will-change: transform;
 }
 
 .search-submit:hover {
@@ -180,11 +183,12 @@
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1rem;
+    will-change: transform;
 }
 
 .search-close:hover {

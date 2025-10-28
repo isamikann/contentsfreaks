@@ -43,14 +43,15 @@
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="30" cy="30" r="1.5" fill="rgba(255,255,255,0.08)"/><circle cx="70" cy="15" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="90" cy="40" r="2" fill="rgba(255,255,255,0.06)"/><circle cx="50" cy="70" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="20" cy="80" r="1.5" fill="rgba(255,255,255,0.08)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
     animation: grain-animation 20s infinite linear;
     pointer-events: none;
+    will-change: transform;
 }
 
 @keyframes grain-animation {
-    0% { transform: translate(0, 0); }
-    25% { transform: translate(-10px, -10px); }
-    50% { transform: translate(10px, -20px); }
-    75% { transform: translate(-20px, 10px); }
-    100% { transform: translate(0, 0); }
+    0% { transform: translate3d(0, 0, 0); }
+    25% { transform: translate3d(-10px, -10px, 0); }
+    50% { transform: translate3d(10px, -20px, 0); }
+    75% { transform: translate3d(-20px, 10px, 0); }
+    100% { transform: translate3d(0, 0, 0); }
 }
 
 .podcast-hero-particles {
@@ -70,6 +71,7 @@
     background: var(--front-hero-particle);
     border-radius: 50%;
     animation: float 6s infinite ease-in-out;
+    will-change: transform, opacity;
 }
 
 .particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 8s; }
@@ -83,10 +85,10 @@
 .particle:nth-child(9) { left: 90%; animation-delay: 0.3s; animation-duration: 9s; }
 
 @keyframes float {
-    0%, 100% { transform: translateY(100vh) rotate(0deg) scale(0); opacity: 0; }
-    10% { opacity: 1; transform: translateY(90vh) rotate(45deg) scale(1); }
-    90% { opacity: 1; transform: translateY(-10vh) rotate(315deg) scale(1); }
-    100% { opacity: 0; transform: translateY(-20vh) rotate(360deg) scale(0); }
+    0%, 100% { transform: translate3d(0, 100vh, 0) rotate(0deg) scale(0); opacity: 0; }
+    10% { opacity: 1; transform: translate3d(0, 90vh, 0) rotate(45deg) scale(1); }
+    90% { opacity: 1; transform: translate3d(0, -10vh, 0) rotate(315deg) scale(1); }
+    100% { opacity: 0; transform: translate3d(0, -20vh, 0) rotate(360deg) scale(0); }
 }
 
 .podcast-hero-content {
@@ -148,11 +150,11 @@
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translateY(50px);
+        transform: translate3d(0, 50px, 0);
     }
     to {
         opacity: 1;
-        transform: translateY(0);
+        transform: translate3d(0, 0, 0);
     }
 }
 
@@ -193,11 +195,12 @@
     height: 300px;
     border-radius: 25px;
     box-shadow: var(--front-hero-artwork-shadow);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
 }
 
 .podcast-artwork:hover {
-    transform: scale(1.05) rotate(2deg);
+    transform: translate3d(0, 0, 0) scale(1.05) rotate(2deg);
 }
 
 @keyframes gentleGlow {
@@ -329,6 +332,7 @@
     overflow: hidden;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     cursor: pointer;
+    will-change: transform;
 }
 
 /* シマーエフェクト */
@@ -340,8 +344,9 @@
     width: 100%;
     height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.6s ease;
+    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1;
+    will-change: left;
 }
 
 .hero-nav-link:hover::before {
@@ -362,7 +367,8 @@
     opacity: 0;
     z-index: -1;
     animation: gradientShift 3s ease infinite;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity;
 }
 
 .hero-nav-link:hover::after {
@@ -377,15 +383,15 @@
 
 .hero-nav-link:hover {
     background: var(--front-nav-link-hover);
-    transform: translateY(-3px) scale(1.02);
+    transform: translate3d(0, -3px, 0) scale(1.02);
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
     color: var(--front-nav-link-text);
     border-color: rgba(255, 255, 255, 0.4);
 }
 
 .hero-nav-link:active {
-    transform: translateY(-1px) scale(1.01);
-    transition: transform 0.1s ease;
+    transform: translate3d(0, -1px, 0) scale(1.01);
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* フォーカス状態（アクセシビリティ） */
@@ -399,13 +405,13 @@
 /* タッチデバイス対応 */
 .hero-nav-link.touch-active {
     transform: scale(0.98);
-    transition: transform 0.1s ease;
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* プレロード状態 */
 .hero-nav-link.preload {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translate3d(0, 20px, 0);
 }
 
 /* ナビゲーションアイコンとテキストの配置 */
@@ -417,9 +423,10 @@
 .hero-nav-link .nav-icon {
     font-size: var(--card-title);
     opacity: 0.9;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 2;
     position: relative;
+    will-change: transform, opacity;
 }
 
 .hero-nav-link:hover .nav-icon {
@@ -433,7 +440,7 @@
     font-weight: 500;
     z-index: 2;
     position: relative;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hero-nav-link:hover .nav-text {
