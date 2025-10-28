@@ -992,38 +992,17 @@ add_action('admin_init', 'contentfreaks_auto_flush_rewrite_rules');
 
 /**
  * CSS読み込み状況をデバッグ（開発環境のみ）
+ * 本番環境ではコメントアウト推奨
  */
+/*
 function contentfreaks_css_debug() {
-    // 開発環境またはWP_DEBUGが有効な場合のみ実行
     if (!defined('WP_DEBUG') || !WP_DEBUG) {
         return;
     }
-    
-    echo "<!-- ContentFreaks CSS Debug Info -->\n";
-    echo "<script>\n";
-    echo "console.log('ContentFreaks CSS Debug:');\n";
-    echo "console.log('Theme Directory:', '" . get_stylesheet_directory_uri() . "');\n";
-    echo "console.log('CSS Files:');\n";
-    echo "console.log('1. Cocoon Style:', '" . get_template_directory_uri() . "/style.css');\n";
-    echo "console.log('2. Child Main:', '" . get_stylesheet_directory_uri() . "/style.css');\n";
-    echo "console.log('3. ContentFreaks Components:', '" . get_stylesheet_directory_uri() . "/components.css');\n";
-    
-    // CSSファイルの存在確認
-    $css_files = array(
-        'style.css' => get_stylesheet_directory() . '/style.css',
-        'components.css' => get_stylesheet_directory() . '/components.css'
-    );
-    
-    foreach ($css_files as $name => $path) {
-        $exists = file_exists($path) ? 'EXISTS' : 'MISSING';
-        $size = file_exists($path) ? filesize($path) : 0;
-        echo "console.log('$name: $exists ($size bytes)');\n";
-    }
-    
-    echo "</script>\n";
-    echo "<!-- End ContentFreaks CSS Debug -->\n";
+    // デバッグ情報は開発時のみ有効化
 }
 add_action('wp_head', 'contentfreaks_css_debug');
+*/
 
 /**
  * Cocoonの競合するスタイルを無効化
