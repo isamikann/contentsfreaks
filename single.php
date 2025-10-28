@@ -157,7 +157,11 @@ get_header(); ?>
                 </div>
                 
                 <div class="works-database-cta">
-                    <a href="/works/" class="works-database-btn">
+                    <?php
+                    $works_page = get_page_by_path('works');
+                    $works_url = $works_page ? get_permalink($works_page->ID) : home_url('/works/');
+                    ?>
+                    <a href="<?php echo esc_url($works_url); ?>" class="works-database-btn">
                         📚 すべての作品を見る
                     </a>
                 </div>
