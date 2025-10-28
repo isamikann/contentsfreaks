@@ -646,8 +646,8 @@ function contentfreaks_get_rss_episodes($limit = 0) {
         );
     }
     
-    // 30分間キャッシュ
-    set_transient($cache_key, $episodes, 30 * MINUTE_IN_SECONDS);
+    // キャッシュ時間を1時間に延長（RSSは頻繁に更新されないため）
+    set_transient($cache_key, $episodes, HOUR_IN_SECONDS);
     
     return $episodes;
 }
