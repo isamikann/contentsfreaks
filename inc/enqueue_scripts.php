@@ -20,6 +20,21 @@ function contentfreaks_enqueue_scripts() {
     // 共通コンポーネントのスタイル（フッター等）
     wp_enqueue_style('contentfreaks-components', get_stylesheet_directory_uri() . '/components.css', array('contentfreaks-main-style'), '2.0.2');
     
+    // ページ別専用CSS（パフォーマンス最適化：必要なページでのみ読み込み）
+    if (is_front_page()) {
+        wp_enqueue_style('contentfreaks-front-page', get_stylesheet_directory_uri() . '/front-page.css', array('contentfreaks-components'), '1.0.0');
+    } elseif (is_page('episodes')) {
+        wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.0.0');
+    } elseif (is_page('blog')) {
+        wp_enqueue_style('contentfreaks-blog', get_stylesheet_directory_uri() . '/page-blog.css', array('contentfreaks-components'), '1.0.0');
+    } elseif (is_page('history')) {
+        wp_enqueue_style('contentfreaks-history', get_stylesheet_directory_uri() . '/page-history.css', array('contentfreaks-components'), '1.0.0');
+    } elseif (is_page('profile')) {
+        wp_enqueue_style('contentfreaks-profile', get_stylesheet_directory_uri() . '/page-profile.css', array('contentfreaks-components'), '1.0.0');
+    } elseif (is_single()) {
+        wp_enqueue_style('contentfreaks-single', get_stylesheet_directory_uri() . '/single.css', array('contentfreaks-components'), '1.0.0');
+    }
+    
     // 存在しないファイルの読み込みを無効化
     // wp_enqueue_style('contentfreaks-final-style', get_stylesheet_directory_uri() . '/contentfreaks-final.css', array('contentfreaks-components'), '2.0.0');
     
