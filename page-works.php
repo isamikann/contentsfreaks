@@ -19,7 +19,7 @@ get_header(); ?>
             
             <div class="works-stats">
                 <?php
-                // 作品データを取得
+                // 全投稿を取得
                 $works_query = new WP_Query(array(
                     'post_type' => 'post',
                     'posts_per_page' => -1,
@@ -27,92 +27,103 @@ get_header(); ?>
                 ));
                 
                 $all_works = array();
-                $debug_info = array(); // デバッグ用
                 
                 while ($works_query->have_posts()) : $works_query->the_post();
-                    $mentioned_works = get_post_meta(get_the_ID(), 'mentioned_works', true);
+                    $post_id = get_the_ID();
+                    $post_title = get_the_title();
                     
-                    // デバッグ情報を収集
-                    $debug_info[] = array(
-                        'post_id' => get_the_ID(),
-                        'post_title' => get_the_title(),
-                        'has_meta' => !empty($mentioned_works),
-                        'is_array' => is_array($mentioned_works)
-                    );
+                    // まずカスタムフィールドから作品情報を取得
+                    $mentioned_works = get_post_meta($post_id, 'mentioned_works', true);
                     
                     if ($mentioned_works && is_array($mentioned_works)) {
                         foreach ($mentioned_works as $work) {
                             $work_title = isset($work['title']) ? $work['title'] : '';
                             if ($work_title && !isset($all_works[$work_title])) {
                                 $all_works[$work_title] = $work;
-                                $all_works[$work_title]['episodes'] = array(get_the_ID());
+                                $all_works[$work_title]['episodes'] = array($post_id);
                             } else if ($work_title) {
-                                $all_works[$work_title]['episodes'][] = get_the_ID();
+                                $all_works[$work_title]['episodes'][] = $post_id;
                             }
+                        }
+                    }
+                    
+                    // カスタムフィールドがない場合、投稿タイトルとタグから作品を抽出
+                    if (empty($mentioned_works)) {
+                        // 投稿タイトルから作品名を抽出（例: "EP123: 作品名 レビュー" → "作品名"）
+                        $title_parts = preg_split('/[：:|【】『』「」]/u', $post_title);
+                        $work_from_title = '';
+                        
+                        if (count($title_parts) > 1) {
+                            // タイトルの2番目の部分を作品名として使用
+                            $work_from_title = trim($title_parts[1]);
+                            // 余分な文字を削除（レビュー、感想など）
+                            $work_from_title = preg_replace('/\s*(レビュー|感想|考察|ネタバレ|について|を語る).*$/u', '', $work_from_title);
+                        }
+                        
+                        // タグから作品情報を取得
+                        $tags = get_the_tags();
+                        if ($tags && !is_wp_error($tags)) {
+                            foreach ($tags as $tag) {
+                                $tag_name = $tag->name;
+                                
+                                // タグ名から作品名を判定
+                                // ジャンルタグは除外
+                                $genre_tags = array('映画', 'ドラマ', 'アニメ', 'ゲーム', '書籍', '漫画', 'ポッドキャスト', 'レビュー', '考察');
+                                if (in_array($tag_name, $genre_tags)) {
+                                    continue;
+                                }
+                                
+                                // タグを作品として登録
+                                if (!isset($all_works[$tag_name])) {
+                                    // ジャンルを推測
+                                    $genre = 'その他';
+                                    if (has_tag('映画', $post_id)) $genre = '映画';
+                                    elseif (has_tag('ドラマ', $post_id)) $genre = 'ドラマ';
+                                    elseif (has_tag('アニメ', $post_id)) $genre = 'アニメ';
+                                    elseif (has_tag('ゲーム', $post_id)) $genre = 'ゲーム';
+                                    elseif (has_tag('書籍', $post_id) || has_tag('小説', $post_id)) $genre = '書籍';
+                                    elseif (has_tag('漫画', $post_id)) $genre = '漫画';
+                                    
+                                    $all_works[$tag_name] = array(
+                                        'title' => $tag_name,
+                                        'genre' => $genre,
+                                        'year' => get_the_date('Y', $post_id),
+                                        'rating' => 0,
+                                        'image' => get_the_post_thumbnail_url($post_id, 'medium') ?: '',
+                                        'url' => '',
+                                        'episodes' => array($post_id)
+                                    );
+                                } else {
+                                    if (!in_array($post_id, $all_works[$tag_name]['episodes'])) {
+                                        $all_works[$tag_name]['episodes'][] = $post_id;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // タイトルから抽出した作品名も追加
+                        if ($work_from_title && !isset($all_works[$work_from_title])) {
+                            $genre = 'その他';
+                            if (has_tag('映画', $post_id)) $genre = '映画';
+                            elseif (has_tag('ドラマ', $post_id)) $genre = 'ドラマ';
+                            elseif (has_tag('アニメ', $post_id)) $genre = 'アニメ';
+                            elseif (has_tag('ゲーム', $post_id)) $genre = 'ゲーム';
+                            elseif (has_tag('書籍', $post_id) || has_tag('小説', $post_id)) $genre = '書籍';
+                            elseif (has_tag('漫画', $post_id)) $genre = '漫画';
+                            
+                            $all_works[$work_from_title] = array(
+                                'title' => $work_from_title,
+                                'genre' => $genre,
+                                'year' => get_the_date('Y', $post_id),
+                                'rating' => 0,
+                                'image' => get_the_post_thumbnail_url($post_id, 'medium') ?: '',
+                                'url' => '',
+                                'episodes' => array($post_id)
+                            );
                         }
                     }
                 endwhile;
                 wp_reset_postdata();
-                
-                // サンプルデータを追加（実データがない場合）
-                if (empty($all_works)) {
-                    $all_works = array(
-                        'ブレードランナー 2049' => array(
-                            'title' => 'ブレードランナー 2049',
-                            'genre' => '映画',
-                            'year' => '2017',
-                            'rating' => 5,
-                            'image' => '',
-                            'url' => 'https://www.imdb.com/title/tt1856101/',
-                            'episodes' => array(1)
-                        ),
-                        'デューン 砂の惑星' => array(
-                            'title' => 'デューン 砂の惑星',
-                            'genre' => '映画',
-                            'year' => '2021',
-                            'rating' => 5,
-                            'image' => '',
-                            'url' => 'https://www.imdb.com/title/tt1160419/',
-                            'episodes' => array(1)
-                        ),
-                        'ゼルダの伝説 ティアーズ オブ ザ キングダム' => array(
-                            'title' => 'ゼルダの伝説 ティアーズ オブ ザ キングダム',
-                            'genre' => 'ゲーム',
-                            'year' => '2023',
-                            'rating' => 5,
-                            'image' => '',
-                            'url' => 'https://www.nintendo.co.jp/zelda/',
-                            'episodes' => array(1)
-                        ),
-                        '進撃の巨人' => array(
-                            'title' => '進撃の巨人',
-                            'genre' => 'アニメ',
-                            'year' => '2013',
-                            'rating' => 5,
-                            'image' => '',
-                            'url' => 'https://shingeki.tv/',
-                            'episodes' => array(1)
-                        ),
-                        'ザ・ラスト・オブ・アス' => array(
-                            'title' => 'ザ・ラスト・オブ・アス',
-                            'genre' => 'ドラマ',
-                            'year' => '2023',
-                            'rating' => 5,
-                            'image' => '',
-                            'url' => 'https://www.hbo.com/the-last-of-us',
-                            'episodes' => array(1)
-                        ),
-                        '三体' => array(
-                            'title' => '三体',
-                            'genre' => '書籍',
-                            'year' => '2008',
-                            'rating' => 5,
-                            'image' => '',
-                            'url' => '',
-                            'episodes' => array(1)
-                        )
-                    );
-                }
                 
                 $total_works = count($all_works);
                 
@@ -124,15 +135,6 @@ get_header(); ?>
                         $genres[$genre] = 0;
                     }
                     $genres[$genre]++;
-                }
-                
-                // デバッグ情報を表示（開発時のみ）
-                if (current_user_can('administrator') && isset($_GET['debug'])) {
-                    echo '<div style="background: #f0f0f0; padding: 20px; margin: 20px; border-radius: 8px;">';
-                    echo '<h3>デバッグ情報</h3>';
-                    echo '<p>投稿数: ' . $works_query->found_posts . '</p>';
-                    echo '<pre>' . print_r($debug_info, true) . '</pre>';
-                    echo '</div>';
                 }
                 ?>
                 
