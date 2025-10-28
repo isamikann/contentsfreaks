@@ -17,6 +17,8 @@ require_once get_stylesheet_directory() . '/inc/enqueue_scripts.php';
 require_once get_stylesheet_directory() . '/inc/shortcodes.php';
 require_once get_stylesheet_directory() . '/inc/customizer.php';
 require_once get_stylesheet_directory() . '/inc/dynamic_styles.php';
+require_once get_stylesheet_directory() . '/inc/image_optimization.php'; // 画像最適化
+require_once get_stylesheet_directory() . '/inc/performance_optimization.php'; // パフォーマンス最適化
 
 // RSS自動投稿関連の読み込み
 require_once get_stylesheet_directory() . '/rss-auto-post.php';
