@@ -418,12 +418,15 @@
         padding: 0;
         text-align: left;
         width: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     .nav-item {
         margin: 0;
         text-align: left;
         width: 100%;
+        display: block;
     }
 
     .nav-link {
