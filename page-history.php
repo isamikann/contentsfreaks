@@ -685,6 +685,146 @@ get_header(); ?>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- 6月 -->
+                    <div class="timeline-item milestone" data-aos="fade-up" data-aos-delay="300">
+                        <div class="timeline-marker">
+                            <div class="marker-icon">🎯</div>
+                            <div class="marker-pulse"></div>
+                        </div>
+                        <div class="timeline-date">
+                            <span class="date-month">6月</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="content-header">
+                                <h4 class="timeline-title">🎯 Apple Podcast 200フォロワー突破</h4>
+                                <span class="timeline-badge milestone-badge">Milestone</span>
+                            </div>
+                            <p class="timeline-description">
+                                Apple Podcastのフォロワー数が200人を突破！主要プラットフォームでの着実な成長を実現。
+                            </p>
+                            <div class="timeline-impact">
+                                <span class="impact-label">Impact:</span>
+                                <span class="impact-text">マルチプラットフォームでの認知度向上</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 7月 -->
+                    <div class="timeline-item featured community" data-aos="fade-up" data-aos-delay="400">
+                        <div class="timeline-marker featured-marker">
+                            <div class="marker-icon">🎤</div>
+                            <div class="marker-pulse featured-pulse"></div>
+                        </div>
+                        <div class="timeline-date">
+                            <span class="date-month">7月</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="timeline-content featured-content">
+                            <div class="content-header">
+                                <h4 class="timeline-title">🎤 名古屋「ポッドキャストミキサー」に登壇！</h4>
+                                <span class="timeline-badge community-badge">Community</span>
+                            </div>
+                            <p class="timeline-description">
+                                名古屋で開催された「ポッドキャストミキサー」に登壇！「ドタバタグッドボタン」のけーちゃんと一緒に、対談形式で名古屋にまつわるコンテンツクイズを実施。<br><br>
+                                会場は満席でワイワイ賑やかな雰囲気！クイズ中は真剣に考えたり、珍回答に大笑いしたり、メリハリがあって楽しい空間に。<br><br>
+                                さらに、イベントを機にポッドキャスト用のオリジナル名刺も制作！コンフリブランドカラーで統一し、新規のコンフリキャラクターもデザインに採用。
+                            </p>
+                            <div class="timeline-impact">
+                                <span class="impact-label">Impact:</span>
+                                <span class="impact-text">初の本格的なイベント登壇でリスナーとの交流を実現</span>
+                            </div>
+                            <div class="timeline-actions">
+                                <a href="https://content-freaks.jp/2025-2q-growth-podcast/" class="timeline-link featured-link" target="_blank">
+                                    <span class="link-icon">📝</span>
+                                    詳細記事を読む
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 8月 -->
+                    <div class="timeline-item innovation" data-aos="fade-up" data-aos-delay="500">
+                        <div class="timeline-marker">
+                            <div class="marker-icon">🎨</div>
+                            <div class="marker-pulse"></div>
+                        </div>
+                        <div class="timeline-date">
+                            <span class="date-month">8月</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="content-header">
+                                <h4 class="timeline-title">🎨 サムネイルデザイン刷新</h4>
+                                <span class="timeline-badge innovation-badge">Innovation</span>
+                            </div>
+                            <p class="timeline-description">
+                                ポッドキャスト用とYouTube用の2種類のサムネイルフォーマットを新たに作成！<br><br>
+                                改善ポイント：<br>
+                                ▶ コンフリカラーで統一感を実現<br>
+                                ▶ 誰が見ても一目でコンフリだと分かるデザイン<br>
+                                ▶ サムネイル作成がスムーズに<br>
+                                ▶ ポッドキャストではコンフリマーク、YouTubeではPodcastマークを追加
+                            </p>
+                            <div class="timeline-impact">
+                                <span class="impact-label">Impact:</span>
+                                <span class="impact-text">YouTubeのクリック率が2〜4％から7〜10％に大幅アップ！</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 9月 -->
+                    <div class="timeline-item breakthrough" data-aos="fade-up" data-aos-delay="600">
+                        <div class="timeline-marker">
+                            <div class="marker-icon">🎉</div>
+                            <div class="marker-pulse"></div>
+                        </div>
+                        <div class="timeline-date">
+                            <span class="date-month">9月</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="content-header">
+                                <h4 class="timeline-title">🎉 YouTube 900人突破＆コラボ配信</h4>
+                                <span class="timeline-badge breakthrough-badge">Breakthrough</span>
+                            </div>
+                            <p class="timeline-description">
+                                YouTubeの登録者数が900人を突破！サムネイル改善の効果が着実に数字に表れる。<br><br>
+                                さらに、「推し活2次元LIFEラジオ」とコラボ配信を実施！番組間の交流がさらに活発に。
+                            </p>
+                            <div class="timeline-impact">
+                                <span class="impact-label">Impact:</span>
+                                <span class="impact-text">YouTube 1000人突破まであと少し！</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 10月 -->
+                    <div class="timeline-item featured celebration" data-aos="fade-up" data-aos-delay="700">
+                        <div class="timeline-marker featured-marker">
+                            <div class="marker-icon">🏆</div>
+                            <div class="marker-pulse featured-pulse"></div>
+                        </div>
+                        <div class="timeline-date">
+                            <span class="date-month">10月</span>
+                            <span class="date-year">2025</span>
+                        </div>
+                        <div class="timeline-content featured-content">
+                            <div class="content-header">
+                                <h4 class="timeline-title">🏆 YouTube登録者1000人突破！！！</h4>
+                                <span class="timeline-badge celebration-badge">Celebration</span>
+                            </div>
+                            <p class="timeline-description">
+                                ついに目標であったYouTube登録者数1000人を突破！！！<br><br>
+                                番組開始から約2年、サムネイル改善やコンテンツの充実により、ついに大台達成。これまで応援してくださったすべてのリスナーの皆様に心から感謝！
+                            </p>
+                            <div class="timeline-impact">
+                                <span class="impact-label">Impact:</span>
+                                <span class="impact-text">番組史上最大のマイルストーン達成！</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
