@@ -7,11 +7,11 @@
 get_header(); ?>
 
 
-<main id="main" class="site-main">
+<main id="main-content" class="site-main" role="main">
     <!-- ポッドキャスト専用ヒーローセクション -->
-    <section class="podcast-hero">
+    <section class="podcast-hero" aria-labelledby="hero-title">
         <!-- パーティクルアニメーション -->
-        <div class="podcast-hero-particles">
+        <div class="podcast-hero-particles" aria-hidden="true">
             <div class="particle"></div>
             <div class="particle"></div>
             <div class="particle"></div>
@@ -27,7 +27,7 @@ get_header(); ?>
             <!-- 左側：メインコンテンツ -->
             <div class="podcast-hero-main">
                 <!-- タイトル -->
-                <h1 class="hero-title"></h1>
+                <h1 id="hero-title" class="hero-title">ContentFreaks</h1>
                 <p class="hero-subtitle">好きな作品、語り尽くそう！</p>
                 
                 <!-- アートワーク + ディスクリプションを1つのコンテナに統合 -->

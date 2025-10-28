@@ -23,6 +23,9 @@ function contentfreaks_enqueue_scripts() {
     wp_enqueue_style('contentfreaks-components', get_stylesheet_directory_uri() . '/components.css', array('contentfreaks-main-style'), '2.0.2');
     wp_style_add_data('contentfreaks-components', 'priority', 'high');
     
+    // ローディング & インタラクションフィードバック
+    wp_enqueue_style('contentfreaks-loading', get_stylesheet_directory_uri() . '/loading.css', array('contentfreaks-components'), '1.0.0');
+    
     // ページ別専用CSS（パフォーマンス最適化：必要なページでのみ読み込み）
     if (is_front_page()) {
         wp_enqueue_style('contentfreaks-front-page', get_stylesheet_directory_uri() . '/front-page.css', array('contentfreaks-components'), '1.0.0');

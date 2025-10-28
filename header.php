@@ -48,6 +48,25 @@
         z-index: 1000;
         height: 70px;
     }
+    /* アクセシビリティ: スキップリンク */
+    .skip-link {
+        position: absolute;
+        top: -100px;
+        left: 0;
+        background: var(--primary);
+        color: var(--black);
+        padding: 12px 20px;
+        text-decoration: none;
+        font-weight: 600;
+        z-index: 10000;
+        border-radius: 0 0 8px 0;
+        transition: top 0.3s ease;
+    }
+    .skip-link:focus {
+        top: 0;
+        outline: 3px solid var(--accent);
+        outline-offset: 2px;
+    }
     </style>
     
     <?php wp_head(); ?>
@@ -724,8 +743,11 @@
 <body <?php body_class(); ?>>
 <?php wp_body_open(); ?>
 
+<!-- スキップリンク（アクセシビリティ向上） -->
+<a href="#main-content" class="skip-link">メインコンテンツへスキップ</a>
+
 <!-- ContentFreaks専用モダンミニマルヘッダー -->
-<header id="contentfreaks-header" class="minimal-header">
+<header id="contentfreaks-header" class="minimal-header" role="banner">
     <div class="header-container">
         <!-- ブランドロゴ/ホーム（左端） -->
         <div class="brand-home">
@@ -736,10 +758,10 @@
                     $home_icon_image = get_theme_mod('home_icon_image');
                     if ($home_icon_image) {
                         // カスタム画像が設定されている場合
-                        echo '<img src="' . esc_url($home_icon_image) . '" alt="ContentFreaks" class="brand-logo-image">';
+                        echo '<img src="' . esc_url($home_icon_image) . '" alt="ContentFreaksロゴ" class="brand-logo-image">';
                     } else {
                         // デフォルトのモダンなアイコン
-                        echo '<div class="brand-icon">🎙</div>';
+                        echo '<div class="brand-icon" aria-hidden="true">🎙</div>';
                     }
                     ?>
                     <span class="brand-text">ContentFreaks</span>
@@ -748,7 +770,7 @@
         </div>
 
         <!-- 中央の現在ページ表示 -->
-        <div class="current-page-indicator">
+        <div class="current-page-indicator" aria-live="polite">
             <span class="page-title">
                 <?php
                 if (is_home() || is_front_page()) {
@@ -766,7 +788,7 @@
 
         <!-- ミニマルハンバーガーメニュー（右端） -->
         <div class="menu-trigger">
-            <button class="minimal-hamburger" aria-label="メニューを開く" aria-expanded="false">
+            <button class="minimal-hamburger" aria-label="メニューを開く" aria-expanded="false" aria-controls="minimal-menu">
                 <span class="hamburger-icon">
                     <span class="line line-1"></span>
                     <span class="line line-2"></span>
@@ -778,8 +800,8 @@
 </header>
 
 <!-- モダンミニマルスライドメニュー -->
-<div class="menu-overlay"></div>
-<div class="slide-menu-container">
+<div class="menu-overlay" aria-hidden="true"></div>
+<nav id="minimal-menu" class="slide-menu-container" role="navigation" aria-label="メインメニュー">
     <div class="slide-menu-content">
         <div class="menu-header">
             <div class="menu-brand">
@@ -789,10 +811,10 @@
                     $home_icon_image = get_theme_mod('home_icon_image');
                     if ($home_icon_image) {
                         // カスタム画像が設定されている場合
-                        echo '<img src="' . esc_url($home_icon_image) . '" alt="ContentFreaks" class="brand-logo-image">';
+                        echo '<img src="' . esc_url($home_icon_image) . '" alt="ContentFreaksロゴ" class="brand-logo-image">';
                     } else {
                         // デフォルトのモダンなアイコン
-                        echo '🎙';
+                        echo '<span aria-hidden="true">🎙</span>';
                     }
                     ?>
                 </div>
@@ -806,19 +828,19 @@
             </button>
         </div>
         
-        <nav class="menu-navigation">
+        <div class="menu-navigation">
             <!-- メインナビゲーション -->
             <div class="nav-section main-nav">
-                <ul class="nav-list">
+                <ul class="nav-list" role="list">
                     <li class="nav-item">
                         <a href="<?php echo esc_url(home_url('/')); ?>" class="nav-link">
-                            <span class="nav-icon">🏠</span>
+                            <span class="nav-icon" aria-hidden="true">🏠</span>
                             <span class="nav-text">ホーム</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a href="<?php echo esc_url(get_permalink(get_page_by_path('episodes'))); ?>" class="nav-link">
-                            <span class="nav-icon">🎙</span>
+                            <span class="nav-icon" aria-hidden="true">🎙</span>
                             <span class="nav-text">エピソード</span>
                         </a>
                     </li>
