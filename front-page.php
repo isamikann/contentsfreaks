@@ -805,7 +805,7 @@ get_header(); ?>
             <div class="podcast-hero-main">
                 <!-- タイトル -->
                 <h1 class="hero-title"></h1>
-                <p class="hero-subtitle">好き作品、語り尽くそう！</p>
+                <p class="hero-subtitle">好きな作品、語り尽くそう！</p>
                 
                 <!-- アートワーク + ディスクリプションを1つのコンテナに統合 -->
                 <div class="podcast-hero-content-block">
