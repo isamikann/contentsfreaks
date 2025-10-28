@@ -130,7 +130,7 @@ get_header(); ?>
             </div>
 
             <!-- あっきープロフィール -->
-            <div class="host-profile-card host-card-secondary">
+            <div class="host-profile-card host-card-secondary" style="background: #ffcccc !important; border: 5px solid red !important; display: block !important; visibility: visible !important;">
                 <div class="host-profile-header">
                     <div class="host-profile-avatar">
                         <?php 
