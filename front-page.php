@@ -91,24 +91,6 @@ get_header(); ?>
                     </div>
                 </div>
                 
-                <!-- クイックナビゲーション -->
-                <div class="quick-nav-section">
-                    <h3 class="sidebar-section-title">🗂️ コンテンツ</h3>
-                    <div class="quick-nav-links">
-                        <a href="<?php echo get_permalink(get_page_by_path('episodes')); ?>" class="quick-nav-btn">
-                            <span class="quick-nav-icon">🎙️</span>
-                            <span class="quick-nav-label">全エピソード</span>
-                        </a>
-                        <?php
-                        $works_page = get_page_by_path('works');
-                        $works_url = $works_page ? get_permalink($works_page->ID) : home_url('/works/');
-                        ?>
-                        <a href="<?php echo esc_url($works_url); ?>" class="quick-nav-btn">
-                            <span class="quick-nav-icon">📚</span>
-                            <span class="quick-nav-label">作品データベース</span>
-                        </a>
-                    </div>
-                </div>
 
             </div>
         </div>

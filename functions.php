@@ -19,30 +19,6 @@ require_once get_stylesheet_directory() . '/inc/customizer.php';
 require_once get_stylesheet_directory() . '/inc/dynamic_styles.php';
 require_once get_stylesheet_directory() . '/inc/image_optimization.php'; // 画像最適化
 require_once get_stylesheet_directory() . '/inc/performance_optimization.php'; // パフォーマンス最適化
-require_once get_stylesheet_directory() . '/inc/works_metadata.php'; // 作品メタデータ管理
-
-/**
- * 作品データベースページ用のスクリプト・スタイル読み込み
- */
-function contentfreaks_enqueue_works_page_assets() {
-    if (is_page_template('page-works.php')) {
-        wp_enqueue_style(
-            'contentfreaks-works-page',
-            get_stylesheet_directory_uri() . '/page-works.css',
-            array('contentfreaks-design-system'),
-            '1.0.0'
-        );
-        
-        wp_enqueue_script(
-            'contentfreaks-works-page',
-            get_stylesheet_directory_uri() . '/page-works.js',
-            array(),
-            '1.0.0',
-            true
-        );
-    }
-}
-add_action('wp_enqueue_scripts', 'contentfreaks_enqueue_works_page_assets');
 
 // RSS自動投稿関連の読み込み
 require_once get_stylesheet_directory() . '/rss-auto-post.php';
