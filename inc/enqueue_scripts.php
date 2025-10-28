@@ -30,6 +30,9 @@ function contentfreaks_enqueue_scripts() {
     // ローディング & インタラクションフィードバック
     wp_enqueue_style('contentfreaks-loading', get_stylesheet_directory_uri() . '/loading.css', array('contentfreaks-components'), '1.0.0');
     
+    // マイクロインタラクション（UX向上）
+    wp_enqueue_style('contentfreaks-microinteractions', get_stylesheet_directory_uri() . '/microinteractions.css', array('contentfreaks-components'), '1.0.0');
+    
     // ページ別専用CSS（パフォーマンス最適化：必要なページでのみ読み込み）
     if (is_front_page()) {
         wp_enqueue_style('contentfreaks-front-page', get_stylesheet_directory_uri() . '/front-page.css', array('contentfreaks-components'), '1.0.0');
@@ -54,6 +57,15 @@ function contentfreaks_enqueue_scripts() {
     
     // 基本的なJQueryのみ利用可能にする
     wp_enqueue_script('jquery');
+    
+    // マイクロインタラクションのJavaScript
+    wp_enqueue_script(
+        'contentfreaks-microinteractions',
+        get_stylesheet_directory_uri() . '/microinteractions.js',
+        array(), // jQueryに依存しない
+        '1.0.0',
+        true // フッターで読み込み
+    );
     
     // AJAX用の設定を追加（必要に応じて有効化）
     // wp_localize_script('contentfreaks-script', 'contentfreaks_ajax', array(

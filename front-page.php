@@ -214,7 +214,7 @@ get_header(); ?>
     <!-- エピソード一覧 -->
     <section class="episodes-section">
         <div class="episodes-container">
-            <div class="episodes-header">
+            <div class="episodes-header fade-in">
                 <h2>最近のエピソード</h2>
             </div>
 
@@ -233,13 +233,16 @@ get_header(); ?>
                 ));
                 
                 if ($recent_episodes_query->have_posts()) :
+                    $delay_index = 0;
                     while ($recent_episodes_query->have_posts()) : $recent_episodes_query->the_post();
                         $audio_url = get_post_meta(get_the_ID(), 'episode_audio_url', true);
                         $episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
                         $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
                         $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
+                        $delay_class = 'delay-' . ($delay_index * 100 + 100);
+                        $delay_index++;
                 ?>
-                    <article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
+                    <article class="episode-card slide-up <?php echo esc_attr($delay_class); ?>" data-category="<?php echo esc_attr($episode_category); ?>">
                         <div class="episode-thumbnail">
                             <?php 
                             // アイキャッチ画像をまず確認
@@ -299,15 +302,17 @@ get_header(); ?>
     <!-- ホスト紹介 -->
     <section class="hosts-section">
         <div class="hosts-container">
-            <div class="hosts-header">
+            <div class="hosts-header fade-in">
                 <h2>ABOUT US</h2>
             </div>
             
-            <?php echo do_shortcode('[podcast_hosts]'); ?>
+            <div class="slide-up delay-100">
+                <?php echo do_shortcode('[podcast_hosts]'); ?>
+            </div>
             
             <!-- プロフィールページへのボタン -->
-            <div class="hosts-cta">
-                <a href="<?php echo get_permalink(get_page_by_path('profile')); ?>" class="hosts-profile-btn">
+            <div class="hosts-cta fade-in delay-200">
+                <a href="<?php echo get_permalink(get_page_by_path('profile')); ?>" class="hosts-profile-btn btn-primary btn-shine">
                     👥 詳しいプロフィールを見る
                 </a>
             </div>
@@ -317,12 +322,12 @@ get_header(); ?>
     <!-- 社会的証明・レビュー -->
     <section class="testimonials-section">
         <div class="testimonials-container">
-            <div class="testimonials-header">
+            <div class="testimonials-header fade-in">
                 <h2>リスナーの声</h2>
             </div>
             
             <div class="testimonials-grid">
-                <div class="testimonial-card">
+                <div class="testimonial-card scale-in delay-100">
                     <div class="testimonial-quote">
                         いつも配信ありがとうございます！毎度楽しく拝聴しています。お二人が番組内で紹介していたのをきっかけに検索しハマったコンテンツが多くあり、家族や友人に「コンフリの２人がオススメしてた」と話すほど好きな番組です。
                     </div>
@@ -335,7 +340,7 @@ get_header(); ?>
                     </div>
                 </div>
                 
-                <div class="testimonial-card">
+                <div class="testimonial-card scale-in delay-200">
                     <div class="testimonial-quote">
                         いつも楽しく拝聴させていただいています！自分と違う視点の感想を聞くことが出来て、一緒に盛り上がれるのが嬉しいです。
                     </div>
@@ -354,11 +359,13 @@ get_header(); ?>
     <!-- ポッドキャストプラットフォーム -->
     <section id="platforms" class="podcast-platforms-section">
         <div class="platforms-container">
-            <div class="platforms-header">
+            <div class="platforms-header fade-in">
                 <h2>どこでも聴ける</h2>
                 <p class="platforms-subtitle">お好みのプラットフォームでコンテンツフリークスをお楽しみください</p>
             </div>
-            <?php echo do_shortcode('[podcast_platforms]'); ?>
+            <div class="slide-up delay-100">
+                <?php echo do_shortcode('[podcast_platforms]'); ?>
+            </div>
         </div>
     </section>
 
