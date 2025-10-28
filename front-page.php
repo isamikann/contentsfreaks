@@ -874,131 +874,44 @@ get_header(); ?>
     </section>
 
     <script>
-    // カウントアップアニメーション
+    // カウントアップアニメーション - 最適化版
     document.addEventListener('DOMContentLoaded', function() {
         const statNumbers = document.querySelectorAll('.podcast-stat-number[data-count]');
         
         const animateCount = (element) => {
-            const isDecimal = element.dataset.decimal === 'true';
             const target = parseFloat(element.dataset.count);
-            const duration = 2000;
-            const increment = target / (duration / 16);
+            const isDecimal = element.dataset.decimal === 'true';
+            const duration = 1500; // 2000ms → 1500ms に短縮
+            const step = target / (duration / 16);
             let current = 0;
             
-            const updateCount = () => {
-                if (current < target) {
-                    current += increment;
-                    if (isDecimal) {
-                        element.textContent = current.toFixed(1);
-                    } else {
-                        element.textContent = Math.floor(current);
-                    }
-                    requestAnimationFrame(updateCount);
+            const update = () => {
+                current = Math.min(current + step, target);
+                
+                if (isDecimal) {
+                    element.textContent = current.toFixed(1);
                 } else {
-                    if (isDecimal) {
-                        element.textContent = target.toFixed(1);
-                    } else {
-                        // リスナー数の場合だけ「+」を付ける
-                        const nextElement = element.nextElementSibling;
-                        if (nextElement && nextElement.textContent === 'リスナー') {
-                            element.textContent = target + '+';
-                        } else {
-                            element.textContent = target;
-                        }
-                    }
+                    const nextEl = element.nextElementSibling;
+                    element.textContent = Math.floor(current) + (nextEl?.textContent === 'リスナー' ? '+' : '');
                 }
+                
+                if (current < target) requestAnimationFrame(update);
             };
             
-            updateCount();
+            update();
         };
         
-        // Intersection Observer でアニメーション開始
+        // Intersection Observer で画面に表示されたときのみアニメーション
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const element = entry.target;
-                    if (!element.classList.contains('animated')) {
-                        element.classList.add('animated');
-                        animateCount(element);
-                    }
+                if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+                    entry.target.classList.add('animated');
+                    animateCount(entry.target);
                 }
             });
-        });
+        }, { threshold: 0.5 });
         
         statNumbers.forEach(num => observer.observe(num));
-        
-        // ナビゲーション強化機能
-        const navigationSection = document.querySelector('.navigation-section');
-        const heroNavLinks = document.querySelectorAll('.hero-nav-link');
-        
-        // プリロード完了後の効果
-        setTimeout(() => {
-            if (navigationSection) {
-                navigationSection.classList.add('navigation-loaded');
-            }
-        }, 100);
-        
-        // ナビゲーションリンクのアクセシビリティ向上
-        heroNavLinks.forEach((link, index) => {
-            // キーボードナビゲーション対応
-            link.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    this.click();
-                }
-            });
-            
-            // フォーカス処理
-            link.addEventListener('focus', function() {
-                this.classList.add('focused');
-            });
-            
-            link.addEventListener('blur', function() {
-                this.classList.remove('focused');
-            });
-            
-            // リンク分析（分析用）
-            link.addEventListener('click', function() {
-                const linkText = this.querySelector('.nav-text')?.textContent || 'Unknown';
-                console.log(`Navigation clicked: ${linkText}`);
-                
-                // Google Analytics がある場合のイベント送信
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'navigation_click', {
-                        'link_text': linkText,
-                        'link_position': index + 1
-                    });
-                }
-            });
-        });
-        
-        // タッチデバイス対応
-        if ('ontouchstart' in window) {
-            heroNavLinks.forEach(link => {
-                link.addEventListener('touchstart', function() {
-                    this.classList.add('touch-active');
-                }, { passive: true });
-                
-                link.addEventListener('touchend', function() {
-                    setTimeout(() => {
-                        this.classList.remove('touch-active');
-                    }, 150);
-                }, { passive: true });
-            });
-        }
-        
-        // パフォーマンス監視
-        const perfObserver = new PerformanceObserver((list) => {
-            list.getEntries().forEach((entry) => {
-                if (entry.name.includes('hero-nav')) {
-                    console.log(`Navigation performance: ${entry.name} - ${entry.duration}ms`);
-                }
-            });
-        });
-        
-        if ('PerformanceObserver' in window) {
-            perfObserver.observe({ entryTypes: ['measure'] });
-        }
     });
     </script>
 
@@ -2601,198 +2514,11 @@ get_header(); ?>
 </main>
 
 <script>
-// 最強のモバイルエピソードカード修正JavaScript
+// 最適化されたフロントページスクリプト
 document.addEventListener('DOMContentLoaded', function() {
-    function forceHorizontalLayout() {
-        if (window.innerWidth <= 768) {
-            console.log('Applying mobile horizontal layout...');
-            
-            // すべての可能なエピソードカードセレクターを対象にする
-            const episodeCardSelectors = [
-                '.episodes-section .episode-card',
-                '.episodes-grid .episode-card',
-                '.episode-card',
-                'article.episode-card',
-                '.modern-episode-card',
-                '[class*="episode-card"]'
-            ];
-            
-            episodeCardSelectors.forEach(selector => {
-                const cards = document.querySelectorAll(selector);
-                cards.forEach((card, index) => {
-                    console.log(`Processing card ${index + 1} with selector: ${selector}`);
-                    
-                    // カードを強制的に横型レイアウトに変更
-                    card.style.setProperty('display', 'flex', 'important');
-                    card.style.setProperty('flex-direction', 'row', 'important');
-                    card.style.setProperty('height', 'auto', 'important');
-                    card.style.setProperty('min-height', 'auto', 'important');
-                    card.style.setProperty('max-height', 'none', 'important');
-                    card.style.setProperty('align-items', 'stretch', 'important');
-                    card.style.setProperty('overflow', 'visible', 'important');
-                    
-                    // サムネイル要素を検索して修正
-                    const thumbnailSelectors = [
-                        '.episode-thumbnail',
-                        '.episode-header',
-                        '.episode-card-header',
-                        '[class*="thumbnail"]'
-                    ];
-                    
-                    let thumbnail = null;
-                    for (const thumbSelector of thumbnailSelectors) {
-                        thumbnail = card.querySelector(thumbSelector);
-                        if (thumbnail) break;
-                    }
-                    
-                    if (thumbnail) {
-                        const width = window.innerWidth <= 480 ? '90px' : '110px';
-                        thumbnail.style.setProperty('width', width, 'important');
-                        thumbnail.style.setProperty('min-width', width, 'important');
-                        thumbnail.style.setProperty('max-width', width, 'important');
-                        thumbnail.style.setProperty('height', 'auto', 'important');
-                        thumbnail.style.setProperty('flex-shrink', '0', 'important');
-                        thumbnail.style.setProperty('display', 'flex', 'important');
-                        thumbnail.style.setProperty('align-items', 'stretch', 'important');
-                        thumbnail.style.setProperty('order', '1', 'important');
-                        
-                        // サムネイル内の画像を修正
-                        const img = thumbnail.querySelector('img');
-                        if (img) {
-                            img.style.setProperty('width', '100%', 'important');
-                            img.style.setProperty('height', '100%', 'important');
-                            img.style.setProperty('object-fit', 'cover', 'important');
-                            const minHeight = window.innerWidth <= 480 ? '110px' : '130px';
-                            img.style.setProperty('min-height', minHeight, 'important');
-                        }
-                    }
-                    
-                    // コンテンツ要素を検索して修正
-                    const contentSelectors = [
-                        '.episode-content',
-                        '.episode-card-content',
-                        '.episode-info',
-                        '[class*="content"]'
-                    ];
-                    
-                    let content = null;
-                    for (const contentSelector of contentSelectors) {
-                        content = card.querySelector(contentSelector);
-                        if (content) break;
-                    }
-                    
-                    if (content) {
-                        const padding = window.innerWidth <= 480 ? '0.7rem' : '0.9rem';
-                        content.style.setProperty('flex', '1', 'important');
-                        content.style.setProperty('padding', padding, 'important');
-                        content.style.setProperty('display', 'flex', 'important');
-                        content.style.setProperty('flex-direction', 'column', 'important');
-                        content.style.setProperty('justify-content', 'flex-start', 'important');
-                        content.style.setProperty('height', 'auto', 'important');
-                        content.style.setProperty('order', '2', 'important');
-                        
-                        // タイトル要素を修正
-                        const titleSelectors = [
-                            '.episode-title',
-                            '.episode-card-title',
-                            'h3',
-                            'h2',
-                            '[class*="title"]'
-                        ];
-                        
-                        let title = null;
-                        for (const titleSelector of titleSelectors) {
-                            title = content.querySelector(titleSelector);
-                            if (title) break;
-                        }
-                        
-                        if (title) {
-                            const fontSize = window.innerWidth <= 480 ? '0.95rem' : '1rem';
-                            const lineHeight = window.innerWidth <= 480 ? '1.2' : '1.3';
-                            title.style.setProperty('font-size', fontSize, 'important');
-                            title.style.setProperty('margin', '0.3rem 0', 'important');
-                            title.style.setProperty('height', 'auto', 'important');
-                            title.style.setProperty('max-height', 'none', 'important');
-                            title.style.setProperty('line-height', lineHeight, 'important');
-                            title.style.setProperty('-webkit-line-clamp', '2', 'important');
-                            title.style.setProperty('line-clamp', '2', 'important');
-                        }
-                        
-                        // 説明要素を修正
-                        const descriptionSelectors = [
-                            '.episode-description',
-                            '.episode-excerpt',
-                            '[class*="description"]',
-                            '[class*="excerpt"]'
-                        ];
-                        
-                        let description = null;
-                        for (const descSelector of descriptionSelectors) {
-                            description = content.querySelector(descSelector);
-                            if (description) break;
-                        }
-                        
-                        if (description) {
-                            const fontSize = window.innerWidth <= 480 ? '0.75rem' : '0.8rem';
-                            const lineHeight = window.innerWidth <= 480 ? '1.3' : '1.4';
-                            const lineClamp = window.innerWidth <= 480 ? '2' : '3';
-                            description.style.setProperty('font-size', fontSize, 'important');
-                            description.style.setProperty('height', 'auto', 'important');
-                            description.style.setProperty('max-height', 'none', 'important');
-                            description.style.setProperty('line-height', lineHeight, 'important');
-                            description.style.setProperty('-webkit-line-clamp', lineClamp, 'important');
-                            description.style.setProperty('line-clamp', lineClamp, 'important');
-                            description.style.setProperty('margin-bottom', '0.4rem', 'important');
-                            description.style.setProperty('display', '-webkit-box', 'important');
-                            description.style.setProperty('-webkit-box-orient', 'vertical', 'important');
-                            description.style.setProperty('overflow', 'hidden', 'important');
-                        }
-                    }
-                    
-                    console.log(`Card ${index + 1} processed successfully`);
-                });
-            });
-            
-            console.log('Mobile horizontal layout applied successfully');
-        }
-    }
-    
-    // 初期実行
-    forceHorizontalLayout();
-    
-    // ウィンドウリサイズ時にも実行
-    window.addEventListener('resize', debounce(forceHorizontalLayout, 250));
-    
-    // DOMの変更を監視して、新しいカードが追加された場合にも対応
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-                setTimeout(forceHorizontalLayout, 100);
-            }
-        });
-    });
-    
-    // episodes-sectionを監視
-    const episodesSections = document.querySelectorAll('.episodes-section, .episodes-grid');
-    episodesSections.forEach(section => {
-        observer.observe(section, { 
-            childList: true, 
-            subtree: true 
-        });
-    });
-    
-    // デバウンス関数
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
+    // モバイルレイアウトはCSSで制御されているため、
+    // JavaScriptでの強制的なスタイル適用は不要
+    // 必要に応じてここに軽量な機能を追加
 });
 </script>
 
