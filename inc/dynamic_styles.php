@@ -16,6 +16,7 @@ if (!defined('ABSPATH')) {
 function contentfreaks_force_header_styles() {
     // 定数から値を取得
     $header_height_desktop = CONTENTFREAKS_HEADER_HEIGHT_DESKTOP;
+    $header_height_tablet = defined('CONTENTFREAKS_HEADER_HEIGHT_TABLET') ? CONTENTFREAKS_HEADER_HEIGHT_TABLET : 60;
     $header_height_mobile = CONTENTFREAKS_HEADER_HEIGHT_MOBILE;
     $header_border = CONTENTFREAKS_HEADER_BORDER;
     $breadcrumb_height = CONTENTFREAKS_BREADCRUMB_HEIGHT;
@@ -135,21 +136,77 @@ function contentfreaks_force_header_styles() {
     }
     <?php endif; ?>
     
-    /* モバイルサイズでの高さ調整 - デスクトップスタイルの後に配置 */
+    /* ===================================================================
+       タブレットサイズでの高さ調整 (768px以下) - ヘッダー60px
+       =================================================================== */
     @media (max-width: 768px) {
         body #contentfreaks-header.modern-header,
         html body #contentfreaks-header.modern-header,
         #contentfreaks-header.modern-header,
         .modern-header#contentfreaks-header {
-            height: <?php echo $header_height_mobile; ?>px !important;
+            height: <?php echo $header_height_tablet; ?>px !important;
         }
         
-        /* Admin Bar対応 - モバイル版ヘッダー位置調整 */
+        /* Admin Bar対応 - タブレット版ヘッダー位置調整 */
         body.admin-bar #contentfreaks-header.modern-header,
         body.admin-bar html body #contentfreaks-header.modern-header,
         body.admin-bar #contentfreaks-header,
         body.admin_bar .modern-header#contentfreaks-header {
             top: <?php echo $admin_bar_mobile; ?>px !important;
+        }
+        
+        body #contentfreaks-header.modern-header.scrolled,
+        html body #contentfreaks-header.modern-header.scrolled,
+        #contentfreaks-header.modern-header.scrolled,
+        .modern-header#contentfreaks-header.scrolled {
+            height: <?php echo $header_height_tablet; ?>px !important;
+        }
+        
+        /* タブレットでのヘッダーコンテンツサイズ調整 */
+        #contentfreaks-header .header-container {
+            height: <?php echo $header_height_tablet; ?>px !important;
+        }
+        
+        /* タブレット版ページコンテンツ位置調整 */
+        /* フロントページ（ヒーローセクションがヘッダー直下） */
+        body.home .site-main,
+        body.front-page .site-main,
+        body.home main.site-main,
+        body.front-page main.site-main {
+            margin-top: 0 !important;
+        }
+        
+        /* 一般ページ（ヘッダー分の余白が必要） */
+        body:not(.home):not(.front-page) .site-main,
+        body:not(.home):not(.front-page) main.site-main {
+            margin-top: <?php echo $header_height_tablet + $header_border; ?>px !important;
+        }
+        
+        <?php if (is_admin_bar_showing()): ?>
+        /* Admin Bar表示時のみ - タブレット */
+        body.admin-bar.home .site-main,
+        body.admin-bar.front-page .site-main,
+        body.admin-bar.home main.site-main,
+        body.admin-bar.front-page main.site-main {
+            margin-top: 0 !important;
+        }
+        
+        body.admin-bar:not(.home):not(.front-page) .site-main,
+        body.admin-bar:not(.home):not(.front-page) main.site-main {
+            margin-top: <?php echo $admin_bar_mobile + $header_height_tablet + $header_border; ?>px !important;
+        }
+        <?php endif; ?>
+    }
+    
+    /* ===================================================================
+       モバイルサイズでの高さ調整 (480px以下) - ヘッダー55px
+       =================================================================== */
+    @media (max-width: 480px) {
+        body #contentfreaks-header.modern-header,
+        html body #contentfreaks-header.modern-header,
+        #contentfreaks-header.modern-header,
+        .modern-header#contentfreaks-header {
+            height: <?php echo $header_height_mobile; ?>px !important;
         }
         
         body #contentfreaks-header.modern-header.scrolled,
