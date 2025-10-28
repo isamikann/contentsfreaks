@@ -200,8 +200,22 @@ body {
 
 /* レスポンシブ - モバイル */
 @media (max-width: 767px) {
+    .header-container {
+        padding: 0 1rem;
+        height: 60px;
+    }
+    
+    .site-branding {
+        gap: var(--space-2);
+    }
+    
+    .logo-image {
+        max-height: 48px;
+    }
+    
     .site-title {
         font-size: var(--font-size-xl);
+        line-height: 1;
     }
     
     .main-nav ul {
@@ -215,5 +229,21 @@ body {
     
     .hero-subtitle {
         font-size: var(--font-size-lg);
+    }
+}
+
+@media (max-width: 480px) {
+    .header-container {
+        padding: 0 0.75rem;
+        height: 55px;
+    }
+    
+    .logo-image {
+        max-height: 40px;
+    }
+    
+    .site-title {
+        font-size: var(--font-size-lg);
+        line-height: 1;
     }
 }

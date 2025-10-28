@@ -47,6 +47,17 @@
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         z-index: 1000;
         height: 70px;
+        display: flex;
+        align-items: center;
+    }
+    .header-container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
     }
     /* アクセシビリティ: スキップリンク */
     .skip-link {
@@ -66,6 +77,22 @@
         top: 0;
         outline: 3px solid var(--accent);
         outline-offset: 2px;
+    }
+    @media (max-width: 768px) {
+        .minimal-header {
+            height: 60px;
+        }
+        .header-container {
+            padding: 0 1.5rem;
+        }
+    }
+    @media (max-width: 480px) {
+        .minimal-header {
+            height: 55px;
+        }
+        .header-container {
+            padding: 0 1rem;
+        }
     }
     </style>
     
@@ -497,14 +524,29 @@
         .header-container {
             padding: 0 1.5rem;
             height: 60px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .minimal-hamburger {
+            height: 40px;
+            width: 40px;
+            padding: 0.375rem;
         }
         
         .brand-text {
             font-size: 1.1rem;
+            line-height: 1;
         }
         
         .brand-icon {
             font-size: 1.3rem;
+            line-height: 1;
+        }
+        
+        .brand-logo-image {
+            width: 28px;
+            height: 28px;
         }
         
         .current-page-indicator {
@@ -540,6 +582,19 @@
         .header-container {
             padding: 0 1rem;
             height: 55px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .minimal-hamburger {
+            height: 36px;
+            width: 36px;
+            padding: 0.25rem;
+        }
+        
+        .hamburger-icon {
+            width: 18px;
+            height: 12px;
         }
         
         .brand-container {
@@ -548,10 +603,17 @@
         
         .brand-text {
             font-size: 1rem;
+            line-height: 1;
         }
         
         .brand-icon {
             font-size: 1.2rem;
+            line-height: 1;
+        }
+        
+        .brand-logo-image {
+            width: 24px;
+            height: 24px;
         }
         
         .slide-menu-container {
