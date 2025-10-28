@@ -845,6 +845,12 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="<?php echo esc_url(get_permalink(get_page_by_path('works'))); ?>" class="nav-link">
+                            <span class="nav-icon" aria-hidden="true">📚</span>
+                            <span class="nav-text">作品データベース</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="<?php echo esc_url(get_permalink(get_page_by_path('blog'))); ?>" class="nav-link">
                             <span class="nav-icon">📝</span>
                             <span class="nav-text">ブログ</span>
