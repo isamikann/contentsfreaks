@@ -410,6 +410,7 @@
         margin: 0 2rem 1rem;
         padding-bottom: 0.5rem;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        text-align: left;
     }
 
     .nav-list {
@@ -453,6 +454,7 @@
         font-size: 1rem;
         font-weight: 500;
         flex: 1;
+        text-align: left;
     }
 
     /* プラットフォームリンク */
@@ -497,6 +499,7 @@
     .platform-text {
         font-size: 0.95rem;
         font-weight: 500;
+        text-align: left;
     }
 
     .external-indicator {
@@ -515,7 +518,7 @@
     .copyright-text {
         font-size: 0.8rem;
         color: #999;
-        text-align: center;
+        text-align: left;
         margin: 0;
     }
 
