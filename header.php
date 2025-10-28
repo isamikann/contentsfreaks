@@ -102,17 +102,21 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        position: relative;
     }
 
     /* ブランド/ホームリンク */
     .brand-home {
         flex-shrink: 0;
+        display: flex;
+        align-items: center;
     }
 
     .brand-link {
         text-decoration: none;
         color: inherit;
-        display: block;
+        display: flex;
+        align-items: center;
         transition: transform 0.2s ease;
     }
 
@@ -148,23 +152,33 @@
         font-weight: 600;
         color: #1a1a1a;
         letter-spacing: -0.02em;
+        line-height: 1;
+        margin: 0;
     }
 
     /* 現在ページ表示 */
     .current-page-indicator {
         position: absolute;
         left: 50%;
-        transform: translateX(-50%);
+        top: 50%;
+        transform: translate(-50%, -50%);
         text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .page-title {
         display: none;
+        margin: 0;
+        line-height: 1;
     }
 
     /* ハンバーガーメニュー */
     .menu-trigger {
         flex-shrink: 0;
+        display: flex;
+        align-items: center;
     }
 
     .minimal-hamburger {
@@ -175,8 +189,11 @@
         display: flex;
         flex-direction: column;
         align-items: center;
+        justify-content: center;
         gap: 0.25rem;
         transition: all 0.3s ease;
+        height: 44px; /* タッチターゲット最小サイズ */
+        width: 44px;
     }
 
     .minimal-hamburger:hover {
@@ -186,6 +203,8 @@
     .hamburger-icon {
         display: flex;
         flex-direction: column;
+        align-items: center;
+        justify-content: center;
         gap: 3px;
         position: relative;
         width: 20px;
