@@ -15,8 +15,12 @@ function contentfreaks_enqueue_scripts() {
     // 親テーマのスタイルを読み込み
     wp_enqueue_style('cocoon-style', get_template_directory_uri() . '/style.css');
     
+    // デザインシステム（最優先で読み込み）
+    wp_enqueue_style('contentfreaks-design-system', get_stylesheet_directory_uri() . '/design-system.css', array('cocoon-style'), '1.0.0');
+    wp_style_add_data('contentfreaks-design-system', 'priority', 'high');
+    
     // 子テーマのメインスタイル（WordPressの標準）- 高優先度
-    wp_enqueue_style('contentfreaks-main-style', get_stylesheet_directory_uri() . '/style.css', array('cocoon-style', 'contentfreaks-fonts'), '1.2.0');
+    wp_enqueue_style('contentfreaks-main-style', get_stylesheet_directory_uri() . '/style.css', array('contentfreaks-design-system'), '1.2.0');
     wp_style_add_data('contentfreaks-main-style', 'priority', 'high');
     
     // 共通コンポーネントのスタイル（フッター等）- 高優先度

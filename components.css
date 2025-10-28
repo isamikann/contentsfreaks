@@ -1,60 +1,61 @@
-/* ====== ContentFreaks 共通コンポーネント v2.0 ====== */
+/* ====== ContentFreaks 共通コンポーネント v2.1 ====== */
+/* デザインシステム準拠 - 8pxグリッド・統一トークン使用 */
 /* 再利用可能なUIコンポーネントのスタイル定義 */
 /* ページ固有のスタイルは各PHPファイル内で管理 */
 
 .site-tagline {
     font-size: var(--font-size-sm);
     color: rgba(255, 255, 255, 0.7);
-    margin-top: 0.25rem;
+    margin-top: var(--space-1);
 }
 
 .search-toggle {
     background: transparent;
     color: var(--white);
     border: 2px solid rgba(255, 255, 255, 0.3);
-    width: 44px;
+    width: 44px; /* タッチターゲット最小サイズ維持 */
     height: 44px;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--transition-base);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    font-size: var(--font-size-lg);
     will-change: transform;
 }
 
 .search-toggle:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: var(--primary);
-    color: var(--primary);
+    border-color: var(--color-primary-400);
+    color: var(--color-primary-400);
     transform: scale(1.05);
 }
 
 /* ===== ContentFreaks専用フッター ===== */
 #contentfreaks-footer {
-    background: linear-gradient(135deg, var(--black) 0%, #2d2d2d 100%);
+    background: linear-gradient(135deg, var(--color-gray-900) 0%, var(--color-gray-800) 100%);
     color: var(--white);
-    padding: 3rem 0 1rem;
-    border-top: 3px solid var(--primary);
+    padding: var(--space-12) 0 var(--space-4);
+    border-top: 3px solid var(--color-primary-400);
 }
 
 .footer-content {
-    max-width: 1200px;
+    max-width: var(--container-xl);
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 var(--space-8);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
+    gap: var(--space-8);
 }
 
 .footer-section h3 {
-    color: var(--primary);
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid var(--primary);
-    padding-bottom: 0.5rem;
+    color: var(--color-primary-400);
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--space-4);
+    border-bottom: 2px solid var(--color-primary-400);
+    padding-bottom: var(--space-2);
 }
 
 .footer-links {
@@ -64,23 +65,23 @@
 }
 
 .footer-links li {
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--space-2);
 }
 
 .footer-links a {
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
-    transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: color var(--transition-base);
 }
 
 .footer-links a:hover {
-    color: var(--primary);
+    color: var(--color-primary-400);
 }
 
 .footer-bottom {
     background: rgba(0, 0, 0, 0.3);
-    margin-top: 2rem;
-    padding: 1rem 0;
+    margin-top: var(--space-8);
+    padding: var(--space-4) 0;
     text-align: center;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -88,7 +89,7 @@
 .footer-bottom p {
     margin: 0;
     color: rgba(255, 255, 255, 0.6);
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
 }
 
 /* ===== 検索モーダル ===== */
@@ -99,13 +100,13 @@
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.8);
-    z-index: 10001;
+    z-index: var(--z-modal);
     display: flex;
     align-items: center;
     justify-content: center;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--transition-base);
 }
 
 .search-modal.active {
@@ -115,12 +116,12 @@
 
 .search-modal-content {
     background: var(--white);
-    border-radius: 20px;
-    padding: 2rem;
+    border-radius: var(--radius-2xl);
+    padding: var(--space-8);
     max-width: 500px;
     width: 90%;
     transform: scale(0.9);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform var(--transition-base);
     will-change: transform;
 }
 
@@ -130,37 +131,37 @@
 
 .search-form {
     position: relative;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-8);
 }
 
 .search-input {
     width: 100%;
-    padding: 15px 60px 15px 20px;
-    border: 2px solid var(--gray-200);
-    border-radius: 30px;
-    font-size: 1.1rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: var(--gray-50);
+    padding: var(--space-4) var(--space-15) var(--space-4) var(--space-5);
+    border: 2px solid var(--color-gray-200);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-lg);
+    transition: all var(--transition-base);
+    background: var(--color-gray-50);
 }
 
 .search-input:focus {
     outline: none;
-    border-color: var(--primary);
+    border-color: var(--color-primary-400);
     background: var(--white);
-    box-shadow: 0 0 0 3px rgba(247, 255, 11, 0.1);
+    box-shadow: 0 0 0 3px var(--color-primary-100);
 }
 
 .search-submit {
     position: absolute;
-    right: 5px;
-    top: 5px;
+    right: var(--space-1);
+    top: var(--space-1);
     width: 40px;
     height: 40px;
-    background: var(--primary);
+    background: var(--color-primary-400);
     border: none;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--transition-base);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -168,31 +169,31 @@
 }
 
 .search-submit:hover {
-    background: var(--primary-dark);
+    background: var(--color-primary-500);
     transform: scale(1.05);
 }
 
 .search-close {
     position: absolute;
-    top: -10px;
-    right: -10px;
+    top: calc(var(--space-2) * -1);
+    right: calc(var(--space-2) * -1);
     width: 30px;
     height: 30px;
-    background: var(--accent);
+    background: var(--color-accent-400);
     color: var(--white);
     border: none;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--transition-base);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     will-change: transform;
 }
 
 .search-close:hover {
-    background: var(--black);
+    background: var(--color-gray-900);
     transform: scale(1.1);
 }
 
@@ -205,7 +206,7 @@
     /* height: functions.phpで管理 */
 
     .site-branding {
-        gap: 0.5rem;
+        gap: var(--space-2);
     }
 
     .logo-image {
@@ -213,7 +214,7 @@
     }
 
     .site-title {
-        font-size: 1.2rem;
+        font-size: var(--font-size-xl);
     }
 
     .site-tagline {
@@ -232,28 +233,28 @@
 /* 古い重複定義は削除 - 下の統一定義を使用 */
 
 .breadcrumb-container {
-    max-width: 1200px;
+    max-width: var(--container-xl);
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 var(--space-8);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 0.9rem;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
 }
 
 /* モバイルでの調整 */
 @media (max-width: 768px) {
     .breadcrumb-container {
-        padding: 0 1rem;
-        font-size: 0.85rem;
+        padding: 0 var(--space-4);
+        font-size: var(--font-size-xs);
     }
 }
 
 .breadcrumb-home {
     color: #007acc !important;
     text-decoration: none !important;
-    font-weight: 600 !important;
-    transition: color 0.3s ease !important;
+    font-weight: var(--font-semibold) !important;
+    transition: color var(--transition-base) !important;
 }
 
 .breadcrumb-home:hover {
@@ -261,11 +262,11 @@
 }
 
 .breadcrumb-separator {
-    color: #666 !important;
-    margin: 0 0.25rem !important;
+    color: var(--color-gray-600) !important;
+    margin: 0 var(--space-1) !important;
 }
 
 .breadcrumb-current {
-    color: #333 !important;
-    font-weight: 500 !important;
+    color: var(--color-gray-900) !important;
+    font-weight: var(--font-medium) !important;
 }
