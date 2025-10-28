@@ -1752,12 +1752,15 @@ get_header(); ?>
                             <?php 
                             // アイキャッチ画像をまず確認
                             if (has_post_thumbnail()) : ?>
-                                <?php the_post_thumbnail('large', array('alt' => get_the_title())); ?>
+                                <?php the_post_thumbnail('large', array(
+                                    'alt' => get_the_title(),
+                                    'loading' => 'eager' // 最新エピソードは即座に読み込み
+                                )); ?>
                             <?php else : 
                                 // アイキャッチ画像がない場合、エピソードのメタデータから画像URLを取得を試行
                                 $episode_image_url = get_post_meta(get_the_ID(), 'episode_image_url', true);
                                 if ($episode_image_url) : ?>
-                                    <img src="<?php echo esc_url($episode_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" style="width: 100%; height: auto; border-radius: 20px;">
+                                    <img src="<?php echo esc_url($episode_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="eager" style="width: 100%; height: auto; border-radius: 20px;">
                                 <?php else : ?>
                                     <div class="featured-episode-default-thumbnail">🎙️</div>
                                 <?php endif; ?>
@@ -2199,12 +2202,15 @@ get_header(); ?>
                             <?php 
                             // アイキャッチ画像をまず確認
                             if (has_post_thumbnail()) : ?>
-                                <?php the_post_thumbnail('medium', array('alt' => get_the_title())); ?>
+                                <?php the_post_thumbnail('medium', array(
+                                    'alt' => get_the_title(),
+                                    'loading' => 'lazy' // 遅延読み込み
+                                )); ?>
                             <?php else : 
                                 // アイキャッチ画像がない場合、エピソードのメタデータから画像URLを取得を試行
                                 $episode_image_url = get_post_meta(get_the_ID(), 'episode_image_url', true);
                                 if ($episode_image_url) : ?>
-                                    <img src="<?php echo esc_url($episode_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" style="width: 100%; height: 200px; object-fit: cover;">
+                                    <img src="<?php echo esc_url($episode_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy" style="width: 100%; height: 200px; object-fit: cover;">
                                 <?php else : ?>
                                     <div class="episode-default-thumbnail">🎙️</div>
                                 <?php endif; ?>

@@ -1426,3 +1426,18 @@ function contentfreaks_get_latest_blog($limit = 5) {
         'order' => 'DESC'
     ));
 }
+
+/**
+ * 画像のLazy Loading最適化
+ * WordPress 5.5以降でネイティブサポート
+ */
+add_filter('wp_lazy_loading_enabled', '__return_true');
+
+// the_post_thumbnail()のデフォルト属性にloading="lazy"を追加
+add_filter('wp_get_attachment_image_attributes', function($attr, $attachment, $size) {
+    // 既にloading属性が設定されている場合はそのまま
+    if (!isset($attr['loading'])) {
+        $attr['loading'] = 'lazy';
+    }
+    return $attr;
+}, 10, 3);

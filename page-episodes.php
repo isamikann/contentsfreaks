@@ -1233,7 +1233,10 @@ body {
                         <div class="episode-thumbnail">
                             <?php if (has_post_thumbnail()) : ?>
                                 <a href="<?php the_permalink(); ?>">
-                                    <?php the_post_thumbnail('medium', array('alt' => get_the_title())); ?>
+                                    <?php the_post_thumbnail('medium', array(
+                                        'alt' => get_the_title(),
+                                        'loading' => 'lazy'
+                                    )); ?>
                                 </a>
                             <?php else : ?>
                                 <a href="<?php the_permalink(); ?>">

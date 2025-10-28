@@ -24,7 +24,10 @@ get_header(); ?>
                 <div class="episode-header-content">
                     <div class="episode-featured-image">
                         <?php if (has_post_thumbnail()) : ?>
-                            <?php the_post_thumbnail('large', array('alt' => get_the_title())); ?>
+                            <?php the_post_thumbnail('large', array(
+                                'alt' => get_the_title(),
+                                'loading' => 'eager' // メイン画像は即座に読み込み
+                            )); ?>
                         <?php else : ?>
                             <div class="default-episode-image">
                                 <div style="background: linear-gradient(135deg, #f7ff0b, #ff6b35); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 4rem; border-radius: 15px;">🎙️</div>
@@ -105,7 +108,10 @@ get_header(); ?>
                             <div class="related-episode-thumbnail">
                                 <?php if (has_post_thumbnail()) : ?>
                                     <a href="<?php the_permalink(); ?>">
-                                        <?php the_post_thumbnail('medium', array('alt' => get_the_title())); ?>
+                                        <?php the_post_thumbnail('medium', array(
+                                            'alt' => get_the_title(),
+                                            'loading' => 'lazy' // 関連記事は遅延読み込み
+                                        )); ?>
                                     </a>
                                 <?php else : ?>
                                     <a href="<?php the_permalink(); ?>">
