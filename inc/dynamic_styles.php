@@ -104,15 +104,15 @@ function contentfreaks_force_header_styles() {
     }
     
     /* ページコンテンツ位置調整 - 動的計算 */
-    /* フロントページ（ブレッドクラムなし）を先に定義 */
+    /* フロントページ（ヒーローセクションがヘッダー直下に配置されるため margin-top不要） */
     body.home .site-main,
     body.front-page .site-main,
     body.home main.site-main,
     body.front-page main.site-main {
-        margin-top: <?php echo $header_height_desktop + $header_border; ?>px !important;
+        margin-top: 0 !important; /* フロントページはヒーローが固定ヘッダー下に配置 */
     }
     
-    /* 一般ページ（ブレッドクラムあり）- より詳細度の高いセレクター */
+    /* 一般ページ（ブレッドクラムなし、ヘッダー分の余白が必要） */
     body:not(.home):not(.front-page) .site-main,
     body:not(.home):not(.front-page) main.site-main {
         margin-top: <?php echo $header_height_desktop + $header_border; ?>px !important;
@@ -120,15 +120,15 @@ function contentfreaks_force_header_styles() {
     
     <?php if (is_admin_bar_showing()): ?>
     /* Admin Bar表示時のみ適用 */
-    /* フロントページ優先 */
+    /* フロントページ（Admin Bar分のみ追加） */
     body.admin-bar.home .site-main,
     body.admin-bar.front-page .site-main,
     body.admin-bar.home main.site-main,
     body.admin-bar.front-page main.site-main {
-        margin-top: <?php echo $admin_bar_desktop + $header_height_desktop + $header_border; ?>px !important;
+        margin-top: 0 !important; /* Admin Bar表示時もヒーローは固定ヘッダー下 */
     }
     
-    /* 一般ページ */
+    /* 一般ページ（Admin Bar + ヘッダー） */
     body.admin-bar:not(.home):not(.front-page) .site-main,
     body.admin-bar:not(.home):not(.front-page) main.site-main {
         margin-top: <?php echo $admin_bar_desktop + $header_height_desktop + $header_border; ?>px !important;
@@ -185,15 +185,15 @@ function contentfreaks_force_header_styles() {
         }
         
         /* モバイル版ページコンテンツ位置調整 */
-        /* フロントページ優先 */
+        /* フロントページ（ヒーローセクションがヘッダー直下） */
         body.home .site-main,
         body.front-page .site-main,
         body.home main.site-main,
         body.front-page main.site-main {
-            margin-top: <?php echo $header_height_mobile + $header_border; ?>px !important;
+            margin-top: 0 !important; /* モバイルでもヒーローは固定ヘッダー下 */
         }
         
-        /* 一般ページ */
+        /* 一般ページ（ヘッダー分の余白が必要） */
         body:not(.home):not(.front-page) .site-main,
         body:not(.home):not(.front-page) main.site-main {
             margin-top: <?php echo $header_height_mobile + $header_border; ?>px !important;
@@ -201,12 +201,12 @@ function contentfreaks_force_header_styles() {
         
         <?php if (is_admin_bar_showing()): ?>
         /* Admin Bar表示時のみ - モバイル */
-        /* フロントページ優先 */
+        /* フロントページ */
         body.admin-bar.home .site-main,
         body.admin-bar.front-page .site-main,
         body.admin-bar.home main.site-main,
         body.admin-bar.front-page main.site-main {
-            margin-top: <?php echo $admin_bar_mobile + $header_height_mobile + $header_border; ?>px !important;
+            margin-top: 0 !important; /* Admin Bar表示時もヒーローは固定ヘッダー下 */
         }
         
         /* 一般ページ */
