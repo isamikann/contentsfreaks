@@ -355,6 +355,265 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     margin: 0;
 }
 
+/* ===== Growth Graph Section ===== */
+.growth-graph-section {
+    padding: 6rem 2rem;
+    background: linear-gradient(180deg, var(--history-gray-100), var(--history-light));
+}
+
+.growth-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.growth-chart {
+    display: flex;
+    gap: 2rem;
+    margin-top: 3rem;
+    background: var(--history-light);
+    border-radius: 24px;
+    padding: 3rem 2rem;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+}
+
+.chart-y-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-right: 1rem;
+    border-right: 2px solid rgba(0,0,0,0.1);
+}
+
+.y-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--history-gray-700);
+}
+
+.chart-area {
+    flex: 1;
+    position: relative;
+    height: 400px;
+}
+
+.chart-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.grid-line {
+    width: 100%;
+    height: 1px;
+    background: rgba(0,0,0,0.05);
+}
+
+.chart-line {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.growth-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: drawLine 2s ease-out forwards;
+    animation-delay: 0.5s;
+}
+
+@keyframes drawLine {
+    to {
+        opacity: 1;
+    }
+}
+
+.growth-line polyline {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: dash 2.5s ease-out forwards;
+    animation-delay: 0.5s;
+}
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+.data-point {
+    position: absolute;
+    transform: translate(-50%, 50%);
+}
+
+.point-marker {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--history-primary);
+    border: 3px solid var(--history-light);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    z-index: 2;
+}
+
+.point-marker:hover {
+    transform: scale(1.3);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.point-marker.start {
+    background: #10b981;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.point-marker.milestone-marker {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--history-yellow), var(--history-orange));
+    box-shadow: 0 4px 16px rgba(247, 255, 11, 0.5);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 4px 16px rgba(247, 255, 11, 0.5);
+    }
+    50% {
+        box-shadow: 0 6px 24px rgba(247, 255, 11, 0.8);
+        transform: scale(1.1);
+    }
+}
+
+.point-marker.current-marker {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--history-primary), var(--history-accent));
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.6);
+    animation: currentPulse 2s ease-in-out infinite;
+}
+
+@keyframes currentPulse {
+    0%, 100% {
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.6);
+    }
+    50% {
+        box-shadow: 0 6px 24px rgba(102, 126, 234, 0.9);
+        transform: scale(1.15);
+    }
+}
+
+.point-label {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 1rem;
+    text-align: center;
+    white-space: nowrap;
+    opacity: 0;
+    animation: fadeInLabel 0.6s ease forwards;
+}
+
+.data-point:hover .point-label {
+    opacity: 1 !important;
+}
+
+@keyframes fadeInLabel {
+    to {
+        opacity: 0.7;
+    }
+}
+
+.point-value {
+    display: block;
+    font-size: 1.125rem;
+    font-weight: 900;
+    color: var(--history-primary);
+    margin-bottom: 0.25rem;
+}
+
+.point-date {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--history-gray-700);
+}
+
+.milestone-badge {
+    display: block;
+    margin-top: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    background: linear-gradient(135deg, var(--history-yellow), var(--history-orange));
+    color: var(--history-dark);
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(247, 255, 11, 0.3);
+}
+
+.current-badge {
+    background: linear-gradient(135deg, var(--history-primary), var(--history-accent));
+    color: var(--history-light);
+}
+
+.data-point.milestone .point-label,
+.data-point.current .point-label {
+    opacity: 1;
+    animation: none;
+}
+
+/* Chart Legend */
+.chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.legend-marker {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--history-light);
+}
+
+.start-legend {
+    background: #10b981;
+}
+
+.milestone-legend {
+    background: linear-gradient(135deg, var(--history-yellow), var(--history-orange));
+}
+
+.current-legend {
+    background: linear-gradient(135deg, var(--history-primary), var(--history-accent));
+}
+
+.legend-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--history-gray-700);
+}
+
 /* ===== Platform Statistics Section ===== */
 .platform-stats-section {
     padding: 6rem 2rem;
@@ -497,6 +756,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 /* Responsive - Tablet */
 @media (max-width: 768px) {
     .artwork-evolution-section,
+    .growth-graph-section,
     .platform-stats-section {
         padding: 4rem 1.5rem;
     }
@@ -514,6 +774,35 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
         gap: 1.5rem;
     }
 
+    .growth-chart {
+        padding: 2rem 1rem;
+    }
+
+    .chart-area {
+        height: 300px;
+    }
+
+    .y-label {
+        font-size: 0.75rem;
+    }
+
+    .point-label {
+        font-size: 0.875rem;
+    }
+
+    .point-value {
+        font-size: 1rem;
+    }
+
+    .point-date {
+        font-size: 0.7rem;
+    }
+
+    .milestone-badge {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.6rem;
+    }
+
     .platform-stats {
         padding: 2rem;
     }
@@ -522,6 +811,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 /* Responsive - Mobile */
 @media (max-width: 480px) {
     .artwork-evolution-section,
+    .growth-graph-section,
     .platform-stats-section {
         padding: 3rem 1rem;
     }
@@ -532,6 +822,64 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 
     .artwork-timeline {
         grid-template-columns: 1fr;
+    }
+
+    .growth-chart {
+        flex-direction: column;
+        padding: 1.5rem 1rem;
+    }
+
+    .chart-y-axis {
+        flex-direction: row;
+        justify-content: space-between;
+        padding-right: 0;
+        padding-bottom: 1rem;
+        border-right: none;
+        border-bottom: 2px solid rgba(0,0,0,0.1);
+    }
+
+    .chart-area {
+        height: 250px;
+    }
+
+    .y-label {
+        font-size: 0.7rem;
+    }
+
+    .point-marker {
+        width: 12px;
+        height: 12px;
+    }
+
+    .point-marker.milestone-marker,
+    .point-marker.current-marker {
+        width: 14px;
+        height: 14px;
+    }
+
+    .point-label {
+        margin-bottom: 0.75rem;
+    }
+
+    .point-value {
+        font-size: 0.875rem;
+    }
+
+    .point-date {
+        font-size: 0.65rem;
+    }
+
+    .milestone-badge {
+        font-size: 0.6rem;
+        padding: 0.15rem 0.5rem;
+    }
+
+    .chart-legend {
+        gap: 1rem;
+    }
+
+    .legend-text {
+        font-size: 0.75rem;
     }
 
     .platform-stats {

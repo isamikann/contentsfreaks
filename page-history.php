@@ -903,6 +903,162 @@ get_header(); ?>
         </div>
     </section>
 
+    <!-- フォロワー成長グラフ -->
+    <section class="growth-graph-section">
+        <div class="growth-container">
+            <div class="section-header">
+                <h2 class="section-title">Growth Timeline</h2>
+                <p class="section-subtitle">フォロワー数の成長推移</p>
+            </div>
+            
+            <div class="growth-chart">
+                <!-- Y軸ラベル -->
+                <div class="chart-y-axis">
+                    <span class="y-label">1500</span>
+                    <span class="y-label">1200</span>
+                    <span class="y-label">900</span>
+                    <span class="y-label">600</span>
+                    <span class="y-label">300</span>
+                    <span class="y-label">0</span>
+                </div>
+                
+                <!-- グラフエリア -->
+                <div class="chart-area">
+                    <!-- グリッド線 -->
+                    <div class="chart-grid">
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                        <div class="grid-line"></div>
+                    </div>
+                    
+                    <!-- データポイント -->
+                    <div class="chart-line">
+                        <!-- 2023年6月 - 開始 -->
+                        <div class="data-point" style="left: 0%; bottom: 0%;" data-aos="zoom-in" data-aos-delay="0">
+                            <div class="point-marker start"></div>
+                            <div class="point-label">
+                                <span class="point-value">0</span>
+                                <span class="point-date">2023.06</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 2023年10月 - リニューアル -->
+                        <div class="data-point" style="left: 14%; bottom: 6.7%;" data-aos="zoom-in" data-aos-delay="100">
+                            <div class="point-marker"></div>
+                            <div class="point-label">
+                                <span class="point-value">100</span>
+                                <span class="point-date">2023.10</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 2024年3月 - 50回記念 -->
+                        <div class="data-point" style="left: 30%; bottom: 13.3%;" data-aos="zoom-in" data-aos-delay="200">
+                            <div class="point-marker"></div>
+                            <div class="point-label">
+                                <span class="point-value">200</span>
+                                <span class="point-date">2024.03</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 2024年7月 - Spotify 100突破 -->
+                        <div class="data-point milestone" style="left: 44%; bottom: 26.7%;" data-aos="zoom-in" data-aos-delay="300">
+                            <div class="point-marker milestone-marker"></div>
+                            <div class="point-label">
+                                <span class="point-value">400</span>
+                                <span class="point-date">2024.07</span>
+                                <span class="milestone-badge">Spotify 100</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 2024年9月 - ショート動画開始 -->
+                        <div class="data-point" style="left: 52%; bottom: 40%;" data-aos="zoom-in" data-aos-delay="400">
+                            <div class="point-marker"></div>
+                            <div class="point-label">
+                                <span class="point-value">600</span>
+                                <span class="point-date">2024.09</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 2024年11月 - 急成長 -->
+                        <div class="data-point" style="left: 60%; bottom: 53.3%;" data-aos="zoom-in" data-aos-delay="500">
+                            <div class="point-marker"></div>
+                            <div class="point-label">
+                                <span class="point-value">800</span>
+                                <span class="point-date">2024.11</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 2025年1月 - 1000人突破 -->
+                        <div class="data-point milestone" style="left: 68%; bottom: 66.7%;" data-aos="zoom-in" data-aos-delay="600">
+                            <div class="point-marker milestone-marker"></div>
+                            <div class="point-label">
+                                <span class="point-value">1000</span>
+                                <span class="point-date">2025.01</span>
+                                <span class="milestone-badge">1000突破</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 2025年5月 - さらに成長 -->
+                        <div class="data-point" style="left: 82%; bottom: 80%;" data-aos="zoom-in" data-aos-delay="700">
+                            <div class="point-marker"></div>
+                            <div class="point-label">
+                                <span class="point-value">1200</span>
+                                <span class="point-date">2025.05</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 2025年10月 - 現在 -->
+                        <div class="data-point current" style="left: 100%; bottom: 100%;" data-aos="zoom-in" data-aos-delay="800">
+                            <div class="point-marker current-marker"></div>
+                            <div class="point-label">
+                                <span class="point-value">1500+</span>
+                                <span class="point-date">2025.10</span>
+                                <span class="milestone-badge current-badge">現在</span>
+                            </div>
+                        </div>
+                        
+                        <!-- 成長ライン（SVG風CSS） -->
+                        <svg class="growth-line" viewBox="0 0 100 100" preserveAspectRatio="none">
+                            <polyline
+                                points="0,100 14,93.3 30,86.7 44,73.3 52,60 60,46.7 68,33.3 82,20 100,0"
+                                fill="none"
+                                stroke="url(#gradient)"
+                                stroke-width="3"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            />
+                            <defs>
+                                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#764ba2;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#f093fb;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 凡例 -->
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-marker start-legend"></div>
+                    <span class="legend-text">番組開始</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker milestone-legend"></div>
+                    <span class="legend-text">マイルストーン</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-marker current-legend"></div>
+                    <span class="legend-text">現在</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- プラットフォーム別フォロワー数 -->
     <section class="platform-stats-section">
         <div class="platform-container">
