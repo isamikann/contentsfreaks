@@ -935,7 +935,7 @@ get_header(); ?>
                 <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
                     <div class="stat-icon">👥</div>
                     <div class="stat-content">
-                        <div class="stat-value">1,500+</div>
+                        <div class="stat-value"><?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>+</div>
                         <div class="stat-label">総フォロワー数</div>
                         <div class="stat-sublabel">Followers</div>
                     </div>
@@ -998,119 +998,6 @@ get_header(); ?>
                         <div class="bar-container">
                             <div class="bar-fill apple-bar" style="width: 40%"></div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 人気エピソードランキング -->
-    <section class="popular-episodes-section">
-        <div class="episodes-container">
-            <div class="section-header">
-                <h2 class="section-title">Hall of Fame</h2>
-                <p class="section-subtitle">リスナーに最も愛された殿堂入りエピソード</p>
-            </div>
-            
-            <div class="episodes-ranking">
-                <!-- 1位 -->
-                <div class="episode-rank-card rank-1" data-aos="zoom-in">
-                    <div class="rank-badge gold">
-                        <span class="rank-number">1</span>
-                        <span class="rank-icon">👑</span>
-                    </div>
-                    <div class="episode-content">
-                        <h3 class="episode-title">#20 アニメ『葬送のフリーレン』は何が凄かったのか？</h3>
-                        <p class="episode-meta">
-                            <span class="episode-date">2023年10月</span>
-                            <span class="episode-separator">•</span>
-                            <span class="episode-views">🔥 最多再生</span>
-                        </p>
-                        <p class="episode-description">番組の転機となった記念すべきエピソード。フリーレンの魅力を熱く語り、多くのリスナーの共感を得た。</p>
-                        <a href="https://open.spotify.com/episode/44KqaSVB1BSEtZm3cYMwLP?si=WeGYuKVrRZygWA9rowc8bg" class="episode-link" target="_blank">
-                            <span class="link-icon">▶</span>
-                            エピソードを聴く
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- 2位 -->
-                <div class="episode-rank-card rank-2" data-aos="fade-up">
-                    <div class="rank-badge silver">
-                        <span class="rank-number">2</span>
-                    </div>
-                    <div class="episode-content">
-                        <h3 class="episode-title">#85 ドラマ『海のはじまり』最終回感想</h3>
-                        <p class="episode-meta">
-                            <span class="episode-date">2024年9月</span>
-                            <span class="episode-separator">•</span>
-                            <span class="episode-views">📺 YouTube 1.5万回再生</span>
-                        </p>
-                        <p class="episode-description">目黒蓮主演の感動作を語り尽くす。YouTube版がバズり、番組成長の大きな転機に。</p>
-                        <a href="#" class="episode-link" target="_blank">
-                            <span class="link-icon">▶</span>
-                            エピソードを聴く
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- 3位 -->
-                <div class="episode-rank-card rank-3" data-aos="fade-up" data-aos-delay="100">
-                    <div class="rank-badge bronze">
-                        <span class="rank-number">3</span>
-                    </div>
-                    <div class="episode-content">
-                        <h3 class="episode-title">#4 アニメ『推しの子』は何が凄かったのか？</h3>
-                        <p class="episode-meta">
-                            <span class="episode-date">2023年7月</span>
-                            <span class="episode-separator">•</span>
-                            <span class="episode-views">💡 初のコンテンツ回</span>
-                        </p>
-                        <p class="episode-description">番組の方向性を決定づけた初のコンテンツ回。「推しの子」の魅力を徹底分析。</p>
-                        <a href="https://open.spotify.com/episode/1Jz9gurZNUnVGoN8suwWiN?si=r1jmQN8QT--sSQR2Ox9Mdg" class="episode-link" target="_blank">
-                            <span class="link-icon">▶</span>
-                            エピソードを聴く
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- 4位 -->
-                <div class="episode-rank-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="rank-badge">
-                        <span class="rank-number">4</span>
-                    </div>
-                    <div class="episode-content">
-                        <h3 class="episode-title">#30 Netflix『PLUTO』完結感想</h3>
-                        <p class="episode-meta">
-                            <span class="episode-date">2023年12月</span>
-                            <span class="episode-separator">•</span>
-                            <span class="episode-views">🏆 2023年大賞作品</span>
-                        </p>
-                        <p class="episode-description">2023年コンテンツフリークス大賞受賞作品。深い考察と熱い語りが詰まった名回。</p>
-                        <a href="#" class="episode-link" target="_blank">
-                            <span class="link-icon">▶</span>
-                            エピソードを聴く
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- 5位 -->
-                <div class="episode-rank-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="rank-badge">
-                        <span class="rank-number">5</span>
-                    </div>
-                    <div class="episode-content">
-                        <h3 class="episode-title">#72 劇場版『名探偵コナン』完結感想 feat. はち</h3>
-                        <p class="episode-meta">
-                            <span class="episode-date">2024年5月</span>
-                            <span class="episode-separator">•</span>
-                            <span class="episode-views">🎙️ コラボ回</span>
-                        </p>
-                        <p class="episode-description">「ひよっこ研究者のさばいばる日記」のはちさんとのコラボ。コナン愛が炸裂した楽しい回。</p>
-                        <a href="https://open.spotify.com/episode/5NX4d5OYHQ7bh0VlNT42wj?si=BbHpDgGvTiqBl6xmkErO2Q" class="episode-link" target="_blank">
-                            <span class="link-icon">▶</span>
-                            エピソードを聴く
-                        </a>
                     </div>
                 </div>
             </div>
