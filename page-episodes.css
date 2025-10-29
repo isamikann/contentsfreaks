@@ -687,7 +687,7 @@ body {
 /* タブレット（768px-1023px） */
 @media (min-width: 768px) and (max-width: 1023px) {
     .episodes-hero {
-        padding: 1.5rem 0 2.5rem 0;
+        padding: 0 0 2.5rem 0;
     }
     
     .episodes-hero-icon {
