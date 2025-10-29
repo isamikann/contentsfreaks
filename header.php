@@ -1018,13 +1018,13 @@
                     </li>
                 </ul>
             </div>
-        </nav>
+        </div>
         
         <div class="menu-footer">
             <p class="copyright-text">© 2025 ContentFreaks</p>
         </div>
     </div>
-</div>
+</nav>
 
 <?php
 /**
