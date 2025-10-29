@@ -753,7 +753,7 @@
         }
         
         body.home .podcast-hero {
-            padding-top: 65px;
+            padding-top: 70px;
         }
     }
     </style>
