@@ -25,10 +25,6 @@ get_header(); ?>
                 </p>
                 <div class="journey-stats">
                     <div class="journey-stat">
-                        <span class="stat-value">2</span>
-                        <span class="stat-unit">年間</span>
-                    </div>
-                    <div class="journey-stat">
                         <span class="stat-value"><?php 
                             $episode_count = get_posts(array(
                                 'meta_key' => 'is_podcast_episode',
@@ -37,12 +33,25 @@ get_header(); ?>
                                 'numberposts' => -1
                             ));
                             echo count($episode_count);
-                        ?></span>
+                        ?>+</span>
                         <span class="stat-unit">エピソード</span>
                     </div>
                     <div class="journey-stat">
+                        <span class="stat-value">200+</span>
+                        <span class="stat-unit">配信時間</span>
+                    </div>
+                    <div class="journey-stat">
                         <span class="stat-value"><?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>+</span>
-                        <span class="stat-unit">リスナー</span>
+                        <span class="stat-unit">フォロワー</span>
+                    </div>
+                    <div class="journey-stat">
+                        <span class="stat-value"><?php 
+                            $start_date = new DateTime('2023-06-01');
+                            $current_date = new DateTime();
+                            $interval = $start_date->diff($current_date);
+                            echo $interval->days;
+                        ?>+</span>
+                        <span class="stat-unit">継続日数</span>
                     </div>
                 </div>
             </div>
@@ -888,143 +897,6 @@ get_header(); ?>
                         <h3 class="artwork-title">コンテンツフリークス 3rd</h3>
                         <p class="artwork-period">2025年3月〜現在</p>
                         <p class="artwork-description">150回＆総フォロワー1000人突破記念。現在の理想を体現した最新デザイン。</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 成長統計ダッシュボード -->
-    <section class="stats-dashboard-section">
-        <div class="dashboard-container">
-            <div class="section-header">
-                <h2 class="section-title">Growth Statistics</h2>
-                <p class="section-subtitle">数字で見るコンテンツフリークスの成長</p>
-            </div>
-            
-            <div class="stats-grid">
-                <!-- 総エピソード数 -->
-                <div class="stat-card" data-aos="fade-up">
-                    <div class="stat-icon">🎙️</div>
-                    <div class="stat-content">
-                        <div class="stat-value"><?php 
-                            $episode_count = get_posts(array(
-                                'meta_key' => 'is_podcast_episode',
-                                'meta_value' => '1',
-                                'post_status' => 'publish',
-                                'numberposts' => -1
-                            ));
-                            echo count($episode_count);
-                        ?>+</div>
-                        <div class="stat-label">総エピソード数</div>
-                        <div class="stat-sublabel">Episodes</div>
-                    </div>
-                </div>
-                
-                <!-- 総配信時間 -->
-                <div class="stat-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="stat-icon">⏱️</div>
-                    <div class="stat-content">
-                        <div class="stat-value">200+</div>
-                        <div class="stat-label">総配信時間</div>
-                        <div class="stat-sublabel">Hours</div>
-                    </div>
-                </div>
-                
-                <!-- 総フォロワー数 -->
-                <div class="stat-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="stat-icon">👥</div>
-                    <div class="stat-content">
-                        <div class="stat-value"><?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>+</div>
-                        <div class="stat-label">総フォロワー数</div>
-                        <div class="stat-sublabel">Followers</div>
-                    </div>
-                </div>
-                
-                <!-- 配信開始からの日数 -->
-                <div class="stat-card" data-aos="fade-up" data-aos-delay="300">
-                    <div class="stat-icon">📅</div>
-                    <div class="stat-content">
-                        <div class="stat-value"><?php 
-                            $start_date = new DateTime('2023-06-01');
-                            $current_date = new DateTime();
-                            $interval = $start_date->diff($current_date);
-                            echo $interval->days;
-                        ?>+</div>
-                        <div class="stat-label">配信継続日数</div>
-                        <div class="stat-sublabel">Days</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- プラットフォーム別フォロワー数 -->
-            <div class="platform-stats">
-                <h3 class="platform-stats-title">プラットフォーム別フォロワー数</h3>
-                <div class="platform-bars">
-                    <div class="platform-bar" data-aos="fade-right">
-                        <div class="platform-info">
-                            <span class="platform-name">
-                                <span class="platform-icon-small spotify">
-                                    <?php
-                                    $spotify_icon = get_theme_mod('spotify_icon');
-                                    if ($spotify_icon) {
-                                        echo '<img src="' . esc_url($spotify_icon) . '" alt="Spotify" class="platform-icon-image">';
-                                    } else {
-                                        echo 'S';
-                                    }
-                                    ?>
-                                </span>
-                                Spotify
-                            </span>
-                            <span class="platform-count">300+</span>
-                        </div>
-                        <div class="bar-container">
-                            <div class="bar-fill spotify-bar" style="width: 60%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="platform-bar" data-aos="fade-right" data-aos-delay="100">
-                        <div class="platform-info">
-                            <span class="platform-name">
-                                <span class="platform-icon-small youtube">
-                                    <?php
-                                    $youtube_icon = get_theme_mod('youtube_icon');
-                                    if ($youtube_icon) {
-                                        echo '<img src="' . esc_url($youtube_icon) . '" alt="YouTube" class="platform-icon-image">';
-                                    } else {
-                                        echo '▶';
-                                    }
-                                    ?>
-                                </span>
-                                YouTube
-                            </span>
-                            <span class="platform-count">1,000+</span>
-                        </div>
-                        <div class="bar-container">
-                            <div class="bar-fill youtube-bar" style="width: 100%"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="platform-bar" data-aos="fade-right" data-aos-delay="200">
-                        <div class="platform-info">
-                            <span class="platform-name">
-                                <span class="platform-icon-small apple">
-                                    <?php
-                                    $apple_icon = get_theme_mod('apple_podcasts_icon');
-                                    if ($apple_icon) {
-                                        echo '<img src="' . esc_url($apple_icon) . '" alt="Apple Podcasts" class="platform-icon-image">';
-                                    } else {
-                                        echo '🍎';
-                                    }
-                                    ?>
-                                </span>
-                                Apple Podcasts
-                            </span>
-                            <span class="platform-count">200+</span>
-                        </div>
-                        <div class="bar-container">
-                            <div class="bar-fill apple-bar" style="width: 40%"></div>
-                        </div>
                     </div>
                 </div>
             </div>
