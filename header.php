@@ -726,7 +726,7 @@
     /* フロントページのヒーローセクションをヘッダーと重ねる */
     body.home .podcast-hero {
         margin-top: 0;
-        padding-top: 70px; /* ヘッダーの高さ分の内部パディング */
+        padding-top: 90px; /* ヘッダーの高さ分の内部パディング */
     }
 
     @media (max-width: 768px) {
@@ -739,7 +739,7 @@
         }
         
         body.home .podcast-hero {
-            padding-top: 60px;
+            padding-top: 90px;
         }
     }
 
@@ -753,7 +753,7 @@
         }
         
         body.home .podcast-hero {
-            padding-top: 70px;
+            padding-top: 90px;
         }
     }
     </style>
