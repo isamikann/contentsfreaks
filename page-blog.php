@@ -65,7 +65,7 @@ get_header(); ?>
             </div>
         </section>
 
-        <main class="main-content">
+        <div class="main-content">
 
             <div class="blog-filters">
                 <button class="blog-filter-btn active" data-filter="all">すべて</button>
@@ -159,7 +159,7 @@ get_header(); ?>
             </div>
             <?php endif; ?>
 
-        </main>
+        </div>
     </div>
 </main>
 
