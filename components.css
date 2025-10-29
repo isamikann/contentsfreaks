@@ -229,44 +229,4 @@
     }
 }
 
-/* ===== 全ページ共通：ブレッドクラムナビゲーション統一 ===== */
-/* 古い重複定義は削除 - 下の統一定義を使用 */
-
-.breadcrumb-container {
-    max-width: var(--container-xl);
-    margin: 0 auto;
-    padding: 0 var(--space-8);
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: var(--font-size-sm);
-}
-
-/* モバイルでの調整 */
-@media (max-width: 768px) {
-    .breadcrumb-container {
-        padding: 0 var(--space-4);
-        font-size: var(--font-size-xs);
-    }
-}
-
-.breadcrumb-home {
-    color: #007acc !important;
-    text-decoration: none !important;
-    font-weight: var(--font-semibold) !important;
-    transition: color var(--transition-base) !important;
-}
-
-.breadcrumb-home:hover {
-    color: #005a99 !important;
-}
-
-.breadcrumb-separator {
-    color: var(--color-gray-600) !important;
-    margin: 0 var(--space-1) !important;
-}
-
-.breadcrumb-current {
-    color: var(--color-gray-900) !important;
-    font-weight: var(--font-medium) !important;
-}
+/* ===== 他の共通コンポーネント ===== */

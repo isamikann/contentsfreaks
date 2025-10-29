@@ -6,15 +6,6 @@
 get_header(); ?>
 
 <main id="main" class="site-main history-page">
-    <!-- ブレッドクラムナビゲーション -->
-    <nav class="breadcrumb-nav">
-        <div class="breadcrumb-container">
-            <a href="/" class="breadcrumb-home">🏠 ホーム</a>
-            <span class="breadcrumb-separator">›</span>
-            <span class="breadcrumb-current">コンテンツフリークスの歩み</span>
-        </div>
-    </nav>
-
     <!-- 歴史ヒーローセクション -->
     <section class="history-hero">
         <div class="history-hero-bg">

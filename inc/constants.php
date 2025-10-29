@@ -13,7 +13,6 @@ define('CONTENTFREAKS_HEADER_HEIGHT_MOBILE', 55);   // モバイルヘッダー�
 
 // その他のレイアウト要素
 define('CONTENTFREAKS_HEADER_BORDER', 3);           // ヘッダーボーダー高さ (px)
-define('CONTENTFREAKS_BREADCRUMB_HEIGHT', 40);      // ブレッドクラム高さ (px)
 
 // Admin Bar高さ
 define('CONTENTFREAKS_ADMIN_BAR_DESKTOP', 32);      // デスクトップAdmin Bar高さ (px)

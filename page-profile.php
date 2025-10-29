@@ -6,15 +6,6 @@
 get_header(); ?>
 
 <main id="main" class="site-main profile-page">
-    <!-- ブレッドクラムナビゲーション -->
-    <nav class="breadcrumb-nav">
-        <div class="breadcrumb-container">
-            <a href="/" class="breadcrumb-home">🏠 ホーム</a>
-            <span class="breadcrumb-separator">›</span>
-            <span class="breadcrumb-current">プロフィール</span>
-        </div>
-    </nav>
-
     <!-- プロフィールヒーローセクション -->
     <section class="profile-hero">
         <div class="profile-hero-bg">

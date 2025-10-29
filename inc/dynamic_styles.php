@@ -19,7 +19,6 @@ function contentfreaks_force_header_styles() {
     $header_height_tablet = defined('CONTENTFREAKS_HEADER_HEIGHT_TABLET') ? CONTENTFREAKS_HEADER_HEIGHT_TABLET : 60;
     $header_height_mobile = CONTENTFREAKS_HEADER_HEIGHT_MOBILE;
     $header_border = CONTENTFREAKS_HEADER_BORDER;
-    $breadcrumb_height = CONTENTFREAKS_BREADCRUMB_HEIGHT;
     $admin_bar_desktop = CONTENTFREAKS_ADMIN_BAR_DESKTOP;
     $admin_bar_mobile = CONTENTFREAKS_ADMIN_BAR_MOBILE;
     $icon_size_desktop = CONTENTFREAKS_ICON_SIZE_DESKTOP;
@@ -276,11 +275,11 @@ function contentfreaks_force_header_styles() {
     
     /* デスクトップ版スライドメニューの位置調整 - 動的計算 */
     .slide-menu {
-        top: <?php echo $header_height_desktop + $header_border + $breadcrumb_height; ?>px !important;
-        height: calc(100% - <?php echo $header_height_desktop + $header_border + $breadcrumb_height; ?>px) !important;
+        top: <?php echo $header_height_desktop + $header_border; ?>px !important;
+        height: calc(100% - <?php echo $header_height_desktop + $header_border; ?>px) !important;
     }
     
-    /* フロントページ（ブレッドクラムなし）のデスクトップスライドメニュー */
+    /* フロントページのデスクトップスライドメニュー */
     body.home .slide-menu,
     body.front-page .slide-menu,
     body.page-template-front-page .slide-menu {
@@ -291,8 +290,8 @@ function contentfreaks_force_header_styles() {
     <?php if (is_admin_bar_showing()): ?>
     /* Admin Bar表示時のデスクトップスライドメニュー位置調整 */
     body.admin-bar .slide-menu {
-        top: <?php echo $admin_bar_desktop + $header_height_desktop + $header_border + $breadcrumb_height; ?>px !important;
-        height: calc(100% - <?php echo $admin_bar_desktop + $header_height_desktop + $header_border + $breadcrumb_height; ?>px) !important;
+        top: <?php echo $admin_bar_desktop + $header_height_desktop + $header_border; ?>px !important;
+        height: calc(100% - <?php echo $admin_bar_desktop + $header_height_desktop + $header_border; ?>px) !important;
     }
     
     body.admin-bar.home .slide-menu,
@@ -303,43 +302,15 @@ function contentfreaks_force_header_styles() {
     }
     <?php endif; ?>
     
-    /* Cocoonブレッドクラムの位置調整 */
-    .breadcrumb,
-    #breadcrumb,
-    .breadcrumb-list,
-    .breadcrumb-container,
-    .main > .breadcrumb,
-    .content > .breadcrumb {
-        position: relative !important;
-        top: 0 !important;
-        margin-top: <?php echo $header_height_desktop + $header_border; ?>px !important;
-        padding-top: 0.5rem !important;
-        padding-bottom: 0.5rem !important;
-        background: #f8f9fa !important;
-        border-bottom: 1px solid rgba(0,0,0,0.1) !important;
-        z-index: 10 !important;
-    }
-    
-    <?php if (is_admin_bar_showing()): ?>
-    /* Admin Bar表示時のブレッドクラム調整 */
-    .breadcrumb,
-    #breadcrumb,
-    .breadcrumb-list,
-    .breadcrumb-container,
-    .main > .breadcrumb,
-    .content > .breadcrumb {
-        margin-top: <?php echo $admin_bar_desktop + $header_height_desktop + $header_border; ?>px !important;
-    }
-    <?php endif; ?>
     
     /* モバイル版スライドメニューの位置調整（上書き） */
     @media (max-width: 768px) {
         .slide-menu {
-            top: <?php echo $header_height_mobile + $header_border + $breadcrumb_height; ?>px !important;
-            height: calc(100% - <?php echo $header_height_mobile + $header_border + $breadcrumb_height; ?>px) !important;
+            top: <?php echo $header_height_mobile + $header_border; ?>px !important;
+            height: calc(100% - <?php echo $header_height_mobile + $header_border; ?>px) !important;
         }
         
-        /* フロントページ（ブレッドクラムなし）のモバイルスライドメニュー */
+        /* フロントページのモバイルスライドメニュー */
         body.home .slide-menu,
         body.front-page .slide-menu,
         body.page-template-front-page .slide-menu {
@@ -350,8 +321,8 @@ function contentfreaks_force_header_styles() {
         <?php if (is_admin_bar_showing()): ?>
         /* Admin Bar表示時のモバイルスライドメニュー位置調整 */
         body.admin-bar .slide-menu {
-            top: <?php echo $admin_bar_mobile + $header_height_mobile + $header_border + $breadcrumb_height; ?>px !important;
-            height: calc(100% - <?php echo $admin_bar_mobile + $header_height_mobile + $header_border + $breadcrumb_height; ?>px) !important;
+            top: <?php echo $admin_bar_mobile + $header_height_mobile + $header_border; ?>px !important;
+            height: calc(100% - <?php echo $admin_bar_mobile + $header_height_mobile + $header_border; ?>px) !important;
         }
         
         body.admin-bar.home .slide-menu,
@@ -359,28 +330,6 @@ function contentfreaks_force_header_styles() {
         body.admin_bar.page-template-front-page .slide-menu {
             top: <?php echo $admin_bar_mobile + $header_height_mobile + $header_border; ?>px !important;
             height: calc(100% - <?php echo $admin_bar_mobile + $header_height_mobile + $header_border; ?>px) !important;
-        }
-        <?php endif; ?>
-        
-        /* モバイル版ブレッドクラム調整 */
-        .breadcrumb,
-        #breadcrumb,
-        .breadcrumb-list,
-        .breadcrumb-container,
-        .main > .breadcrumb,
-        .content > .breadcrumb {
-            margin-top: <?php echo $header_height_mobile + $header_border; ?>px !important;
-        }
-        
-        <?php if (is_admin_bar_showing()): ?>
-        /* Admin Bar表示時のモバイルブレッドクラム調整 */
-        .breadcrumb,
-        #breadcrumb,
-        .breadcrumb-list,
-        .breadcrumb-container,
-        .main > .breadcrumb,
-        .content > .breadcrumb {
-            margin-top: <?php echo $admin_bar_mobile + $header_height_mobile + $header_border; ?>px !important;
         }
         <?php endif; ?>
     }

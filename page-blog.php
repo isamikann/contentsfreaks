@@ -9,15 +9,6 @@ get_header(); ?>
 
 <main id="main" class="site-main contentfreaks-episodes-page">
     <div class="content-area">
-        <!-- パンくずナビゲーション -->
-        <nav class="breadcrumb-nav">
-            <div class="breadcrumb-container">
-                <a href="<?php echo home_url(); ?>" class="breadcrumb-home">🏠 ホーム</a>
-                <span class="breadcrumb-separator">/</span>
-                <span class="breadcrumb-current">ブログ記事</span>
-            </div>
-        </nav>
-
         <!-- ヒーローセクション -->
         <section class="blog-hero">
             <div class="blog-hero-bg">

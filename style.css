@@ -405,7 +405,6 @@ Version: 2.0.0
     /* ナビゲーション */
     --nav-primary: 1rem;
     --nav-secondary: 0.9rem;
-    --breadcrumb: 0.85rem;
 
     /* モバイル用フォントサイズ */
     --mobile-hero-title: clamp(1.8rem, 4vw, 2.5rem);
