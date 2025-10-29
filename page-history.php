@@ -1139,6 +1139,298 @@ get_header(); ?>
         </div>
     </section>
 
+    <!-- コラボレーション＆イベント履歴 -->
+    <section class="collab-events-section">
+        <div class="collab-container">
+            <div class="section-header">
+                <h2 class="section-title">Collaborations & Events</h2>
+                <p class="section-subtitle">コラボレーションとイベントの軌跡</p>
+            </div>
+            
+            <div class="content-grid">
+                <!-- コラボレーション -->
+                <div class="content-box" data-aos="fade-up">
+                    <div class="box-header">
+                        <span class="box-icon">🎙️</span>
+                        <h3 class="box-title">コラボレーション</h3>
+                    </div>
+                    <div class="collab-list">
+                        <div class="collab-item">
+                            <div class="collab-date">2024.04</div>
+                            <div class="collab-content">
+                                <h4 class="collab-title">平成男女のイドバタラジオ</h4>
+                                <p class="collab-desc">ゲスト: みな さん</p>
+                                <a href="https://open.spotify.com/episode/661RG21Jp2Rs7PFggQ4nXE" class="collab-link" target="_blank">エピソードを聴く →</a>
+                            </div>
+                        </div>
+                        <div class="collab-item">
+                            <div class="collab-date">2024.05</div>
+                            <div class="collab-content">
+                                <h4 class="collab-title">ひよっこ研究者のさばいばる日記</h4>
+                                <p class="collab-desc">ゲスト: はち さん</p>
+                                <a href="https://open.spotify.com/episode/5NX4d5OYHQ7bh0VlNT42wj" class="collab-link" target="_blank">エピソードを聴く →</a>
+                            </div>
+                        </div>
+                        <div class="collab-item">
+                            <div class="collab-date">2025.09</div>
+                            <div class="collab-content">
+                                <h4 class="collab-title">推し活2次元LIFEラジオ</h4>
+                                <p class="collab-desc">コラボ配信</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- イベント参加 -->
+                <div class="content-box" data-aos="fade-up" data-aos-delay="100">
+                    <div class="box-header">
+                        <span class="box-icon">🎉</span>
+                        <h3 class="box-title">イベント参加</h3>
+                    </div>
+                    <div class="event-list">
+                        <div class="event-item">
+                            <div class="event-badge">2023</div>
+                            <div class="event-content">
+                                <h4 class="event-title">科学系ポッドキャストの日</h4>
+                                <p class="event-desc">初参加・映画『私は確信する』回を配信</p>
+                            </div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-badge">2024</div>
+                            <div class="event-content">
+                                <h4 class="event-title">ポッドキャストシンポジウム</h4>
+                                <p class="event-desc">ポッドキャストコミュニティに参加</p>
+                            </div>
+                        </div>
+                        <div class="event-item">
+                            <div class="event-badge">2024</div>
+                            <div class="event-content">
+                                <h4 class="event-title">ポッドキャストウィークエンド</h4>
+                                <p class="event-desc">リアルイベントで交流</p>
+                            </div>
+                        </div>
+                        <div class="event-item featured">
+                            <div class="event-badge featured-badge">2025</div>
+                            <div class="event-content">
+                                <h4 class="event-title">ポッドキャストミキサー 名古屋</h4>
+                                <p class="event-desc">登壇！コンテンツクイズ企画を実施</p>
+                                <a href="https://content-freaks.jp/2025-2q-growth-podcast/" class="event-link" target="_blank">詳細記事を読む →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 年間アワード一覧 -->
+    <section class="awards-section">
+        <div class="awards-container">
+            <div class="section-header">
+                <h2 class="section-title">Annual Awards</h2>
+                <p class="section-subtitle">歴代コンテンツフリークス大賞</p>
+            </div>
+            
+            <div class="awards-grid">
+                <!-- 2023年 -->
+                <div class="award-year-card" data-aos="fade-up">
+                    <div class="award-year-header">
+                        <span class="award-year-badge">2023</span>
+                        <h3 class="award-year-title">第1回 コンテンツフリークス大賞</h3>
+                    </div>
+                    <div class="award-items">
+                        <div class="award-item grand-prize">
+                            <div class="award-icon">🏆</div>
+                            <div class="award-info">
+                                <span class="award-category">コンテンツフリークス大賞</span>
+                                <span class="award-winner">PLUTO</span>
+                            </div>
+                        </div>
+                        <div class="award-item">
+                            <div class="award-icon">🎖️</div>
+                            <div class="award-info">
+                                <span class="award-category">みっくん賞</span>
+                                <span class="award-winner">私は確信する</span>
+                            </div>
+                        </div>
+                        <div class="award-item">
+                            <div class="award-icon">🎖️</div>
+                            <div class="award-info">
+                                <span class="award-category">あっきー賞</span>
+                                <span class="award-winner">ゴジラ-1.0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="https://open.spotify.com/episode/3G1nDsYBljNCbUnA496aBp" class="award-episode-link" target="_blank">
+                        エピソードを聴く →
+                    </a>
+                </div>
+                
+                <!-- 2024年 -->
+                <div class="award-year-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="award-year-header">
+                        <span class="award-year-badge">2024</span>
+                        <h3 class="award-year-title">第2回 コンテンツフリークス大賞</h3>
+                    </div>
+                    <div class="award-items">
+                        <div class="award-item grand-prize">
+                            <div class="award-icon">🏆</div>
+                            <div class="award-info">
+                                <span class="award-category">コンテンツフリークス大賞</span>
+                                <span class="award-winner">アンメット</span>
+                            </div>
+                        </div>
+                        <div class="award-item">
+                            <div class="award-icon">📺</div>
+                            <div class="award-info">
+                                <span class="award-category">ドラマ賞</span>
+                                <span class="award-winner">海のはじまり</span>
+                            </div>
+                        </div>
+                        <div class="award-item">
+                            <div class="award-icon">⭐</div>
+                            <div class="award-info">
+                                <span class="award-category">ドラマキャスト大賞</span>
+                                <span class="award-winner">杉咲花</span>
+                            </div>
+                        </div>
+                        <div class="award-item">
+                            <div class="award-icon">🎬</div>
+                            <div class="award-info">
+                                <span class="award-category">アニメ賞</span>
+                                <span class="award-winner">葬送のフリーレン</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- リスナーの声 -->
+    <section class="testimonials-section">
+        <div class="testimonials-container">
+            <div class="section-header">
+                <h2 class="section-title">Listener's Voice</h2>
+                <p class="section-subtitle">リスナーからの温かいメッセージ</p>
+            </div>
+            
+            <div class="testimonials-grid">
+                <div class="testimonial-card" data-aos="fade-up">
+                    <div class="quote-icon">💬</div>
+                    <p class="testimonial-text">「コンテンツへの深い愛情と考察が素晴らしい！いつも楽しみにしています。」</p>
+                    <div class="testimonial-author">- リスナーAさん</div>
+                </div>
+                
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="quote-icon">💬</div>
+                    <p class="testimonial-text">「2人の掛け合いが最高！コンテンツを見る視点が変わりました。」</p>
+                    <div class="testimonial-author">- リスナーBさん</div>
+                </div>
+                
+                <div class="testimonial-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="quote-icon">💬</div>
+                    <p class="testimonial-text">「ドラマ感想回が特に好き。見終わった後すぐに聴きたくなります！」</p>
+                    <div class="testimonial-author">- リスナーCさん</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- コンテンツ分析 -->
+    <section class="content-analysis-section">
+        <div class="analysis-container">
+            <div class="section-header">
+                <h2 class="section-title">Content Analysis</h2>
+                <p class="section-subtitle">ジャンル別エピソード分析</p>
+            </div>
+            
+            <div class="analysis-grid">
+                <div class="genre-bar-chart" data-aos="fade-up">
+                    <div class="genre-item">
+                        <div class="genre-label">📺 ドラマ</div>
+                        <div class="genre-bar-container">
+                            <div class="genre-bar drama-bar" style="width: 85%">
+                                <span class="genre-count">45+</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="genre-item">
+                        <div class="genre-label">🎬 アニメ</div>
+                        <div class="genre-bar-container">
+                            <div class="genre-bar anime-bar" style="width: 70%">
+                                <span class="genre-count">35+</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="genre-item">
+                        <div class="genre-label">🎥 映画</div>
+                        <div class="genre-bar-container">
+                            <div class="genre-bar movie-bar" style="width: 55%">
+                                <span class="genre-count">25+</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="genre-item">
+                        <div class="genre-label">💬 雑談・分析</div>
+                        <div class="genre-bar-container">
+                            <div class="genre-bar talk-bar" style="width: 40%">
+                                <span class="genre-count">20+</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="genre-item">
+                        <div class="genre-label">📚 その他</div>
+                        <div class="genre-bar-container">
+                            <div class="genre-bar other-bar" style="width: 25%">
+                                <span class="genre-count">10+</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- メディア掲載 -->
+    <section class="media-section">
+        <div class="media-container">
+            <div class="section-header">
+                <h2 class="section-title">Media Coverage</h2>
+                <p class="section-subtitle">メディア掲載・外部露出</p>
+            </div>
+            
+            <div class="media-grid">
+                <div class="media-card" data-aos="fade-up">
+                    <div class="media-icon">📰</div>
+                    <div class="media-content">
+                        <h4 class="media-title">ポッドキャストランキング</h4>
+                        <p class="media-date">2024年8月</p>
+                        <p class="media-desc">「WEEKLY PICKUP!!」に選出</p>
+                    </div>
+                </div>
+                
+                <div class="media-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="media-icon">🌐</div>
+                    <div class="media-content">
+                        <h4 class="media-title">公式ウェブサイト開設</h4>
+                        <p class="media-date">2024年6月</p>
+                        <p class="media-desc">デジタルプレゼンスを強化</p>
+                    </div>
+                </div>
+                
+                <div class="media-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="media-icon">📝</div>
+                    <div class="media-content">
+                        <h4 class="media-title">ブログ記事公開</h4>
+                        <p class="media-date">2024年7月〜</p>
+                        <p class="media-desc">ポッドキャスト運営の知見を共有</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- 今後の展望 -->
     <section class="future-section">
         <div class="future-bg">
