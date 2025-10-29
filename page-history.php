@@ -964,7 +964,16 @@ get_header(); ?>
                     <div class="platform-bar" data-aos="fade-right">
                         <div class="platform-info">
                             <span class="platform-name">
-                                <span class="platform-icon-small spotify">S</span>
+                                <span class="platform-icon-small spotify">
+                                    <?php
+                                    $spotify_icon = get_theme_mod('spotify_icon');
+                                    if ($spotify_icon) {
+                                        echo '<img src="' . esc_url($spotify_icon) . '" alt="Spotify" class="platform-icon-image">';
+                                    } else {
+                                        echo 'S';
+                                    }
+                                    ?>
+                                </span>
                                 Spotify
                             </span>
                             <span class="platform-count">300+</span>
@@ -977,7 +986,16 @@ get_header(); ?>
                     <div class="platform-bar" data-aos="fade-right" data-aos-delay="100">
                         <div class="platform-info">
                             <span class="platform-name">
-                                <span class="platform-icon-small youtube">▶</span>
+                                <span class="platform-icon-small youtube">
+                                    <?php
+                                    $youtube_icon = get_theme_mod('youtube_icon');
+                                    if ($youtube_icon) {
+                                        echo '<img src="' . esc_url($youtube_icon) . '" alt="YouTube" class="platform-icon-image">';
+                                    } else {
+                                        echo '▶';
+                                    }
+                                    ?>
+                                </span>
                                 YouTube
                             </span>
                             <span class="platform-count">1,000+</span>
@@ -990,7 +1008,16 @@ get_header(); ?>
                     <div class="platform-bar" data-aos="fade-right" data-aos-delay="200">
                         <div class="platform-info">
                             <span class="platform-name">
-                                <span class="platform-icon-small apple">🍎</span>
+                                <span class="platform-icon-small apple">
+                                    <?php
+                                    $apple_icon = get_theme_mod('apple_podcasts_icon');
+                                    if ($apple_icon) {
+                                        echo '<img src="' . esc_url($apple_icon) . '" alt="Apple Podcasts" class="platform-icon-image">';
+                                    } else {
+                                        echo '🍎';
+                                    }
+                                    ?>
+                                </span>
                                 Apple Podcasts
                             </span>
                             <span class="platform-count">200+</span>

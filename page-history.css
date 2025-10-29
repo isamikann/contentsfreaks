@@ -493,6 +493,13 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     font-weight: 700;
     color: white;
     font-size: 0.875rem;
+    overflow: hidden;
+}
+
+.platform-icon-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .platform-icon-small.spotify {
