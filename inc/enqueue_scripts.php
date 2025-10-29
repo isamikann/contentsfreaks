@@ -38,13 +38,13 @@ function contentfreaks_enqueue_scripts() {
         wp_enqueue_style('contentfreaks-front-page', get_stylesheet_directory_uri() . '/front-page.css', array('contentfreaks-components'), '1.0.0');
         wp_style_add_data('contentfreaks-front-page', 'priority', 'high');
     } elseif (is_page('episodes')) {
-        wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.0.0');
+        wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_page('blog')) {
-        wp_enqueue_style('contentfreaks-blog', get_stylesheet_directory_uri() . '/page-blog.css', array('contentfreaks-components'), '1.0.0');
+        wp_enqueue_style('contentfreaks-blog', get_stylesheet_directory_uri() . '/page-blog.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_page('history')) {
-        wp_enqueue_style('contentfreaks-history', get_stylesheet_directory_uri() . '/page-history.css', array('contentfreaks-components'), '1.0.0');
+        wp_enqueue_style('contentfreaks-history', get_stylesheet_directory_uri() . '/page-history.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_page('profile')) {
-        wp_enqueue_style('contentfreaks-profile', get_stylesheet_directory_uri() . '/page-profile.css', array('contentfreaks-components'), '1.0.0');
+        wp_enqueue_style('contentfreaks-profile', get_stylesheet_directory_uri() . '/page-profile.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_single()) {
         wp_enqueue_style('contentfreaks-single', get_stylesheet_directory_uri() . '/single.css', array('contentfreaks-components'), '1.0.0');
     }
