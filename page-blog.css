@@ -17,7 +17,7 @@ html {
 .blog-hero {
     position: relative;
     background: var(--blog-hero-bg);
-    padding: 1rem 0 3rem 0;
+    padding: 0 0 3rem 0;
     overflow: hidden;
     min-height: 50vh;
     display: flex;
@@ -592,7 +592,7 @@ html {
 /* プロフィールページ用モバイル調整 */
 @media (max-width: 768px) {
     .blog-hero {
-        padding: 0.5rem 0 2rem 0;
+        padding: 0 0 2rem 0;
         min-height: 40vh;
     }
     
@@ -774,7 +774,7 @@ html {
 
 @media (max-width: 480px) {
     .blog-hero {
-        padding: 0.25rem 0 1.5rem 0;
+        padding: 0 0 1.5rem 0;
     }
     
     .blog-hero-content {
