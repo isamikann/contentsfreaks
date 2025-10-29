@@ -61,48 +61,31 @@ function contentfreaks_hosts_shortcode() {
     
     $hosts = array();
     
-    // ホスト1の情報を追加（名前が入力されている場合のみ）
-    if (!empty($host1_name) && $host1_name !== 'ホスト1') {
-        $host1_social = array();
-        if (!empty($host1_twitter)) $host1_social['twitter'] = $host1_twitter;
-        if (!empty($host1_youtube)) $host1_social['youtube'] = $host1_youtube;
-        
-        $hosts[] = array(
-            'name' => $host1_name,
-            'role' => $host1_role,
-            'bio' => $host1_bio,
-            'image' => $host1_image,
-            'social' => $host1_social
-        );
-    }
+    // ホスト1の情報を追加
+    $host1_social = array();
+    if (!empty($host1_twitter)) $host1_social['twitter'] = $host1_twitter;
+    if (!empty($host1_youtube)) $host1_social['youtube'] = $host1_youtube;
     
-    // ホスト2の情報を追加（名前が入力されている場合のみ）
-    if (!empty($host2_name) && $host2_name !== 'ホスト2') {
-        $host2_social = array();
-        if (!empty($host2_twitter)) $host2_social['twitter'] = $host2_twitter;
-        if (!empty($host2_youtube)) $host2_social['youtube'] = $host2_youtube;
-        
-        $hosts[] = array(
-            'name' => $host2_name,
-            'role' => $host2_role,
-            'bio' => $host2_bio,
-            'image' => $host2_image,
-            'social' => $host2_social
-        );
-    }
+    $hosts[] = array(
+        'name' => $host1_name,
+        'role' => $host1_role,
+        'bio' => $host1_bio,
+        'image' => $host1_image,
+        'social' => $host1_social
+    );
     
-    // どちらも設定されていない場合はデフォルト表示
-    if (empty($hosts)) {
-        $hosts = array(
-            array(
-                'name' => 'コンテンツフリークス',
-                'role' => 'メインホスト',
-                'bio' => 'YouTuber、ブロガー、インフルエンサーなど様々なコンテンツクリエイターをゲストに迎え、制作の裏側や成功の秘訣を深掘りしています。',
-                'image' => '',
-                'social' => array('twitter' => 'https://twitter.com/contentfreaks', 'youtube' => 'https://youtube.com/@contentfreaks')
-            )
-        );
-    }
+    // ホスト2の情報を追加
+    $host2_social = array();
+    if (!empty($host2_twitter)) $host2_social['twitter'] = $host2_twitter;
+    if (!empty($host2_youtube)) $host2_social['youtube'] = $host2_youtube;
+    
+    $hosts[] = array(
+        'name' => $host2_name,
+        'role' => $host2_role,
+        'bio' => $host2_bio,
+        'image' => $host2_image,
+        'social' => $host2_social
+    );
     
     ob_start();
     echo '<div class="hosts-grid">';
