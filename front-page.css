@@ -1228,8 +1228,8 @@
             margin-bottom: 2rem;
         }
         
-        /* エピソードカードの日付フォントサイズ調整 */
-        .episode-date {
+        /* エピソード一覧カードの日付フォントサイズ調整 */
+        .episodes-section .episode-date {
             font-size: 0.75rem;
         }
         
@@ -1284,6 +1284,13 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
         margin-bottom: 1rem;
+    }
+    
+    /* エピソード一覧カードの日付スタイル */
+    .episodes-section .episode-date {
+        color: var(--episodes-card-meta);
+        font-size: var(--meta-primary);
+        font-weight: 500;
     }
     
     /* 最新エピソードセクション */
@@ -1717,8 +1724,8 @@
             gap: 0.8rem;
         }
         
-        /* エピソードカードの日付フォントサイズ調整 */
-        .episode-date {
+        /* エピソード一覧カードの日付フォントサイズ調整 */
+        .episodes-section .episode-date {
             font-size: 0.7rem;
         }
     }
