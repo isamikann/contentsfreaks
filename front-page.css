@@ -1220,15 +1220,23 @@
             margin-bottom: 2rem;
         }
         
-        .episodes-section {
-            padding: 2.5rem 0;
-        }
-        
-        .episodes-header {
-            margin-bottom: 2rem;
-        }
-        
-        .newsletter-section {
+    .episodes-section {
+        padding: 2.5rem 0;
+    }
+    
+    .episodes-header {
+        margin-bottom: 2rem;
+    }
+    
+    .episodes-header h2 {
+        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-weight: 900;
+        background: var(--recent-episodes-title-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+    }        .newsletter-section {
             padding: 2.5rem 0;
         }
         
