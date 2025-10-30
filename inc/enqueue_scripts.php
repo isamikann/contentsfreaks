@@ -35,10 +35,10 @@ function contentfreaks_enqueue_scripts() {
     
     // ページ別専用CSS（パフォーマンス最適化：必要なページでのみ読み込み）
     if (is_front_page()) {
-        wp_enqueue_style('contentfreaks-front-page', get_stylesheet_directory_uri() . '/front-page.css', array('contentfreaks-components'), '1.0.0');
-        wp_style_add_data('contentfreaks-front-page', 'priority', 'high');
-        // エピソードカード用のスタイル（フロントページでも使用）
+        // エピソードカード用のスタイル（フロントページでも使用）- 先に読み込む
         wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.1.0');
+        wp_enqueue_style('contentfreaks-front-page', get_stylesheet_directory_uri() . '/front-page.css', array('contentfreaks-episodes'), '1.1.0');
+        wp_style_add_data('contentfreaks-front-page', 'priority', 'high');
     } elseif (is_page('episodes')) {
         wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_page('blog')) {
