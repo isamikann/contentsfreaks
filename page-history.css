@@ -235,7 +235,8 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     margin-bottom: 4rem;
 }
 
-.section-title {
+.section-title,
+h2.section-title {
     font-size: 3rem;
     font-weight: 900;
     background: linear-gradient(135deg, var(--history-primary), var(--history-secondary));
@@ -243,12 +244,15 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     -webkit-text-fill-color: transparent;
     background-clip: text;
     margin: 0 0 1rem;
+    text-align: center;
 }
 
-.section-subtitle {
+.section-subtitle,
+p.section-subtitle {
     font-size: 1.25rem;
     color: var(--history-gray-700);
     margin: 0;
+    text-align: center;
 }
 
 .artwork-timeline {
