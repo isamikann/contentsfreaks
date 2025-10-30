@@ -451,7 +451,6 @@ body {
 .section-title {
     font-size: clamp(2.5rem, 4vw, 3.5rem);
     font-weight: 800;
-    color: var(--text-primary);
     margin-bottom: 1rem;
 }
 
@@ -1119,8 +1118,6 @@ body {
     .contact-cta-container {
         padding: 0 1rem;
     }
-}
-    }
     
     .highlight-card {
         padding: 1.5rem;
@@ -1435,13 +1432,6 @@ body {
     .contact-cta-button,
     .social-link {
         transition: none;
-    }
-}
-
-/* ダークモード対応の準備 */
-@media (prefers-color-scheme: dark) {
-    .profile-page {
-        /* 将来のダークモード対応 */
     }
 }
 

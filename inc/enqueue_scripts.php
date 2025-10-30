@@ -16,7 +16,7 @@ function contentfreaks_enqueue_scripts() {
     wp_enqueue_style('cocoon-style', get_template_directory_uri() . '/style.css');
     
     // デザインシステム（最優先で読み込み）
-    wp_enqueue_style('contentfreaks-design-system', get_stylesheet_directory_uri() . '/design-system.css', array('cocoon-style'), '1.0.0');
+    wp_enqueue_style('contentfreaks-design-system', get_stylesheet_directory_uri() . '/design-system.css', array('cocoon-style'), '1.1.0');
     wp_style_add_data('contentfreaks-design-system', 'priority', 'high');
     
     // 子テーマのメインスタイル（WordPressの標準）- 高優先度
@@ -42,9 +42,9 @@ function contentfreaks_enqueue_scripts() {
     } elseif (is_page('blog')) {
         wp_enqueue_style('contentfreaks-blog', get_stylesheet_directory_uri() . '/page-blog.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_page('history')) {
-        wp_enqueue_style('contentfreaks-history', get_stylesheet_directory_uri() . '/page-history.css', array('contentfreaks-components'), '1.2.0');
+        wp_enqueue_style('contentfreaks-history', get_stylesheet_directory_uri() . '/page-history.css', array('contentfreaks-components'), '1.3.0');
     } elseif (is_page('profile')) {
-        wp_enqueue_style('contentfreaks-profile', get_stylesheet_directory_uri() . '/page-profile.css', array('contentfreaks-components'), '1.1.0');
+        wp_enqueue_style('contentfreaks-profile', get_stylesheet_directory_uri() . '/page-profile.css', array('contentfreaks-components'), '1.2.0');
     } elseif (is_single()) {
         wp_enqueue_style('contentfreaks-single', get_stylesheet_directory_uri() . '/single.css', array('contentfreaks-components'), '1.0.0');
     }

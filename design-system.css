@@ -424,3 +424,77 @@
 .animate-scale-in {
     animation: scale-in var(--transition-base);
 }
+
+/* ===== 19. セクションヘッダー（共通スタイル） ===== */
+.section-header {
+    text-align: center;
+    margin-bottom: var(--space-16);
+}
+
+.section-title {
+    font-size: clamp(var(--font-size-2xl), 5vw, var(--font-size-4xl));
+    font-weight: var(--font-weight-black);
+    line-height: var(--line-height-tight);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    margin: 0 0 var(--space-4) 0;
+}
+
+/* 白背景用のセクションタイトル（テキストカラー優先） */
+.section-title.text-dark {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: var(--color-text-primary);
+}
+
+/* 白文字のセクションタイトル（濃い背景用） */
+.section-title.text-light,
+.section-title.text-white {
+    background: none;
+    -webkit-text-fill-color: white;
+    color: white;
+}
+
+.section-subtitle {
+    font-size: var(--font-size-md);
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: var(--line-height-relaxed);
+}
+
+/* 濃い背景上のサブタイトル */
+.section-subtitle.text-light {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .section-header {
+        margin-bottom: var(--space-12);
+    }
+    
+    .section-title {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .section-subtitle {
+        font-size: var(--font-size-base);
+    }
+}
+
+@media (max-width: 480px) {
+    .section-header {
+        margin-bottom: var(--space-8);
+    }
+    
+    .section-title {
+        font-size: var(--font-size-xl);
+    }
+    
+    .section-subtitle {
+        font-size: var(--font-size-sm);
+    }
+}
