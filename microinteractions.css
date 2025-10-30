@@ -168,7 +168,7 @@ button[type="submit"]:active,
 }
 
 .episode-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-12px);
     border-color: var(--color-primary-400);
     box-shadow: 
         var(--shadow-lg),
@@ -176,20 +176,11 @@ button[type="submit"]:active,
 }
 
 .episode-card .episode-thumbnail {
-    transition: transform var(--transition-base);
     overflow: hidden;
 }
 
-.episode-card:hover .episode-thumbnail {
-    transform: scale(1.05);
-}
-
 .episode-card .episode-thumbnail img {
-    transition: transform var(--duration-slow) var(--ease-out);
-}
-
-.episode-card:hover .episode-thumbnail img {
-    transform: scale(1.1);
+    display: block;
 }
 
 /* ===== 3. ツールチップシステム ===== */
