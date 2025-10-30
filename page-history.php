@@ -907,8 +907,8 @@ get_header(); ?>
     <section class="growth-graph-section">
         <div class="growth-container">
             <div class="section-header">
-                <h2 class="section-title text-white">Growth Timeline</h2>
-                <p class="section-subtitle text-light">フォロワー数の成長推移</p>
+                <h2 class="section-title">Growth Timeline</h2>
+                <p class="section-subtitle">フォロワー数の成長推移</p>
             </div>
             
             <div class="growth-chart">
@@ -1227,8 +1227,8 @@ get_header(); ?>
     <section class="awards-section">
         <div class="awards-container">
             <div class="section-header">
-                <h2 class="section-title text-white">Annual Awards</h2>
-                <p class="section-subtitle text-light">歴代コンテンツフリークス大賞</p>
+                <h2 class="section-title">Annual Awards</h2>
+                <p class="section-subtitle">歴代コンテンツフリークス大賞</p>
             </div>
             
             <div class="awards-grid">
@@ -1341,8 +1341,8 @@ get_header(); ?>
     <section class="content-analysis-section">
         <div class="analysis-container">
             <div class="section-header">
-                <h2 class="section-title text-white">Content Analysis</h2>
-                <p class="section-subtitle text-light">ジャンル別エピソード分析</p>
+                <h2 class="section-title">Content Analysis</h2>
+                <p class="section-subtitle">ジャンル別エピソード分析</p>
             </div>
             
             <div class="analysis-grid">

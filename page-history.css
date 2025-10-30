@@ -1085,6 +1085,10 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     z-index: 1;
 }
 
+.awards-section .section-title {
+    color: white;
+}
+
 .awards-section .section-subtitle {
     color: rgba(255, 255, 255, 0.9);
 }
@@ -1289,6 +1293,10 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     padding: 0 2rem;
     position: relative;
     z-index: 1;
+}
+
+.content-analysis-section .section-title {
+    color: white;
 }
 
 .content-analysis-section .section-subtitle {
