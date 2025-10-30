@@ -102,42 +102,21 @@ function contentfreaks_hosts_shortcode() {
         echo '<div class="host-content">';
         echo '<h3 class="host-name">' . esc_html($host['name']) . '</h3>';
         echo '<div class="host-role">' . esc_html($host['role']) . '</div>';
-        echo '<div class="host-bio">' . esc_html($host['bio']) . '</div>';
         
-        // プロフィール詳細を追加
-        echo '<div class="host-details-brief">';
-        
+        // bioに詳細情報を含める
         if ($index === 0) {
             // みっくん
-            echo '<div class="host-detail-item">';
-            echo '<span class="detail-icon">🎙</span>';
-            echo '<span class="detail-text">作品の裏側を深掘り＆司会進行担当</span>';
-            echo '</div>';
-            echo '<div class="host-detail-item">';
-            echo '<span class="detail-icon">💼</span>';
-            echo '<span class="detail-text">メーカー勤務のアプリエンジニア</span>';
-            echo '</div>';
-            echo '<div class="host-detail-item">';
-            echo '<span class="detail-icon">📌</span>';
-            echo '<span class="detail-text">「憂いはあるが、行動はポジティブ」なキャラが好き</span>';
+            echo '<div class="host-bio">';
+            echo esc_html($host['bio']) . '<br><br>';
+            echo '作品の裏側を深掘り＆司会進行担当。メーカー勤務のアプリエンジニア。「憂いはあるが、行動はポジティブ」なキャラクターに心惹かれがち。';
             echo '</div>';
         } else {
             // あっきー
-            echo '<div class="host-detail-item">';
-            echo '<span class="detail-icon">🎙</span>';
-            echo '<span class="detail-text">一般目線の感想担当、親しみやすさをプラス</span>';
-            echo '</div>';
-            echo '<div class="host-detail-item">';
-            echo '<span class="detail-icon">💼</span>';
-            echo '<span class="detail-text">メーカー勤務のハードエンジニア</span>';
-            echo '</div>';
-            echo '<div class="host-detail-item">';
-            echo '<span class="detail-icon">📌</span>';
-            echo '<span class="detail-text">「一周回って落ち着いた強者」なキャラが好き</span>';
+            echo '<div class="host-bio">';
+            echo esc_html($host['bio']) . '<br><br>';
+            echo '一般目線の感想担当、親しみやすさをプラス。メーカー勤務のハードエンジニア。「一周回って落ち着いた強者」なキャラクターに魅力を感じがち。';
             echo '</div>';
         }
-        
-        echo '</div>';
         
         if (!empty($host['social'])) {
             echo '<div class="host-social">';
