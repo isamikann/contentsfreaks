@@ -264,7 +264,7 @@ body {
 .episode-card,
 .modern-episode-card {
     background: var(--episodes-card-bg);
-    border-radius: 25px;
+    border-radius: 0;
     overflow: hidden;
     box-shadow: var(--episodes-card-shadow);
     transition: all 0.3s ease;
