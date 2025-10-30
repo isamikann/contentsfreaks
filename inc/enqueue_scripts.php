@@ -36,11 +36,11 @@ function contentfreaks_enqueue_scripts() {
     // ページ別専用CSS（パフォーマンス最適化：必要なページでのみ読み込み）
     if (is_front_page()) {
         // エピソードカード用のスタイル（フロントページでも使用）- 先に読み込む
-        wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.2.0');
-        wp_enqueue_style('contentfreaks-front-page', get_stylesheet_directory_uri() . '/front-page.css', array('contentfreaks-episodes'), '1.2.0');
+        wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.2.1');
+        wp_enqueue_style('contentfreaks-front-page', get_stylesheet_directory_uri() . '/front-page.css', array('contentfreaks-episodes'), '1.2.1');
         wp_style_add_data('contentfreaks-front-page', 'priority', 'high');
     } elseif (is_page('episodes')) {
-        wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.2.0');
+        wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.2.1');
     } elseif (is_page('blog')) {
         wp_enqueue_style('contentfreaks-blog', get_stylesheet_directory_uri() . '/page-blog.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_page('history')) {
