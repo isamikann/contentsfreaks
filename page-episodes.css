@@ -240,7 +240,8 @@ body {
 }
 
 /* エピソードグリッド */
-.episodes-content-section {
+.episodes-content-section,
+.episodes-section {
     padding: 4rem 0;
     background: var(--episodes-grid-bg);
     min-height: 60vh;

@@ -1577,50 +1577,10 @@
             padding: 0.3rem 0.8rem;
         }
     }
-    /* エピソード一覧セクション - 新しい色彩フロー適用 */
-    .episodes-section {
-        padding: 3.5rem 0;
-        background: var(--recent-episodes-bg);
-        position: relative;
-        overflow: hidden;
-    }
     
-    .episodes-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1.5" fill="rgba(71,85,105,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
-        animation: float-dots 20s infinite linear;
-    }
+    /* エピソードセクションのスタイルはpage-episodes.cssを使用 */
     
-    @keyframes float-dots {
-        0% { transform: translate(0, 0); }
-        100% { transform: translate(-20px, -20px); }
-    }
-    
-    .episodes-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 1rem;
-        position: relative;
-        z-index: 2;
-    }
-    
-    .episodes-header {
-        text-align: center;
-        margin-bottom: 4rem;
-    }
-    
-    .episodes-header h2 {
-        font-size: clamp(2.5rem, 5vw, 4rem);
-        font-weight: 900;
-        color: var(--recent-episodes-title);
-        text-shadow: 0 4px 20px rgba(71,85,105,0.1);
-        margin-bottom: 1rem;
-    }
+    /* episodes-container と episodes-header のスタイルはpage-episodes.cssを使用 */
     
     /* エピソードカードのスタイルはpage-episodes.cssを使用 */
     
