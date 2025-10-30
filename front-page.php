@@ -242,7 +242,7 @@ get_header(); ?>
                         $delay_class = 'delay-' . ($delay_index * 100 + 100);
                         $delay_index++;
                 ?>
-                    <article class="episode-card modern-episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
+                    <article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
                         <div class="episode-card-header">
                             <div class="episode-thumbnail">
                                 <?php if (has_post_thumbnail()) : ?>

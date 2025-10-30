@@ -261,8 +261,7 @@ body {
 }
 
 /* エピソードカード統一スタイル */
-.episode-card,
-.modern-episode-card {
+.episode-card {
     background: var(--episodes-card-bg);
     border-radius: 0;
     overflow: hidden;
@@ -275,23 +274,18 @@ body {
 }
 
 /* 初期カードのアニメーション */
-.modern-episode-card:not(.loaded) {
+.episode-card:not(.loaded) {
     opacity: 0;
     transform: translateY(30px);
     animation: fadeInUp 0.6s ease forwards;
 }
 
-.episode-card:nth-child(1),
-.modern-episode-card:nth-child(1) { animation-delay: 0.1s; }
-.episode-card:nth-child(2),
-.modern-episode-card:nth-child(2) { animation-delay: 0.2s; }
-.episode-card:nth-child(3),
-.modern-episode-card:nth-child(3) { animation-delay: 0.3s; }
-.episode-card:nth-child(4),
-.modern-episode-card:nth-child(4) { animation-delay: 0.4s; }
+.episode-card:nth-child(1) { animation-delay: 0.1s; }
+.episode-card:nth-child(2) { animation-delay: 0.2s; }
+.episode-card:nth-child(3) { animation-delay: 0.3s; }
+.episode-card:nth-child(4) { animation-delay: 0.4s; }
 
-.episode-card:hover,
-.modern-episode-card:hover {
+.episode-card:hover {
     transform: translateY(-12px);
     box-shadow: var(--episodes-card-hover-shadow);
     border-color: rgba(102, 126, 234, 0.2);

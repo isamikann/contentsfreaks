@@ -732,7 +732,7 @@ function contentfreaks_load_more_episodes() {
         $original_url = get_post_meta(get_the_ID(), 'episode_original_url', true);
         $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
 ?>
-        <article class="episode-card modern-episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
+        <article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
             <div class="episode-card-header">
                 <div class="episode-thumbnail">
                     <?php if (has_post_thumbnail()) : ?>
