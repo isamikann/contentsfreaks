@@ -242,28 +242,54 @@ get_header(); ?>
                         $delay_class = 'delay-' . ($delay_index * 100 + 100);
                         $delay_index++;
                 ?>
-                    <article class="episode-card slide-up <?php echo esc_attr($delay_class); ?>" data-category="<?php echo esc_attr($episode_category); ?>">
-                        <div class="episode-thumbnail">
-                            <?php 
-                            // アイキャッチ画像をまず確認
-                            if (has_post_thumbnail()) : ?>
-                                <?php the_post_thumbnail('medium', array(
-                                    'alt' => get_the_title(),
-                                    'loading' => 'lazy' // 遅延読み込み
-                                )); ?>
-                            <?php else : 
-                                // アイキャッチ画像がない場合、エピソードのメタデータから画像URLを取得を試行
-                                $episode_image_url = get_post_meta(get_the_ID(), 'episode_image_url', true);
-                                if ($episode_image_url) : ?>
-                                    <img src="<?php echo esc_url($episode_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy" style="width: 100%; height: 200px; object-fit: cover;">
-                                <?php else : ?>
-                                    <div class="episode-default-thumbnail">🎙️</div>
+                    <article class="episode-card modern-episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
+                        <div class="episode-card-header">
+                            <div class="episode-thumbnail">
+                                <?php if (has_post_thumbnail()) : ?>
+                                    <a href="<?php the_permalink(); ?>">
+                                        <?php the_post_thumbnail('medium', array(
+                                            'alt' => get_the_title(),
+                                            'loading' => 'lazy'
+                                        )); ?>
+                                    </a>
+                                <?php else : 
+                                    // アイキャッチ画像がない場合、エピソードのメタデータから画像URLを取得を試行
+                                    $episode_image_url = get_post_meta(get_the_ID(), 'episode_image_url', true);
+                                    if ($episode_image_url) : ?>
+                                        <a href="<?php the_permalink(); ?>">
+                                            <img src="<?php echo esc_url($episode_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy">
+                                        </a>
+                                    <?php else : ?>
+                                        <a href="<?php the_permalink(); ?>">
+                                            <div class="default-thumbnail">
+                                                <div style="background: linear-gradient(135deg, #f7ff0b, #ff6b35); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; border-radius: 12px;">🎙️</div>
+                                            </div>
+                                        </a>
+                                    <?php endif; ?>
                                 <?php endif; ?>
-                            <?php endif; ?>
+                            </div>
                         </div>
                         
-                        <div class="episode-content">
-                            <div class="episode-date"><?php echo get_the_date('Y年n月j日'); ?></div>
+                        <div class="episode-card-content">
+                            <div class="episode-meta">
+                                <div class="episode-meta-left">
+                                    <span class="episode-date"><?php echo get_the_date('Y年n月j日'); ?></span>
+                                    
+                                    <?php 
+                                    // タグを取得・表示
+                                    $tags = get_the_tags();
+                                    if ($tags && !is_wp_error($tags)) : ?>
+                                    <div class="episode-tags">
+                                        <?php foreach ($tags as $tag) : ?>
+                                            <a href="<?php echo get_tag_link($tag->term_id); ?>" class="episode-tag">
+                                                #<?php echo esc_html($tag->name); ?>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                            
                             <h3 class="episode-title">
                                 <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
                             </h3>
