@@ -49,6 +49,9 @@ function contentfreaks_enqueue_scripts() {
         wp_enqueue_style('contentfreaks-profile', get_stylesheet_directory_uri() . '/page-profile.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_single()) {
         wp_enqueue_style('contentfreaks-single', get_stylesheet_directory_uri() . '/single.css', array('contentfreaks-components'), '1.0.0');
+    } elseif (is_archive() || is_tag() || is_category()) {
+        // タグアーカイブ、カテゴリーアーカイブページ用
+        wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.2.1');
     }
     
     // 存在しないファイルの読み込みを無効化
