@@ -292,7 +292,7 @@ body {
 
 .episode-card:hover,
 .modern-episode-card:hover {
-    transform: translateY(-12px) scale(1.02);
+    transform: translateY(-12px);
     box-shadow: var(--episodes-card-hover-shadow);
     border-color: rgba(102, 126, 234, 0.2);
 }
@@ -313,10 +313,11 @@ body {
     object-fit: cover; /* 正方形に収まるようにクロップ */
     object-position: center; /* 中央部分を表示 */
     transition: transform 0.3s ease;
+    display: block;
 }
 
 .episode-card:hover .episode-thumbnail img {
-    transform: scale(1.08);
+    transform: scale(1.05);
 }
 
 .default-thumbnail {
