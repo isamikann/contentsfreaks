@@ -37,6 +37,8 @@ function contentfreaks_enqueue_scripts() {
     if (is_front_page()) {
         wp_enqueue_style('contentfreaks-front-page', get_stylesheet_directory_uri() . '/front-page.css', array('contentfreaks-components'), '1.0.0');
         wp_style_add_data('contentfreaks-front-page', 'priority', 'high');
+        // エピソードカード用のスタイル（フロントページでも使用）
+        wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_page('episodes')) {
         wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_page('blog')) {
