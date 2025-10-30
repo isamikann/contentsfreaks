@@ -103,17 +103,15 @@ function contentfreaks_hosts_shortcode() {
         echo '<h3 class="host-name">' . esc_html($host['name']) . '</h3>';
         echo '<div class="host-role">' . esc_html($host['role']) . '</div>';
         
-        // bioに詳細情報を含める
+        // bioに詳細情報のみ表示
         if ($index === 0) {
             // みっくん
             echo '<div class="host-bio">';
-            echo esc_html($host['bio']) . '<br><br>';
             echo '作品の裏側を深掘り＆司会進行担当。メーカー勤務のアプリエンジニア。「憂いはあるが、行動はポジティブ」なキャラクターに心惹かれがち。';
             echo '</div>';
         } else {
             // あっきー
             echo '<div class="host-bio">';
-            echo esc_html($host['bio']) . '<br><br>';
             echo '一般目線の感想担当、親しみやすさをプラス。メーカー勤務のハードエンジニア。「一周回って落ち着いた強者」なキャラクターに魅力を感じがち。';
             echo '</div>';
         }
