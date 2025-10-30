@@ -162,12 +162,14 @@ button[type="submit"]:active,
 }
 
 /* エピソードカード専用エフェクト */
-.episode-card {
+.episode-card,
+.modern-episode-card {
     transition: all var(--transition-base);
     border: 2px solid transparent;
 }
 
-.episode-card:hover {
+.episode-card:hover,
+.modern-episode-card:hover {
     transform: translateY(-12px);
     border-color: var(--color-primary-400);
     box-shadow: 
@@ -175,11 +177,13 @@ button[type="submit"]:active,
         0 0 20px var(--color-primary-100);
 }
 
-.episode-card .episode-thumbnail {
+.episode-card .episode-thumbnail,
+.modern-episode-card .episode-thumbnail {
     overflow: hidden;
 }
 
-.episode-card .episode-thumbnail img {
+.episode-card .episode-thumbnail img,
+.modern-episode-card .episode-thumbnail img {
     display: block;
 }
 
