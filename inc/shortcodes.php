@@ -90,7 +90,7 @@ function contentfreaks_hosts_shortcode() {
     ob_start();
     echo '<div class="hosts-grid">';
     
-    foreach ($hosts as $host) {
+    foreach ($hosts as $index => $host) {
         echo '<div class="host-card">';
         
         if ($host['image']) {
@@ -103,6 +103,41 @@ function contentfreaks_hosts_shortcode() {
         echo '<h3 class="host-name">' . esc_html($host['name']) . '</h3>';
         echo '<div class="host-role">' . esc_html($host['role']) . '</div>';
         echo '<div class="host-bio">' . esc_html($host['bio']) . '</div>';
+        
+        // プロフィール詳細を追加
+        echo '<div class="host-details-brief">';
+        
+        if ($index === 0) {
+            // みっくん
+            echo '<div class="host-detail-item">';
+            echo '<span class="detail-icon">🎙</span>';
+            echo '<span class="detail-text">作品の裏側を深掘り＆司会進行担当</span>';
+            echo '</div>';
+            echo '<div class="host-detail-item">';
+            echo '<span class="detail-icon">💼</span>';
+            echo '<span class="detail-text">メーカー勤務のアプリエンジニア</span>';
+            echo '</div>';
+            echo '<div class="host-detail-item">';
+            echo '<span class="detail-icon">📌</span>';
+            echo '<span class="detail-text">「憂いはあるが、行動はポジティブ」なキャラが好き</span>';
+            echo '</div>';
+        } else {
+            // あっきー
+            echo '<div class="host-detail-item">';
+            echo '<span class="detail-icon">🎙</span>';
+            echo '<span class="detail-text">一般目線の感想担当、親しみやすさをプラス</span>';
+            echo '</div>';
+            echo '<div class="host-detail-item">';
+            echo '<span class="detail-icon">💼</span>';
+            echo '<span class="detail-text">メーカー勤務のハードエンジニア</span>';
+            echo '</div>';
+            echo '<div class="host-detail-item">';
+            echo '<span class="detail-icon">📌</span>';
+            echo '<span class="detail-text">「一周回って落ち着いた強者」なキャラが好き</span>';
+            echo '</div>';
+        }
+        
+        echo '</div>';
         
         if (!empty($host['social'])) {
             echo '<div class="host-social">';
