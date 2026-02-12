@@ -547,7 +547,73 @@
     }
 }
 
-
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+    .minimal-header {
+        background: rgba(26, 26, 26, 0.75);
+        border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+    
+    .minimal-header.scrolled {
+        background: rgba(26, 26, 26, 0.85);
+    }
+    
+    .brand-text,
+    .menu-brand-name {
+        color: #ffffff;
+    }
+    
+    .page-title {
+        display: none;
+    }
+    
+    .hamburger-icon .line {
+        background: #ffffff;
+    }
+    
+    .slide-menu-container {
+        background: #1a1a1a;
+    }
+    
+    .menu-header {
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .nav-link {
+        color: #e0e0e0;
+    }
+    
+    .nav-link:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: #ffffff;
+    }
+    
+    .section-title {
+        color: #b0b0b0;
+        border-bottom-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    .menu-footer {
+        border-top-color: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.02);
+    }
+    
+    .close-line {
+        background: #999;
+    }
+    
+    .copyright-text {
+        color: #888;
+    }
+    
+    .platform-text {
+        color: #e0e0e0;
+    }
+    
+    .external-indicator {
+        color: #777;
+    }
+}
 
 /* フォーカス表示（アクセシビリティ） */
 .brand-link:focus,
