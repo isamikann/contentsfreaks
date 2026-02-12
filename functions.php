@@ -20,7 +20,8 @@ require_once get_stylesheet_directory() . '/inc/dynamic_styles.php';
 require_once get_stylesheet_directory() . '/inc/image_optimization.php'; // 画像最適化
 require_once get_stylesheet_directory() . '/inc/performance_optimization.php'; // パフォーマンス最適化
 require_once get_stylesheet_directory() . '/inc/structured_data.php'; // 構造化データ・OGP
-require_once get_stylesheet_directory() . '/inc/works_cpt.php'; // 作品データベース\nrequire_once get_stylesheet_directory() . '/inc/testimonials.php'; // リスナーの声
+require_once get_stylesheet_directory() . '/inc/works_cpt.php'; // 作品データベース
+require_once get_stylesheet_directory() . '/inc/testimonials.php'; // リスナーの声
 
 // RSS自動投稿関連の読み込み
 require_once get_stylesheet_directory() . '/rss-auto-post.php';

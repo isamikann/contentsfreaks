@@ -15,7 +15,23 @@ get_header(); ?>
         $is_podcast_episode = get_post_meta($post_id, 'is_podcast_episode', true);
         $episode_number = get_post_meta($post_id, 'episode_number', true);
         $duration = get_post_meta($post_id, 'episode_duration', true);
-        $audio_url = get_post_meta($post_id, 'episode_audio_url', true);
+        $audio_url_raw = get_post_meta($post_id, 'episode_audio_url', true);
+        
+        // 音声URLの修正処理（二重エンコーディング対応）
+        $audio_url = $audio_url_raw;
+        if ($audio_url_raw) {
+            if (strpos($audio_url_raw, 'https%3A%2F%2F') !== false) {
+                if (preg_match('/https:\/\/d3ctxlq1ktw2nl\.cloudfront\.net\/\d+\/https%3A%2F%2Fd3ctxlq1ktw2nl\.cloudfront\.net%2F(.+)/', $audio_url_raw, $matches)) {
+                    $correct_path = urldecode($matches[1]);
+                    $audio_url = 'https://d3ctxlq1ktw2nl.cloudfront.net/' . $correct_path;
+                }
+            }
+            // 一般的なURLデコード（念のため）
+            if (strpos($audio_url, '%') !== false && strpos($audio_url, 'https%3A') !== false) {
+                $audio_url = urldecode($audio_url);
+            }
+        }
+        
         $original_url = get_post_meta($post_id, 'episode_original_url', true);
         $episode_category = get_post_meta($post_id, 'episode_category', true) ?: 'エピソード';
         ?>
