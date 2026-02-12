@@ -81,67 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
         oldMobileToggle.remove();
     }
 
-    // ハンバーガーメニューの制御（統合版）
-    const hamburgerToggle = document.querySelector('.hamburger-toggle');
-    const slideMenu = document.querySelector('.slide-menu');
-    const slideMenuOverlay = document.querySelector('.slide-menu-overlay');
-    const slideMenuClose = document.querySelector('.slide-menu-close');
-    const body = document.body;
-    
-    // ハンバーガーメニューの開閉
-    if (hamburgerToggle && slideMenu && slideMenuOverlay) {
-        hamburgerToggle.addEventListener('click', function() {
-            this.classList.toggle('active');
-            slideMenu.classList.toggle('active');
-            slideMenuOverlay.classList.toggle('active');
-            body.classList.toggle('mobile-menu-open');
-        });
-        
-        // オーバーレイクリックで閉じる
-        slideMenuOverlay.addEventListener('click', function() {
-            hamburgerToggle.classList.remove('active');
-            slideMenu.classList.remove('active');
-            slideMenuOverlay.classList.remove('active');
-            body.classList.remove('mobile-menu-open');
-        });
-        
-        // 閉じるボタンで閉じる
-        if (slideMenuClose) {
-            slideMenuClose.addEventListener('click', function() {
-                hamburgerToggle.classList.remove('active');
-                slideMenu.classList.remove('active');
-                slideMenuOverlay.classList.remove('active');
-                body.classList.remove('mobile-menu-open');
-            });
-        }
-
-        // Escキーで閉じる
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && slideMenu.classList.contains('active')) {
-                hamburgerToggle.classList.remove('active');
-                slideMenu.classList.remove('active');
-                slideMenuOverlay.classList.remove('active');
-                body.classList.remove('mobile-menu-open');
-                hamburgerToggle.focus();
-            }
-        });
-
-        // フォーカストラップ：メニュー内でTabキーを循環
-        slideMenu.addEventListener('keydown', function(e) {
-            if (e.key !== 'Tab' || !slideMenu.classList.contains('active')) return;
-            var focusable = slideMenu.querySelectorAll('a[href], button, input, [tabindex]:not([tabindex="-1"])');
-            if (focusable.length === 0) return;
-            var first = focusable[0];
-            var last = focusable[focusable.length - 1];
-            if (e.shiftKey && document.activeElement === first) {
-                e.preventDefault();
-                last.focus();
-            } else if (!e.shiftKey && document.activeElement === last) {
-                e.preventDefault();
-                first.focus();
-            }
-        });
-    }
+    // ※ ハンバーガーメニューの制御は header.php のインラインJSに統合済み
     
     // 検索モーダルの制御
     const searchToggle = document.querySelector('.search-toggle');

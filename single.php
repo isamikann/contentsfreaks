@@ -119,7 +119,7 @@ get_header(); ?>
                     <ol class="chapters-list">
                         <?php foreach ($chapters as $ch) : ?>
                         <li class="chapter-item">
-                            <span class="chapter-time"><?php echo esc_html($ch['time']); ?></span>
+                            <button type="button" class="chapter-time chapter-seek" data-time="<?php echo esc_attr($ch['time']); ?>"><?php echo esc_html($ch['time']); ?></button>
                             <span class="chapter-name"><?php echo esc_html($ch['title']); ?></span>
                         </li>
                         <?php endforeach; ?>

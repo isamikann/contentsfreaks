@@ -977,8 +977,8 @@ function contentfreaks_http2_server_push() {
         $push_resources[] = '<' . get_stylesheet_directory_uri() . '/single.css>; rel=preload; as=style';
     }
     
-    // フォント（重要度が高いもの）
-    $push_resources[] = '<https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap>; rel=preload; as=style';
+    // フォント（enqueue_scripts.php と同じURLを使用）
+    $push_resources[] = '<https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap>; rel=preload; as=style';
     
     // Linkヘッダーとして送信
     if (!empty($push_resources)) {
@@ -1520,3 +1520,73 @@ function contentfreaks_breadcrumb() {
     echo '</ol>';
     echo '</nav>';
 }
+
+/**
+ * ポッドキャストエピソードの JSON-LD 構造化データを出力
+ * Google検索でリッチリザルト（ポッドキャスト）を表示するため
+ */
+function contentfreaks_episode_jsonld() {
+    if (!is_single()) return;
+    
+    $post_id = get_the_ID();
+    $is_podcast = get_post_meta($post_id, 'is_podcast_episode', true);
+    if (!$is_podcast) return;
+
+    $audio_url     = get_post_meta($post_id, 'episode_audio_url', true);
+    $duration      = get_post_meta($post_id, 'episode_duration', true);
+    $ep_number     = get_post_meta($post_id, 'episode_number', true);
+    $podcast_name  = get_theme_mod('podcast_name', 'ContentFreaks');
+    $podcast_art   = get_theme_mod('podcast_artwork', '');
+
+    // duration を ISO 8601 形式に変換 (例: "65:30" → "PT65M30S", "1:05:30" → "PT1H5M30S")
+    $iso_duration = '';
+    if ($duration) {
+        $parts = array_map('intval', explode(':', $duration));
+        if (count($parts) === 3) {
+            $iso_duration = sprintf('PT%dH%dM%dS', $parts[0], $parts[1], $parts[2]);
+        } elseif (count($parts) === 2) {
+            $iso_duration = sprintf('PT%dM%dS', $parts[0], $parts[1]);
+        }
+    }
+
+    $schema = array(
+        '@context'    => 'https://schema.org',
+        '@type'       => 'PodcastEpisode',
+        'name'        => get_the_title(),
+        'url'         => get_permalink(),
+        'datePublished' => get_the_date('c'),
+        'description' => wp_trim_words(wp_strip_all_tags(get_the_content()), 50, '…'),
+        'partOfSeries' => array(
+            '@type' => 'PodcastSeries',
+            'name'  => $podcast_name,
+            'url'   => home_url('/')
+        )
+    );
+
+    if ($podcast_art) {
+        $schema['image'] = $podcast_art;
+        $schema['partOfSeries']['image'] = $podcast_art;
+    }
+
+    if (has_post_thumbnail()) {
+        $schema['image'] = get_the_post_thumbnail_url($post_id, 'large');
+    }
+
+    if ($ep_number) {
+        $schema['episodeNumber'] = (int) $ep_number;
+    }
+
+    if ($iso_duration) {
+        $schema['timeRequired'] = $iso_duration;
+    }
+
+    if ($audio_url) {
+        $schema['associatedMedia'] = array(
+            '@type'      => 'MediaObject',
+            'contentUrl' => $audio_url
+        );
+    }
+
+    echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
+}
+add_action('wp_head', 'contentfreaks_episode_jsonld');

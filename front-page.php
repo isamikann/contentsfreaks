@@ -385,21 +385,8 @@ get_header(); ?>
         </div>
     </section>
 
-    <!-- ポッドキャストプラットフォーム -->
-    <section id="platforms" class="podcast-platforms-section">
-        <div class="platforms-container">
-            <div class="platforms-header fade-in">
-                <h2>どこでも聴ける</h2>
-                <p class="platforms-subtitle">お好みのプラットフォームでコンテンツフリークスをお楽しみください</p>
-            </div>
-            <div class="slide-up delay-100">
-                <?php echo do_shortcode('[podcast_platforms]'); ?>
-            </div>
-        </div>
-    </section>
-
-    <!-- 購読CTAセクション -->
-    <section class="subscribe-cta-section">
+    <!-- 購読CTAセクション（プラットフォーム紹介を統合） -->
+    <section id="platforms" class="subscribe-cta-section">
         <div class="subscribe-cta-inner">
             <h2 class="subscribe-cta-title">番組を聴いてみませんか？</h2>
             <p class="subscribe-cta-desc">お好きなプラットフォームでコンテンツフリークスを購読して、最新エピソードを見逃さずチェックしましょう。</p>

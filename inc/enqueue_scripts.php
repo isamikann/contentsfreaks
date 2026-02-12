@@ -58,6 +58,8 @@ function contentfreaks_enqueue_scripts() {
         wp_style_add_data('contentfreaks-front-page', 'priority', 'high');
     } elseif (is_page('episodes')) {
         wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.2.1');
+        // エピソード一覧ページ専用JS（Load More、パララックス、アニメーション）
+        wp_enqueue_script('contentfreaks-page-episodes', get_stylesheet_directory_uri() . '/page-episodes.js', array(), '1.0.0', true);
     } elseif (is_page('blog')) {
         wp_enqueue_style('contentfreaks-blog', get_stylesheet_directory_uri() . '/page-blog.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_page('history')) {

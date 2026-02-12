@@ -86,18 +86,20 @@
 
         episodeHeader.parentNode.insertBefore(container, episodeHeader.nextSibling);
 
-        // コピーボタン
+        // コピーボタン（navigator.share 対応時は存在しない）
         const copyBtn = container.querySelector('.share-btn-copy');
-        copyBtn.addEventListener('click', function () {
-            navigator.clipboard.writeText(this.dataset.url).then(function () {
-                copyBtn.classList.add('copied');
-                copyBtn.textContent = '✓ コピーしました';
-                setTimeout(function () {
-                    copyBtn.classList.remove('copied');
-                    copyBtn.innerHTML = '🔗 コピー';
-                }, 2000);
+        if (copyBtn) {
+            copyBtn.addEventListener('click', function () {
+                navigator.clipboard.writeText(this.dataset.url).then(function () {
+                    copyBtn.classList.add('copied');
+                    copyBtn.textContent = '✓ コピーしました';
+                    setTimeout(function () {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.innerHTML = '🔗 コピー';
+                    }, 2000);
+                });
             });
-        });
+        }
     }
 
     // ===== 4. お気に入りエピソード =====
@@ -218,20 +220,47 @@
         let debounceTimer;
         const grid = document.getElementById('episodes-grid');
         const originalHTML = grid ? grid.innerHTML : '';
+        const loadMoreWrapper = document.getElementById('load-more-wrapper');
+
+        // 検索クリアボタンを追加
+        var clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.className = 'search-clear-btn';
+        clearBtn.setAttribute('aria-label', '検索をクリア');
+        clearBtn.innerHTML = '×';
+        clearBtn.style.display = 'none';
+        searchInput.parentNode.style.position = 'relative';
+        searchInput.parentNode.appendChild(clearBtn);
+
+        clearBtn.addEventListener('click', function () {
+            searchInput.value = '';
+            clearBtn.style.display = 'none';
+            if (grid) grid.innerHTML = originalHTML;
+            var countEl = document.getElementById('search-result-count');
+            if (countEl) countEl.style.display = 'none';
+            if (loadMoreWrapper) loadMoreWrapper.style.display = '';
+            initFavorites();
+            searchInput.focus();
+        });
 
         searchInput.addEventListener('input', function () {
             const term = this.value.trim();
 
             clearTimeout(debounceTimer);
+            clearBtn.style.display = term.length > 0 ? '' : 'none';
 
             if (term.length === 0) {
                 // 検索語が空なら元に戻す
                 if (grid) grid.innerHTML = originalHTML;
                 var countEl = document.getElementById('search-result-count');
                 if (countEl) countEl.style.display = 'none';
+                if (loadMoreWrapper) loadMoreWrapper.style.display = '';
                 initFavorites(); // お気に入りボタン再初期化
                 return;
             }
+
+            // 検索中はLoad Moreを非表示
+            if (loadMoreWrapper) loadMoreWrapper.style.display = 'none';
 
             if (term.length < 2) return;
 
@@ -372,6 +401,39 @@
         });
     }
 
+    // ===== 8. チャプタータイムスタンプ → 音声シーク =====
+
+    function initChapterSeek() {
+        var seekBtns = document.querySelectorAll('.chapter-seek');
+        if (seekBtns.length === 0) return;
+
+        var audio = document.querySelector('.episode-audio-player');
+        if (!audio) return;
+
+        seekBtns.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var timeStr = this.dataset.time;
+                var parts = timeStr.split(':').map(Number);
+                var seconds = 0;
+                if (parts.length === 3) {
+                    seconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+                } else if (parts.length === 2) {
+                    seconds = parts[0] * 60 + parts[1];
+                }
+
+                audio.currentTime = seconds;
+                if (audio.paused) audio.play();
+
+                // プレーヤーまでスクロール
+                audio.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // アクティブ表示
+                seekBtns.forEach(function (b) { b.classList.remove('active'); });
+                btn.classList.add('active');
+            });
+        });
+    }
+
     /* --- フッター接近時にモバイルCTAバーを隠す --- */
     function initMobileListenBar() {
         var bar = document.getElementById('mobile-listen-bar');
@@ -396,6 +458,7 @@
         initTestimonialForm();
         initMobileListenBar();
         initReadingProgress();
+        initChapterSeek();
     }
 
     if (document.readyState === 'loading') {
