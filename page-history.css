@@ -19,7 +19,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 .history-page .container { max-width: 100%; padding: 0; }
 
 /* Hero */
-.history-hero { position: relative; background: linear-gradient(135deg, var(--history-primary), var(--history-secondary), var(--history-accent)); padding: 2rem; overflow: hidden; margin-bottom: 4rem; min-height: 50vh; display: flex; align-items: center; }
+.history-hero { position: relative; background: linear-gradient(135deg, var(--history-primary), var(--history-secondary), var(--history-accent)); padding: 5rem 2rem 3rem; overflow: hidden; margin-bottom: 4rem; min-height: auto; display: flex; align-items: center; }
 .history-hero-bg { position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1; }
 .hero-particles { position: absolute; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 50px 50px; animation: particleFloat 20s linear infinite; }
 @keyframes particleFloat { 0% { transform: translateY(0); } 100% { transform: translateY(-50px); } }
@@ -1711,5 +1711,25 @@ p.section-subtitle {
 
     .media-desc {
         font-size: 0.875rem;
+    }
+}
+
+/* ===== PC デスクトップ見やすさ改善 (1025px+) ===== */
+@media (min-width: 1025px) {
+    /* タイムラインの最大幅を制限して視線移動を減らす */
+    .timeline-container {
+        max-width: 960px;
+        margin: 0 auto;
+    }
+
+    /* ヒーローコンテンツを引き締め */
+    .history-hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* セクション間余白増 */
+    .timeline-section {
+        padding: 5rem 0;
     }
 }

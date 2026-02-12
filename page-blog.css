@@ -17,9 +17,9 @@ html {
 .blog-hero {
     position: relative;
     background: var(--blog-hero-bg);
-    padding: 2rem 0;
+    padding: 5rem 0 3rem;
     overflow: hidden;
-    min-height: 50vh;
+    min-height: auto;
     display: flex;
     align-items: center;
     color: var(--blog-hero-text);
@@ -163,21 +163,6 @@ html {
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-    display: block;
-    font-size: 2rem;
-    font-weight: 900;
-    color: white;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-
-.blog-stat-label {
-    display: block;
-    font-size: 0.85rem;
-    color: var(--blog-hero-stats-label);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-top: 0.5rem;
-}
 
 /* メインコンテンツエリア */
 .content-area {
@@ -259,10 +244,11 @@ html {
 
 .blog-filter-btn.active {
     background: var(--blog-card-btn-bg);
-    color: var(--blog-filters-active-text);
-    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
+    border-color: var(--color-accent-400, #ff6b35);
     transform: translateY(-3px);
-    box-shadow: var(--blog-card-btn-shadow);
+    box-shadow: 0 6px 20px rgba(255, 107, 53, 0.35);
+    font-weight: 700;
 }
 
 /* ブログ記事グリッド */
@@ -1068,5 +1054,64 @@ html {
     
     .no-blog-posts p {
         font-size: 0.9rem;
+    }
+}
+
+/* ===== PC デスクトップ見やすさ改善 (1025px+) ===== */
+@media (min-width: 1025px) {
+    /* ブロググリッドを3列固定で統一感 */
+    .blog-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        max-width: 1100px;
+        margin: 2rem auto;
+        padding: 2rem 0;
+    }
+
+    /* カードサムネイル高さを統一 */
+    .blog-thumbnail {
+        height: 200px;
+    }
+
+    /* コンテンツエリアの幅制限 */
+    .main-content {
+        max-width: 1160px;
+    }
+
+    /* ヒーローコンテンツを引き締め */
+    .blog-hero-content {
+        max-width: 800px;
+    }
+
+    /* 統計エリアを横に広がりすぎないよう制限 */
+    .blog-stats {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* フィルターボタンを中央に集約 */
+    .blog-filters {
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* カード内余白微増で読みやすく */
+    .blog-content {
+        padding: 1.75rem 2rem;
+    }
+
+    .blog-title {
+        font-size: 1.2rem;
+        line-height: 1.45;
+    }
+
+    .blog-excerpt {
+        font-size: 0.9rem;
+        -webkit-line-clamp: 3;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 }

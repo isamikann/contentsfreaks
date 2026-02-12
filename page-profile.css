@@ -21,9 +21,9 @@ body {
 .profile-hero {
     position: relative;
     background: var(--hero-bg);
-    padding: 2rem 0;
+    padding: 5rem 0 3rem;
     overflow: hidden;
-    min-height: 50vh;
+    min-height: auto;
     display: flex;
     align-items: center;
 }
@@ -113,8 +113,9 @@ body {
     display: block;
     font-size: 2.5rem;
     font-weight: 800;
-    color: var(--hero-accent);
+    color: #fff;
     line-height: 1;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
 .stat-label {
@@ -1442,6 +1443,38 @@ body {
 @media (prefers-color-scheme: dark) {
     .profile-page {
         /* 将来のダークモード対応 */
+    }
+}
+
+/* ===== PC デスクトップ見やすさ改善 (1025px+) ===== */
+@media (min-width: 1025px) {
+    /* プロフィール詳細:2カラムの間隔と最大幅を最適化 */
+    .profile-details-container {
+        max-width: 1060px;
+        gap: 2.5rem;
+    }
+
+    /* ヒーローコンテンツを引き締め */
+    .profile-hero-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* ヒーロー統計の間隔制限 */
+    .profile-hero-stats {
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* カード内余白微増 */
+    .host-profile-card {
+        padding: 2.5rem 3rem;
+    }
+
+    /* セクション間余白増 */
+    .profile-details-section {
+        padding: 5rem 0;
     }
 }
 

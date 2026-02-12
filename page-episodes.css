@@ -10,9 +10,9 @@ body {
 .episodes-hero {
     position: relative;
     background: var(--episodes-hero-bg);
-    padding: 2rem 0;
+    padding: 5rem 0 3rem;
     overflow: hidden;
-    min-height: 50vh;
+    min-height: auto;
     display: flex;
     align-items: center;
     color: var(--episodes-hero-text);
@@ -199,18 +199,21 @@ body {
 
 .search-box {
     position: relative;
-    min-width: 300px;
+    min-width: 400px;
+    max-width: 600px;
+    width: 100%;
 }
 
 .search-input {
     width: 100%;
-    padding: 1rem 3rem 1rem 1.5rem;
+    padding: 1.1rem 3.5rem 1.1rem 1.5rem;
     border: 2px solid var(--episodes-filters-border);
     border-radius: 50px;
     background: var(--episodes-filters-bg-alt);
     backdrop-filter: blur(10px);
-    font-size: 1rem;
+    font-size: 1.05rem;
     transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .search-input:focus {
@@ -867,14 +870,14 @@ body {
     .episode-card {
         display: flex;
         flex-direction: row;
-        height: 160px; /* 高さを調整 */
+        height: 145px; /* 高さを調整 */
         overflow: hidden;
     }
     
     .episode-card-header,
     .episode-thumbnail {
-        width: 160px;
-        height: 160px;
+        width: 145px;
+        height: 145px;
         aspect-ratio: 1 / 1; /* 正方形のアスペクト比を維持 */
         flex-shrink: 0;
         display: flex;
@@ -1169,4 +1172,42 @@ body {
 .load-more-spinner {
     text-align: center;
     padding: var(--space-4, 16px) 0;
+}
+
+/* ===== PC デスクトップ見やすさ改善 (1025px+) ===== */
+@media (min-width: 1025px) {
+    /* グリッドを3列固定で統一感 */
+    .episodes-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        max-width: 1100px;
+        margin: 2rem auto 0;
+    }
+
+    /* ヒーローコンテンツ幅を抑えて視線集中 */
+    .episodes-hero-content {
+        max-width: 800px;
+    }
+
+    /* ヒーロー統計を横に並べすぎない */
+    .episodes-hero-stats {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* フィルターセクションを引き締め */
+    .episodes-filters-container {
+        max-width: 800px;
+    }
+
+    /* カード内コンテンツ余白増 */
+    .episode-card-content {
+        padding: 1.25rem 1.5rem 1.5rem;
+    }
+
+    /* カードタイトルのフォントサイズ微増 */
+    .episode-title {
+        font-size: 1.1rem;
+    }
 }
