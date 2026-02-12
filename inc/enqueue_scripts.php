@@ -4,6 +4,14 @@
  * HTTP/2 Server Push最適化対応
  */
 function contentfreaks_enqueue_scripts() {
+    // Cocoon親テーマによるstyle.css重複読み込みを解除（自前でver管理するため）
+    wp_dequeue_style('cocoon-child');
+    wp_deregister_style('cocoon-child');
+    
+    // Cocoon親テーマによるjavascript.js自動読み込みを解除
+    wp_dequeue_script('cocoon-child');
+    wp_deregister_script('cocoon-child');
+
     // Google Fontsの読み込み（一箇所に統一）
     wp_enqueue_style(
         'contentfreaks-fonts',
