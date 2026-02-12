@@ -324,9 +324,9 @@ body {
     flex-shrink: 0; /* サムネイルのサイズを固定 */
 }
 
-/* カードホバー時の再生CTAオーバーレイ */
+/* カードホバー時のCTAオーバーレイ（詳細ページへのリンクであることを明示） */
 .episode-thumbnail::after {
-    content: '▶';
+    content: '詳しく見る →';
     position: absolute;
     inset: 0;
     display: flex;
@@ -334,7 +334,9 @@ body {
     justify-content: center;
     background: rgba(0, 0, 0, 0.5);
     color: #fff;
-    font-size: 2rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;

@@ -184,25 +184,25 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 
 /* Responsive - Mobile */
 @media (max-width: 480px) {
-    .history-hero { padding: 3rem 1rem 1.5rem; }
+    .history-hero { padding: 3rem 1.5rem 1.5rem; }
     .history-hero-title { font-size: 2rem; }
     .hero-icon { font-size: 2.5rem; }
     .hero-icon-glow { width: 80px; height: 80px; }
     .journey-stats { gap: 1.5rem; }
     .stat-value { font-size: 1.75rem; }
     .stat-unit { font-size: 0.875rem; }
-    .timeline-section { padding: 2.5rem 1rem; }
+    .timeline-section { padding: 2.5rem 1.5rem; }
     .timeline-title { font-size: 1.75rem; }
     .year-number { font-size: 2rem; }
     .year-info h3 { font-size: 1.25rem; }
-    .timeline { padding-left: 1.5rem; }
+    .timeline { padding-left: 2rem; }
     .timeline::before { width: 2px; }
     .timeline-marker { left: -2.75rem; width: 36px; height: 36px; border-width: 3px; }
     .marker-icon { font-size: 1rem; }
-    .timeline-item { padding: 1.25rem; margin-bottom: 2rem; }
+    .timeline-item { padding: 1.25rem 1.5rem; margin-bottom: 2rem; }
     .timeline-title { font-size: 1.125rem; }
     .timeline-badge { padding: 0.2rem 0.6rem; font-size: 0.65rem; }
-    .future-section { padding: 3rem 1rem; }
+    .future-section { padding: 3rem 1.5rem; }
     .future-icon { font-size: 3rem; }
     .future-title { font-size: 1.75rem; }
     .future-subtitle { font-size: 1.125rem; }
@@ -817,7 +817,7 @@ p.section-subtitle {
     .artwork-evolution-section,
     .growth-graph-section,
     .platform-stats-section {
-        padding: 2.5rem 1rem;
+        padding: 2.5rem 1.5rem;
     }
 
     .section-title {
@@ -830,7 +830,7 @@ p.section-subtitle {
 
     .growth-chart {
         flex-direction: column;
-        padding: 1.5rem 1rem;
+        padding: 1.5rem;
     }
 
     .chart-y-axis {
@@ -1585,7 +1585,7 @@ p.section-subtitle {
     .testimonials-container,
     .analysis-container,
     .media-container {
-        padding: 0 1rem;
+        padding: 0 1.5rem;
     }
 
     .section-title {

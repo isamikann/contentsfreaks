@@ -344,20 +344,40 @@
 
             fetch(contentfreaks_ajax.ajax_url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
                 body: formData.toString()
             })
-                .then(function (r) { return r.json(); })
+                .then(function (r) {
+                    if (!r.ok) {
+                        throw new Error('HTTP ' + r.status);
+                    }
+                    return r.text();
+                })
+                .then(function (text) {
+                    try {
+                        return JSON.parse(text);
+                    } catch (e) {
+                        throw new Error('レスポンスの解析に失敗しました');
+                    }
+                })
                 .then(function (data) {
                     if (data.success) {
                         showFormMessage(msgDiv, data.data.message, 'success');
                         form.reset();
                     } else {
-                        showFormMessage(msgDiv, data.data.message || '送信に失敗しました。', 'error');
+                        var msg = (data.data && data.data.message) ? data.data.message : '送信に失敗しました。';
+                        showFormMessage(msgDiv, msg, 'error');
                     }
                 })
-                .catch(function () {
-                    showFormMessage(msgDiv, '通信エラーが発生しました。', 'error');
+                .catch(function (err) {
+                    showFormMessage(msgDiv, '通信エラーが発生しました。しばらく経ってから再度お試しください。', 'error');
+                    if (typeof console !== 'undefined') {
+                        console.error('Testimonial submit error:', err);
+                    }
                 })
                 .finally(function () {
                     submitBtn.disabled = false;
