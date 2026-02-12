@@ -15,13 +15,8 @@ if (!defined('ABSPATH')) {
 $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
 $episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
 $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
-$card_tags = get_the_tags();
-$tag_slugs = '';
-if ($card_tags && !is_wp_error($card_tags)) {
-    $tag_slugs = implode(',', wp_list_pluck($card_tags, 'slug'));
-}
 ?>
-<article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>" data-tags="<?php echo esc_attr($tag_slugs); ?>">
+<article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
     <div class="episode-card-header">
         <div class="episode-thumbnail">
             <?php if (has_post_thumbnail()) : ?>

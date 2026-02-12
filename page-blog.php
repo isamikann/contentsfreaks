@@ -207,38 +207,59 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // ロードモア機能
+    // ロードモア機能（AJAX対応版）
     const loadMoreBtn = document.getElementById('load-more-blog');
-    if (loadMoreBtn) {
+    if (loadMoreBtn && typeof contentfreaks_ajax !== 'undefined') {
         loadMoreBtn.addEventListener('click', function() {
             const offset = parseInt(this.dataset.offset);
             const limit = parseInt(this.dataset.limit);
             
-            // Ajax リクエストでブログ記事を追加読み込み
-            fetch(`${window.location.href}?ajax=1&offset=${offset}&limit=${limit}`)
-                .then(response => response.text())
-                .then(html => {
-                    const blogGrid = document.getElementById('blog-grid');
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = html;
-                    
-                    // 新しいブログカードを追加
-                    const newCards = tempDiv.querySelectorAll('.blog-card');
-                    newCards.forEach((card, index) => {
-                        card.style.animationDelay = `${(index + 1) * 0.1}s`;
-                        blogGrid.appendChild(card);
-                    });
-                    
-                    // オフセットを更新
-                    this.dataset.offset = offset + limit;
-                    
-                    // ボタンが不要になったら非表示
-                    if (newCards.length < limit) {
+            this.disabled = true;
+            this.textContent = '読み込み中...';
+            
+            const formData = new URLSearchParams();
+            formData.append('action', 'load_more_blog');
+            formData.append('nonce', contentfreaks_ajax.nonce);
+            formData.append('offset', offset);
+            formData.append('limit', limit);
+            
+            fetch(contentfreaks_ajax.ajax_url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.data.html) {
+                        const blogGrid = document.getElementById('blog-grid');
+                        blogGrid.insertAdjacentHTML('beforeend', data.data.html);
+                        
+                        this.dataset.offset = offset + limit;
+                        this.disabled = false;
+                        this.textContent = 'さらに読み込む';
+                        
+                        if (!data.data.has_more) {
+                            this.style.display = 'none';
+                        }
+                        
+                        // 新しいカードにクリック処理を適用
+                        const newCards = blogGrid.querySelectorAll('.blog-card:not([data-initialized])');
+                        newCards.forEach(card => {
+                            card.dataset.initialized = 'true';
+                            card.addEventListener('click', function(e) {
+                                if (e.target.tagName.toLowerCase() === 'a') return;
+                                const link = this.querySelector('.blog-title a');
+                                if (link) window.location.href = link.href;
+                            });
+                        });
+                    } else {
                         this.style.display = 'none';
                     }
                 })
                 .catch(error => {
                     console.error('ブログ記事の読み込みに失敗しました:', error);
+                    this.disabled = false;
+                    this.textContent = 'さらに読み込む';
                 });
         });
     }

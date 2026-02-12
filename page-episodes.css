@@ -1247,63 +1247,6 @@ body {
     cursor: wait;
 }
 
-/* ===== タグフィルターバー ===== */
-
-.tag-filter-bar {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-top: 1.25rem;
-    padding: 0 1rem;
-}
-
-.tag-filter-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.4rem 0.9rem;
-    border-radius: 9999px;
-    border: 1px solid var(--color-border-light, #e2e8f0);
-    background: var(--color-bg-secondary, #f7fafc);
-    color: var(--color-text-secondary, #4a5568);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-}
-
-.tag-filter-chip:hover {
-    border-color: var(--color-primary-400, #f7ff0b);
-    background: rgba(247, 255, 11, 0.1);
-    color: var(--color-text-primary, #1a202c);
-}
-
-.tag-filter-chip.active {
-    background: var(--color-primary-400, #f7ff0b);
-    color: var(--color-text-primary, #1a202c);
-    border-color: var(--color-primary-400, #f7ff0b);
-    font-weight: 700;
-}
-
-.tag-count {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 18px;
-    height: 18px;
-    border-radius: 9px;
-    background: rgba(0, 0, 0, 0.1);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    padding: 0 4px;
-}
-
-.tag-filter-chip.active .tag-count {
-    background: rgba(0, 0, 0, 0.15);
-}
-
 /* ===== エピソードカード 概要テキスト ===== */
 
 .episode-excerpt {
@@ -1324,12 +1267,4 @@ body {
         margin-top: 0.75rem;
     }
     
-    .tag-filter-bar {
-        gap: 0.35rem;
-    }
-    
-    .tag-filter-chip {
-        font-size: 0.75rem;
-        padding: 0.3rem 0.7rem;
-    }
 }

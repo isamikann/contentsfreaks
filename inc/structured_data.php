@@ -28,6 +28,21 @@ function contentfreaks_output_ogp_tags() {
         if ($default_image) {
             echo '<meta property="og:image" content="' . esc_url($default_image) . '">' . "\n";
         }
+    } elseif (is_page()) {
+        // 固定ページ（エピソード一覧、ブログ、プロフィール等）
+        $title = get_the_title();
+        $description = has_excerpt() ? get_the_excerpt() : $site_name . ' - ' . $title;
+        echo '<meta property="og:type" content="website">' . "\n";
+        echo '<meta property="og:title" content="' . esc_attr($title . ' | ' . $site_name) . '">' . "\n";
+        echo '<meta property="og:description" content="' . esc_attr(wp_strip_all_tags($description)) . '">' . "\n";
+        echo '<meta property="og:url" content="' . esc_url(get_permalink()) . '">' . "\n";
+        echo '<meta name="description" content="' . esc_attr(wp_strip_all_tags($description)) . '">' . "\n";
+        if (has_post_thumbnail()) {
+            $thumb_url = get_the_post_thumbnail_url(get_the_ID(), 'large');
+            echo '<meta property="og:image" content="' . esc_url($thumb_url) . '">' . "\n";
+        } elseif ($default_image) {
+            echo '<meta property="og:image" content="' . esc_url($default_image) . '">' . "\n";
+        }
     } elseif (is_singular()) {
         $post_id = get_the_ID();
         $title = get_the_title();
@@ -56,17 +71,6 @@ function contentfreaks_output_ogp_tags() {
             $thumb_url = get_the_post_thumbnail_url($post_id, 'large');
             echo '<meta property="og:image" content="' . esc_url($thumb_url) . '">' . "\n";
         } elseif ($default_image) {
-            echo '<meta property="og:image" content="' . esc_url($default_image) . '">' . "\n";
-        }
-    } elseif (is_page()) {
-        $title = get_the_title();
-        $description = has_excerpt() ? get_the_excerpt() : $site_name . ' - ' . $title;
-        echo '<meta property="og:type" content="website">' . "\n";
-        echo '<meta property="og:title" content="' . esc_attr($title . ' | ' . $site_name) . '">' . "\n";
-        echo '<meta property="og:description" content="' . esc_attr(wp_strip_all_tags($description)) . '">' . "\n";
-        echo '<meta property="og:url" content="' . esc_url(get_permalink()) . '">' . "\n";
-        echo '<meta name="description" content="' . esc_attr(wp_strip_all_tags($description)) . '">' . "\n";
-        if ($default_image) {
             echo '<meta property="og:image" content="' . esc_url($default_image) . '">' . "\n";
         }
     } elseif (is_archive() || is_tag() || is_category()) {

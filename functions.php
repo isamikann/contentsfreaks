@@ -789,6 +789,100 @@ add_action('wp_ajax_get_reactions', 'contentfreaks_get_reactions');
 add_action('wp_ajax_nopriv_get_reactions', 'contentfreaks_get_reactions');
 
 /**
+ * AJAX: ブログ記事の追加読み込み
+ */
+function contentfreaks_load_more_blog() {
+    if (!check_ajax_referer('contentfreaks_load_more', 'nonce', false)) {
+        wp_send_json_error('Security check failed');
+    }
+    
+    $offset = isset($_POST['offset']) ? intval($_POST['offset']) : 0;
+    $limit = isset($_POST['limit']) ? intval($_POST['limit']) : 12;
+    
+    $blog_query = new WP_Query(array(
+        'post_type' => 'post',
+        'posts_per_page' => $limit,
+        'offset' => $offset,
+        'meta_query' => array(
+            array(
+                'key' => 'is_podcast_episode',
+                'compare' => 'NOT EXISTS'
+            )
+        ),
+        'orderby' => 'date',
+        'order' => 'DESC'
+    ));
+    
+    if (!$blog_query->have_posts()) {
+        wp_send_json_error('No more posts');
+    }
+    
+    ob_start();
+    while ($blog_query->have_posts()) : $blog_query->the_post();
+        $categories = get_the_category();
+        $tags = get_the_tags();
+        $main_category = !empty($categories) ? $categories[0]->name : 'その他';
+        $read_time = get_post_meta(get_the_ID(), 'estimated_read_time', true) ?: '3分';
+        $author_display = get_the_author_meta('display_name');
+    ?>
+    <article class="blog-card" data-category="<?php echo esc_attr($main_category); ?>">
+        <div class="blog-thumbnail">
+            <?php if (has_post_thumbnail()) : ?>
+                <?php the_post_thumbnail('medium', array('alt' => get_the_title(), 'loading' => 'lazy')); ?>
+            <?php else : ?>
+                <div class="blog-placeholder">📖</div>
+            <?php endif; ?>
+            <div class="blog-category-badge"><?php echo esc_html($main_category); ?></div>
+            <div class="blog-date-badge"><?php echo get_the_date('n/j'); ?></div>
+            <div class="blog-featured-overlay">📄</div>
+        </div>
+        <div class="blog-content">
+            <div class="blog-meta">
+                <span class="blog-author">by <?php echo esc_html($author_display); ?></span>
+                <span class="blog-read-time">読了 <?php echo esc_html($read_time); ?></span>
+            </div>
+            <h3 class="blog-title">
+                <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
+            </h3>
+            <div class="blog-excerpt">
+                <?php echo wp_trim_words(get_the_excerpt(), 25); ?>
+            </div>
+            <div class="blog-actions">
+                <a href="<?php the_permalink(); ?>" class="blog-read-more">続きを読む</a>
+                <div class="blog-tags">
+                    <?php if ($tags) : ?>
+                        <?php foreach (array_slice($tags, 0, 3) as $tag) : ?>
+                            <a href="<?php echo get_tag_link($tag->term_id); ?>" class="blog-tag">#<?php echo esc_html($tag->name); ?></a>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </article>
+    <?php
+    endwhile;
+    wp_reset_postdata();
+    
+    $html = ob_get_clean();
+    
+    $next_query = new WP_Query(array(
+        'post_type' => 'post',
+        'posts_per_page' => 1,
+        'offset' => $offset + $limit,
+        'meta_query' => array(
+            array('key' => 'is_podcast_episode', 'compare' => 'NOT EXISTS')
+        ),
+    ));
+    
+    wp_send_json_success(array(
+        'html' => $html,
+        'has_more' => $next_query->have_posts()
+    ));
+}
+add_action('wp_ajax_load_more_blog', 'contentfreaks_load_more_blog');
+add_action('wp_ajax_nopriv_load_more_blog', 'contentfreaks_load_more_blog');
+
+/**
  * AJAX: エピソードページ用の無限スクロール
  */
 function contentfreaks_load_more_episodes() {
@@ -867,20 +961,24 @@ function contentfreaks_theme_setup() {
 add_action('after_setup_theme', 'contentfreaks_theme_setup');
 
 /**
- * ページのURLを取得するヘルパー関数
+ * ページのURLを取得するヘルパー関数（静的キャッシュ付き）
  */
 function contentfreaks_get_page_url($slug) {
+    static $cache = array();
+    if (isset($cache[$slug])) return $cache[$slug];
     $page = get_page_by_path($slug);
-    if ($page) {
-        return get_permalink($page->ID);
-    }
-    return home_url('/' . $slug . '/');
+    $url = $page ? get_permalink($page->ID) : home_url('/' . $slug . '/');
+    $cache[$slug] = $url;
+    return $url;
 }
 
 /**
  * 必要なページが存在するかチェックし、なければ作成する
  */
 function contentfreaks_create_pages() {
+    // 既に作成済みならスキップ（毎リクエストでの不要なDBクエリを削減）
+    if (get_option('contentfreaks_pages_created')) return;
+    
     $pages = array(
         'blog' => array(
             'title' => 'ブログ',
@@ -915,7 +1013,11 @@ function contentfreaks_create_pages() {
             }
         }
     }
+    
+    update_option('contentfreaks_pages_created', true);
 }
+add_action('after_switch_theme', 'contentfreaks_create_pages');
+// initでも初回のみ実行（フラグがない場合のフォールバック）
 add_action('init', 'contentfreaks_create_pages');
 
 /**
@@ -1629,71 +1731,7 @@ function contentfreaks_breadcrumb() {
 }
 
 /**
- * ポッドキャストエピソードの JSON-LD 構造化データを出力
- * Google検索でリッチリザルト（ポッドキャスト）を表示するため
+ * ポッドキャストエピソードの JSON-LD 構造化データ
+ * → inc/structured_data.php に統合済みのため削除
+ * 以前はここに contentfreaks_episode_jsonld() があったが重複出力になっていた
  */
-function contentfreaks_episode_jsonld() {
-    if (!is_single()) return;
-    
-    $post_id = get_the_ID();
-    $is_podcast = get_post_meta($post_id, 'is_podcast_episode', true);
-    if (!$is_podcast) return;
-
-    $audio_url     = get_post_meta($post_id, 'episode_audio_url', true);
-    $duration      = get_post_meta($post_id, 'episode_duration', true);
-    $ep_number     = get_post_meta($post_id, 'episode_number', true);
-    $podcast_name  = get_theme_mod('podcast_name', 'ContentFreaks');
-    $podcast_art   = get_theme_mod('podcast_artwork', '');
-
-    // duration を ISO 8601 形式に変換 (例: "65:30" → "PT65M30S", "1:05:30" → "PT1H5M30S")
-    $iso_duration = '';
-    if ($duration) {
-        $parts = array_map('intval', explode(':', $duration));
-        if (count($parts) === 3) {
-            $iso_duration = sprintf('PT%dH%dM%dS', $parts[0], $parts[1], $parts[2]);
-        } elseif (count($parts) === 2) {
-            $iso_duration = sprintf('PT%dM%dS', $parts[0], $parts[1]);
-        }
-    }
-
-    $schema = array(
-        '@context'    => 'https://schema.org',
-        '@type'       => 'PodcastEpisode',
-        'name'        => get_the_title(),
-        'url'         => get_permalink(),
-        'datePublished' => get_the_date('c'),
-        'description' => wp_trim_words(wp_strip_all_tags(get_the_content()), 50, '…'),
-        'partOfSeries' => array(
-            '@type' => 'PodcastSeries',
-            'name'  => $podcast_name,
-            'url'   => home_url('/')
-        )
-    );
-
-    if ($podcast_art) {
-        $schema['image'] = $podcast_art;
-        $schema['partOfSeries']['image'] = $podcast_art;
-    }
-
-    if (has_post_thumbnail()) {
-        $schema['image'] = get_the_post_thumbnail_url($post_id, 'large');
-    }
-
-    if ($ep_number) {
-        $schema['episodeNumber'] = (int) $ep_number;
-    }
-
-    if ($iso_duration) {
-        $schema['timeRequired'] = $iso_duration;
-    }
-
-    if ($audio_url) {
-        $schema['associatedMedia'] = array(
-            '@type'      => 'MediaObject',
-            'contentUrl' => $audio_url
-        );
-    }
-
-    echo '<script type="application/ld+json">' . wp_json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . '</script>' . "\n";
-}
-add_action('wp_head', 'contentfreaks_episode_jsonld');

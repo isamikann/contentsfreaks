@@ -322,11 +322,11 @@ get_header(); ?>
                     どんなメッセージもお待ちしています！
                 </p>
                 <div class="cta-buttons">
-                    <a href="/contact/" class="contact-cta-button primary">
+                    <a href="<?php echo esc_url(contentfreaks_get_page_url('contact')); ?>" class="contact-cta-button primary">
                         <span class="btn-icon">✉️</span>
                         お問い合わせ
                     </a>
-                    <a href="/episodes/" class="contact-cta-button secondary">
+                    <a href="<?php echo esc_url(contentfreaks_get_page_url('episodes')); ?>" class="contact-cta-button secondary">
                         <span class="btn-icon">🎧</span>
                         エピソード一覧
                     </a>

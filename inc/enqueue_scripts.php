@@ -112,6 +112,7 @@ function contentfreaks_resource_hints($hints, $relation_type) {
     if ('dns-prefetch' === $relation_type) {
         $hints[] = '//fonts.googleapis.com';
         $hints[] = '//fonts.gstatic.com';
+        $hints[] = '//d3ctxlq1ktw2nl.cloudfront.net';
     }
     
     if ('preconnect' === $relation_type) {
@@ -122,6 +123,9 @@ function contentfreaks_resource_hints($hints, $relation_type) {
         $hints[] = array(
             'href' => 'https://fonts.gstatic.com',
             'crossorigin',
+        );
+        $hints[] = array(
+            'href' => 'https://d3ctxlq1ktw2nl.cloudfront.net',
         );
     }
     

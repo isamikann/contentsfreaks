@@ -63,26 +63,6 @@ get_header(); ?>
                 </button>
             </div>
             
-            <?php
-            // 人気タグを取得してフィルターとして表示
-            $popular_tags = get_tags(array(
-                'orderby' => 'count',
-                'order' => 'DESC',
-                'number' => 12,
-                'hide_empty' => true,
-            ));
-            if ($popular_tags && !is_wp_error($popular_tags)) : ?>
-            <div class="tag-filter-bar" id="tag-filter-bar">
-                <button type="button" class="tag-filter-chip active" data-tag="">すべて</button>
-                <?php foreach ($popular_tags as $tag) : ?>
-                    <button type="button" class="tag-filter-chip" data-tag="<?php echo esc_attr($tag->slug); ?>">
-                        #<?php echo esc_html($tag->name); ?>
-                        <span class="tag-count"><?php echo $tag->count; ?></span>
-                    </button>
-                <?php endforeach; ?>
-            </div>
-            <?php endif; ?>
-            
             <div class="episodes-grid" id="episodes-grid">
             <?php
             // ポッドキャスト投稿を取得（カスタムフィールドでフィルタ）

@@ -538,6 +538,79 @@
 
     // ===== 11. エピソードリアクション =====
 
+    // ===== 10.5 音声再生位置の保持 =====
+
+    function initAudioResume() {
+        var audio = document.querySelector('.episode-audio-player');
+        if (!audio) return;
+
+        var postId = '';
+        if (typeof contentfreaks_ajax !== 'undefined' && contentfreaks_ajax.post_id) {
+            postId = String(contentfreaks_ajax.post_id);
+        }
+        if (!postId) {
+            var reactionsEl = document.getElementById('episode-reactions');
+            if (reactionsEl) postId = reactionsEl.dataset.postId;
+        }
+        if (!postId) return;
+
+        var storageKey = 'cf-audio-pos-' + postId;
+        var savedPos = parseFloat(localStorage.getItem(storageKey) || '0');
+
+        // 保存位置があれば復元UIを表示
+        if (savedPos > 10) {
+            var resumeBar = document.createElement('div');
+            resumeBar.className = 'audio-resume-bar';
+            var mins = Math.floor(savedPos / 60);
+            var secs = Math.floor(savedPos % 60);
+            var timeStr = mins + ':' + (secs < 10 ? '0' : '') + secs;
+            resumeBar.innerHTML = '<button type="button" class="resume-btn">▶ 前回の続き（' + timeStr + '）から再生</button>' +
+                '<button type="button" class="resume-dismiss">\u00d7</button>';
+
+            var player = audio.closest('.episode-inline-player');
+            if (player) {
+                player.insertBefore(resumeBar, audio);
+            }
+
+            resumeBar.querySelector('.resume-btn').addEventListener('click', function () {
+                audio.currentTime = savedPos;
+                audio.play();
+                resumeBar.remove();
+            });
+
+            resumeBar.querySelector('.resume-dismiss').addEventListener('click', function () {
+                localStorage.removeItem(storageKey);
+                resumeBar.remove();
+            });
+        }
+
+        // 再生中は10秒ごとに位置を保存
+        var saveInterval = null;
+        audio.addEventListener('play', function () {
+            if (saveInterval) clearInterval(saveInterval);
+            saveInterval = setInterval(function () {
+                if (audio.currentTime > 5) {
+                    localStorage.setItem(storageKey, audio.currentTime);
+                }
+            }, 10000);
+        });
+
+        audio.addEventListener('pause', function () {
+            if (saveInterval) clearInterval(saveInterval);
+            if (audio.currentTime > 5) {
+                localStorage.setItem(storageKey, audio.currentTime);
+            }
+        });
+
+        // 再生完了時は位置をクリア
+        audio.addEventListener('ended', function () {
+            if (saveInterval) clearInterval(saveInterval);
+            localStorage.removeItem(storageKey);
+        });
+    }
+
+    // ===== 11. エピソードリアクション（続き） =====
+
     function initReactions() {
         var container = document.getElementById('episode-reactions');
         if (!container) return;
@@ -626,50 +699,7 @@
         }
     }
 
-    // ===== 12. タグフィルター =====
-
-    function initTagFilter() {
-        var bar = document.getElementById('tag-filter-bar');
-        if (!bar) return;
-
-        var chips = bar.querySelectorAll('.tag-filter-chip');
-        var grid = document.getElementById('episodes-grid');
-        var loadMoreWrapper = document.getElementById('load-more-wrapper');
-
-        chips.forEach(function (chip) {
-            chip.addEventListener('click', function () {
-                var tag = this.dataset.tag;
-
-                chips.forEach(function (c) { c.classList.remove('active'); });
-                this.classList.add('active');
-
-                var cards = grid.querySelectorAll('.episode-card');
-                var visibleCount = 0;
-
-                cards.forEach(function (card) {
-                    if (!tag) {
-                        card.style.display = '';
-                        visibleCount++;
-                    } else {
-                        var cardTags = (card.dataset.tags || '').split(',');
-                        if (cardTags.indexOf(tag) > -1) {
-                            card.style.display = '';
-                            visibleCount++;
-                        } else {
-                            card.style.display = 'none';
-                        }
-                    }
-                });
-
-                // フィルター中はLoad Moreを非表示
-                if (loadMoreWrapper) {
-                    loadMoreWrapper.style.display = tag ? 'none' : '';
-                }
-            });
-        });
-    }
-
-    // ===== 13. リスニング統計（localStorage） =====
+    // ===== 12. リスニング統計（localStorage） =====
 
     function initListeningStats() {
         if (!document.querySelector('.single-episode-container')) return;
@@ -707,8 +737,8 @@
         initChapterSeek();
         initRandomEpisode();
         initPlaybackSpeed();
+        initAudioResume();
         initReactions();
-        initTagFilter();
         initListeningStats();
     }
 
