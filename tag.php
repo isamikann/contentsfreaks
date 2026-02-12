@@ -7,6 +7,7 @@
 get_header(); ?>
 
 <main id="main" class="site-main contentfreaks-episodes-page">
+    <?php contentfreaks_breadcrumb(); ?>
     <!-- ヒーローセクション -->
     <section class="episodes-hero">
         <div class="episodes-hero-bg">
@@ -53,51 +54,7 @@ get_header(); ?>
                     $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
                     $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
             ?>
-                <article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
-                    <div class="episode-card-header">
-                        <div class="episode-thumbnail">
-                            <?php if (has_post_thumbnail()) : ?>
-                                <a href="<?php the_permalink(); ?>">
-                                    <?php the_post_thumbnail('medium', array(
-                                        'alt' => get_the_title(),
-                                        'loading' => 'lazy'
-                                    )); ?>
-                                </a>
-                            <?php else : ?>
-                                <a href="<?php the_permalink(); ?>">
-                                    <div class="default-thumbnail">
-                                        <div style="background: linear-gradient(135deg, #f7ff0b, #ff6b35); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">🎙️</div>
-                                    </div>
-                                </a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                    
-                    <div class="episode-card-content">
-                        <div class="episode-meta">
-                            <div class="episode-meta-left">
-                                <span class="episode-date"><?php echo get_the_date('Y年n月j日'); ?></span>
-                                
-                                <?php 
-                                // タグを取得・表示
-                                $tags = get_the_tags();
-                                if ($tags && !is_wp_error($tags)) : ?>
-                                <div class="episode-tags">
-                                    <?php foreach ($tags as $tag) : ?>
-                                        <a href="<?php echo get_tag_link($tag->term_id); ?>" class="episode-tag">
-                                            #<?php echo esc_html($tag->name); ?>
-                                        </a>
-                                    <?php endforeach; ?>
-                                </div>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        
-                        <h3 class="episode-title">
-                            <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                        </h3>
-                    </div>
-                </article>
+                <?php get_template_part('template-parts/episode-card'); ?>
             <?php 
                 endwhile;
             else :

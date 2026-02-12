@@ -1926,3 +1926,137 @@
             font-size: 0.8rem;
         }
     }
+
+/* ===== 今週のピックアップ ===== */
+.pickup-section {
+    padding: 4rem 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.pickup-container {
+    width: 100%;
+}
+
+.pickup-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.pickup-header h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-primary, #fff);
+    margin-bottom: 0.5rem;
+}
+
+.pickup-subtitle {
+    font-size: 0.9375rem;
+    color: var(--text-secondary, #a0a0a0);
+}
+
+@media (max-width: 768px) {
+    .pickup-section { padding: 2rem 1rem; }
+    .pickup-header h2 { font-size: 1.25rem; }
+}
+
+/* ===== リスナー投稿フォーム ===== */
+.testimonial-form-wrapper {
+    max-width: 600px;
+    margin: 3rem auto 0;
+    padding: 2rem;
+    background: var(--surface-primary, #141414);
+    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.1));
+    border-radius: 16px;
+}
+
+.form-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+    text-align: center;
+    margin: 0 0 1.5rem;
+}
+
+.testimonial-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-row { width: 100%; }
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.15));
+    background: var(--surface-secondary, #1a1a1a);
+    color: var(--text-primary, #fff);
+    font-size: 0.9375rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s ease;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    border-color: var(--primary, #f7ff0b);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-submit-btn {
+    padding: 0.75rem 2rem;
+    background: var(--primary, #f7ff0b);
+    color: var(--black, #0a0a0a);
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    align-self: center;
+}
+
+.form-submit-btn:hover {
+    background: var(--accent, #ff6b35);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.form-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.form-message {
+    text-align: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.form-message-success {
+    background: rgba(6, 199, 85, 0.1);
+    color: #06C755;
+    border: 1px solid rgba(6, 199, 85, 0.3);
+}
+
+.form-message-error {
+    background: rgba(255, 59, 48, 0.1);
+    color: #ff3b30;
+    border: 1px solid rgba(255, 59, 48, 0.3);
+}
+
+@media (max-width: 768px) {
+    .testimonial-form-wrapper {
+        margin: 2rem 1rem 0;
+        padding: 1.5rem;
+    }
+}

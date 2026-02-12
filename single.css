@@ -1223,3 +1223,77 @@ html {
         display: none;
     }
 }
+
+/* ===== 話題チャプター ===== */
+
+.episode-chapters {
+    background: var(--surface-primary, #141414);
+    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.1));
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.chapters-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary, #fff);
+    margin: 0 0 1rem;
+}
+
+.chapters-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: chapter;
+}
+
+.chapter-item {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--border-secondary, rgba(255, 255, 255, 0.06));
+    transition: background 0.15s ease;
+    margin: 0;
+}
+
+.chapter-item:last-child {
+    border-bottom: none;
+}
+
+.chapter-item:hover {
+    background: var(--surface-secondary, #1a1a1a);
+    border-radius: 8px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.chapter-time {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--primary, #f7ff0b);
+    background: rgba(247, 255, 11, 0.08);
+    padding: 0.125rem 0.5rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    min-width: 3.5rem;
+    text-align: center;
+}
+
+.chapter-name {
+    font-size: 0.9375rem;
+    color: var(--text-primary, #fff);
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .episode-chapters {
+        padding: 1rem;
+    }
+    .chapter-item {
+        gap: 0.75rem;
+    }
+}
+

@@ -38,10 +38,12 @@ get_header(); ?>
                     <span class="episodes-stat-number"><?php 
                         $total_episodes = new WP_Query(array(
                             'post_type' => 'post',
-                            'posts_per_page' => -1,
+                            'posts_per_page' => 1,
                             'meta_key' => 'is_podcast_episode',
                             'meta_value' => '1',
-                            'post_status' => 'publish'
+                            'post_status' => 'publish',
+                            'fields' => 'ids',
+                            'no_found_rows' => false
                         ));
                         echo $total_episodes->found_posts ? $total_episodes->found_posts : '0';
                         wp_reset_postdata();

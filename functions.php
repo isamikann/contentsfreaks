@@ -20,6 +20,7 @@ require_once get_stylesheet_directory() . '/inc/dynamic_styles.php';
 require_once get_stylesheet_directory() . '/inc/image_optimization.php'; // 画像最適化
 require_once get_stylesheet_directory() . '/inc/performance_optimization.php'; // パフォーマンス最適化
 require_once get_stylesheet_directory() . '/inc/structured_data.php'; // 構造化データ・OGP
+require_once get_stylesheet_directory() . '/inc/works_cpt.php'; // 作品データベース\nrequire_once get_stylesheet_directory() . '/inc/testimonials.php'; // リスナーの声
 
 // RSS自動投稿関連の読み込み
 require_once get_stylesheet_directory() . '/rss-auto-post.php';
@@ -1410,3 +1411,106 @@ add_filter('wp_get_attachment_image_attributes', function($attr, $attachment, $s
     }
     return $attr;
 }, 10, 3);
+
+/**
+ * AJAX検索ハンドラー（エピソード全件検索）
+ */
+function contentfreaks_search_episodes() {
+    check_ajax_referer('contentfreaks_load_more', 'nonce', true);
+
+    $search = isset($_POST['search']) ? sanitize_text_field($_POST['search']) : '';
+    if (empty($search)) {
+        wp_send_json_success(array('html' => ''));
+    }
+
+    $query = new WP_Query(array(
+        'post_type' => 'post',
+        'posts_per_page' => 30,
+        's' => $search,
+        'meta_key' => 'is_podcast_episode',
+        'meta_value' => '1',
+        'orderby' => 'date',
+        'order' => 'DESC'
+    ));
+
+    ob_start();
+    if ($query->have_posts()) {
+        while ($query->have_posts()) {
+            $query->the_post();
+            get_template_part('template-parts/episode-card');
+        }
+        wp_reset_postdata();
+    }
+    $html = ob_get_clean();
+
+    wp_send_json_success(array('html' => $html, 'count' => $query->found_posts));
+}
+add_action('wp_ajax_search_episodes', 'contentfreaks_search_episodes');
+add_action('wp_ajax_nopriv_search_episodes', 'contentfreaks_search_episodes');
+
+/**
+ * パンくずナビ出力
+ */
+function contentfreaks_breadcrumb() {
+    if (is_front_page()) return;
+
+    echo '<nav class="breadcrumb-nav" aria-label="パンくず">';
+    echo '<ol class="breadcrumb-list" itemscope itemtype="https://schema.org/BreadcrumbList">';
+
+    // ホーム
+    echo '<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
+    echo '<a itemprop="item" href="' . esc_url(home_url('/')) . '"><span itemprop="name">ホーム</span></a>';
+    echo '<meta itemprop="position" content="1">';
+    echo '</li>';
+
+    $position = 2;
+
+    if (is_single()) {
+        // エピソード一覧 → タイトル
+        $episodes_page = get_page_by_path('episodes');
+        if ($episodes_page) {
+            echo '<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
+            echo '<a itemprop="item" href="' . esc_url(get_permalink($episodes_page)) . '"><span itemprop="name">エピソード</span></a>';
+            echo '<meta itemprop="position" content="' . $position . '">';
+            echo '</li>';
+            $position++;
+        }
+        echo '<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
+        echo '<span class="current" itemprop="name">' . esc_html(get_the_title()) . '</span>';
+        echo '<meta itemprop="position" content="' . $position . '">';
+        echo '</li>';
+    } elseif (is_page()) {
+        echo '<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
+        echo '<span class="current" itemprop="name">' . esc_html(get_the_title()) . '</span>';
+        echo '<meta itemprop="position" content="' . $position . '">';
+        echo '</li>';
+    } elseif (is_tag()) {
+        echo '<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
+        echo '<span class="current" itemprop="name">#' . esc_html(single_tag_title('', false)) . '</span>';
+        echo '<meta itemprop="position" content="' . $position . '">';
+        echo '</li>';
+    } elseif (is_category()) {
+        echo '<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">';
+        echo '<span class="current" itemprop="name">' . esc_html(single_cat_title('', false)) . '</span>';
+        echo '<meta itemprop="position" content="' . $position . '">';
+        echo '</li>';
+    }
+
+    echo '</ol>';
+    echo '</nav>';
+}
+
+/**
+ * ダークモード早期適用（FOUC防止）
+ */
+function contentfreaks_darkmode_script() {
+    echo "<script>
+    (function(){
+        if(localStorage.getItem('cf-theme')==='light'){
+            document.documentElement.classList.add('light-mode');
+        }
+    })();
+    </script>\n";
+}
+add_action('wp_head', 'contentfreaks_darkmode_script', 1);
+

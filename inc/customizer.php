@@ -234,5 +234,24 @@ function contentfreaks_customize_register($wp_customize) {
             'settings' => 'home_icon_image'
         )
     ));
+
+    // ===== ピックアップエピソード設定 =====
+    $wp_customize->add_section('contentfreaks_pickup', array(
+        'title' => '今週のピックアップ',
+        'priority' => 35,
+    ));
+
+    $wp_customize->add_setting('contentfreaks_pickup_episodes', array(
+        'type' => 'option',
+        'default' => '',
+        'sanitize_callback' => 'sanitize_text_field',
+    ));
+
+    $wp_customize->add_control('contentfreaks_pickup_episodes', array(
+        'label' => 'ピックアップ投稿ID',
+        'description' => '表示したい投稿IDをカンマ区切りで入力（例: 123,456,789）。空にするとセクション非表示。',
+        'section' => 'contentfreaks_pickup',
+        'type' => 'text',
+    ));
 }
 add_action('customize_register', 'contentfreaks_customize_register');

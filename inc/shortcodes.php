@@ -47,14 +47,14 @@ function contentfreaks_hosts_shortcode() {
     // カスタマイザーから2人分のホスト情報を取得
     $host1_name = get_theme_mod('host1_name', 'ホスト1');
     $host1_role = get_theme_mod('host1_role', 'メインホスト');
-    $host1_bio = get_theme_mod('host1_bio', 'コンテンツ制作について語ります。');
+    $host1_bio = get_theme_mod('host1_bio', '作品の裏側を深掘り＆司会進行担当。');
     $host1_image = get_theme_mod('host1_image', '');
     $host1_twitter = get_theme_mod('host1_twitter', '');
     $host1_youtube = get_theme_mod('host1_youtube', '');
     
     $host2_name = get_theme_mod('host2_name', 'ホスト2');
     $host2_role = get_theme_mod('host2_role', 'コホスト');
-    $host2_bio = get_theme_mod('host2_bio', 'コンテンツ制作について語ります。');
+    $host2_bio = get_theme_mod('host2_bio', '一般目線の感想担当、親しみやすさをプラス。');
     $host2_image = get_theme_mod('host2_image', '');
     $host2_twitter = get_theme_mod('host2_twitter', '');
     $host2_youtube = get_theme_mod('host2_youtube', '');

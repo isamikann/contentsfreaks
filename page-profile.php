@@ -23,13 +23,17 @@ get_header(); ?>
                     </div>
                     <div class="hero-stat">
                         <span class="stat-number"><?php 
-                            $episode_count = get_posts(array(
+                            $ep_count_q = new WP_Query(array(
+                                'post_type' => 'post',
+                                'posts_per_page' => 1,
                                 'meta_key' => 'is_podcast_episode',
                                 'meta_value' => '1',
                                 'post_status' => 'publish',
-                                'numberposts' => -1
+                                'fields' => 'ids',
+                                'no_found_rows' => false
                             ));
-                            echo count($episode_count);
+                            echo $ep_count_q->found_posts;
+                            wp_reset_postdata();
                         ?></span>
                         <span class="stat-label">エピソード</span>
                     </div>

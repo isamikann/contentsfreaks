@@ -1,0 +1,322 @@
+/* ===================================================
+   Works Database Page — page-works.css
+   =================================================== */
+
+/* ヒーロー */
+.works-hero {
+    position: relative;
+    padding: 6rem 2rem 4rem;
+    text-align: center;
+    overflow: hidden;
+    background: linear-gradient(180deg, var(--bg-secondary, #0d0d0d) 0%, var(--bg-primary, #0a0a0a) 100%);
+}
+
+.works-hero-bg .hero-pattern {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 40%, rgba(247, 255, 11, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(255, 107, 53, 0.04) 0%, transparent 50%);
+}
+
+.works-hero-particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.works-particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: var(--primary, #f7ff0b);
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: works-float 8s ease-in-out infinite;
+}
+.works-particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+.works-particle:nth-child(2) { left: 30%; top: 60%; animation-delay: 1.5s; }
+.works-particle:nth-child(3) { left: 50%; top: 30%; animation-delay: 3s; }
+.works-particle:nth-child(4) { left: 70%; top: 70%; animation-delay: 4.5s; }
+.works-particle:nth-child(5) { left: 85%; top: 40%; animation-delay: 6s; }
+.works-particle:nth-child(6) { left: 15%; top: 80%; animation-delay: 7s; }
+
+@keyframes works-float {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+    50% { transform: translateY(-30px) scale(1.5); opacity: 0.6; }
+}
+
+.works-hero-content { position: relative; z-index: 2; max-width: 800px; margin: 0 auto; }
+.works-hero-icon { font-size: 3rem; margin-bottom: 1rem; }
+.works-hero-content h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--primary, #f7ff0b), var(--accent, #ff6b35));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+}
+.works-hero-description {
+    color: var(--text-secondary, #a0a0a0);
+    font-size: 1rem;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+.works-hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+}
+.works-stat { display: flex; flex-direction: column; align-items: center; }
+.works-stat-number {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary, #f7ff0b);
+}
+.works-stat-label {
+    font-size: 0.75rem;
+    color: var(--text-tertiary, #666);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* コントロール */
+.works-content-section {
+    padding: 2rem 2rem 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.works-container { width: 100%; }
+
+.works-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.works-search-box {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.works-search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.15));
+    background: var(--surface-secondary, #1a1a1a);
+    color: var(--text-primary, #fff);
+    font-size: 0.9375rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+.works-search-input:focus {
+    border-color: var(--primary, #f7ff0b);
+}
+.works-search-button {
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.15));
+    background: var(--surface-secondary, #1a1a1a);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+.works-search-button:hover {
+    background: var(--primary, #f7ff0b);
+}
+
+.works-genre-filters {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.genre-filter-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.15));
+    background: transparent;
+    color: var(--text-secondary, #a0a0a0);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+.genre-filter-btn:hover {
+    border-color: var(--primary, #f7ff0b);
+    color: var(--primary, #f7ff0b);
+}
+.genre-filter-btn.active {
+    background: var(--primary, #f7ff0b);
+    color: var(--black, #0a0a0a);
+    border-color: var(--primary, #f7ff0b);
+    font-weight: 700;
+}
+.genre-count {
+    font-size: 0.6875rem;
+    background: rgba(0,0,0,0.15);
+    padding: 1px 6px;
+    border-radius: 8px;
+}
+.genre-filter-btn.active .genre-count {
+    background: rgba(0,0,0,0.2);
+}
+
+/* 作品グリッド */
+.works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+/* 作品カード */
+.work-card {
+    background: var(--surface-primary, #141414);
+    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.1));
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.work-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: var(--primary, #f7ff0b);
+}
+
+.work-card-thumbnail {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: var(--surface-secondary, #1a1a1a);
+}
+.work-card-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.work-default-thumbnail {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--primary, #f7ff0b), var(--accent, #ff6b35));
+}
+.work-type-icon { font-size: 3rem; }
+
+.work-type-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.work-card-content {
+    padding: 1rem;
+}
+.work-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: var(--text-primary, #fff);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.work-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.8125rem;
+}
+.work-year { color: var(--text-tertiary, #666); }
+.work-rating { color: var(--primary, #f7ff0b); letter-spacing: 1px; }
+
+.work-one-line {
+    font-size: 0.8125rem;
+    color: var(--text-secondary, #a0a0a0);
+    line-height: 1.6;
+    margin: 0 0 0.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.work-platform {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: var(--text-tertiary, #666);
+    background: var(--surface-secondary, #1a1a1a);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+}
+
+.work-related-episodes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-secondary, rgba(255,255,255,0.06));
+}
+.work-episode-link {
+    font-size: 0.75rem;
+    color: var(--accent, #ff6b35);
+    text-decoration: none;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+.work-episode-link:hover {
+    color: var(--primary, #f7ff0b);
+}
+
+/* 空の状態 */
+.works-empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 4rem 2rem;
+}
+.works-empty-icon { font-size: 3rem; margin-bottom: 1rem; }
+.works-empty-state h3 {
+    color: var(--text-primary, #fff);
+    margin-bottom: 0.5rem;
+}
+.works-empty-state p {
+    color: var(--text-secondary, #a0a0a0);
+    margin-bottom: 1.5rem;
+}
+.works-add-btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary, #f7ff0b);
+    color: var(--black, #0a0a0a);
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+.works-add-btn:hover {
+    background: var(--accent, #ff6b35);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+/* レスポンシブ */
+@media (max-width: 768px) {
+    .works-hero { padding: 5rem 1rem 3rem; }
+    .works-hero-content h1 { font-size: 1.75rem; }
+    .works-content-section { padding: 1.5rem 1rem 3rem; }
+    .works-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+}

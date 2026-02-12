@@ -6,6 +6,7 @@
 get_header(); ?>
 
 <div class="single-episode-container site-main">
+    <?php contentfreaks_breadcrumb(); ?>
     <?php while (have_posts()) : the_post(); ?>
         
         <?php 
@@ -75,6 +76,49 @@ get_header(); ?>
 
             <!-- エピソード本文 -->
             <div class="episode-content">
+                <?php if ($is_podcast_episode) : ?>
+                <!-- 話題チャプター（タイムスタンプ目次） -->
+                <?php
+                $chapters = get_post_meta($post_id, 'episode_chapters', true);
+                // メタフィールドがなければ本文からタイムスタンプを自動抽出
+                if (empty($chapters)) {
+                    $content_raw = get_the_content();
+                    preg_match_all('/(\d{1,2}:\d{2}(?::\d{2})?)\s*[–\-:：]\s*(.+)/u', $content_raw, $matches, PREG_SET_ORDER);
+                    if (!empty($matches)) {
+                        $chapters = array();
+                        foreach ($matches as $m) {
+                            $chapters[] = array('time' => $m[1], 'title' => trim(wp_strip_all_tags($m[2])));
+                        }
+                    }
+                } else {
+                    // メタフィールドの場合 "00:00 タイトル" 形式で改行区切り
+                    $lines = explode("\n", $chapters);
+                    $parsed = array();
+                    foreach ($lines as $line) {
+                        $line = trim($line);
+                        if (preg_match('/^(\d{1,2}:\d{2}(?::\d{2})?)\s+(.+)/u', $line, $m)) {
+                            $parsed[] = array('time' => $m[1], 'title' => $m[2]);
+                        }
+                    }
+                    $chapters = $parsed;
+                }
+
+                if (!empty($chapters)) :
+                ?>
+                <div class="episode-chapters">
+                    <h3 class="chapters-title">📋 話題チャプター</h3>
+                    <ol class="chapters-list">
+                        <?php foreach ($chapters as $ch) : ?>
+                        <li class="chapter-item">
+                            <span class="chapter-time"><?php echo esc_html($ch['time']); ?></span>
+                            <span class="chapter-name"><?php echo esc_html($ch['title']); ?></span>
+                        </li>
+                        <?php endforeach; ?>
+                    </ol>
+                </div>
+                <?php endif; ?>
+                <?php endif; ?>
+
                 <div class="episode-content-wrapper">
                     <div class="content-text">
                         <?php the_content(); ?>

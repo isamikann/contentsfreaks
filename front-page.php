@@ -214,6 +214,37 @@ get_header(); ?>
         </div>
     </section>
 
+    <!-- 今週のピックアップ -->
+    <?php
+    $pickup_ids_raw = get_option('contentfreaks_pickup_episodes', '');
+    $pickup_ids = array_filter(array_map('intval', explode(',', $pickup_ids_raw)));
+    if (!empty($pickup_ids)) :
+        $pickup_query = new WP_Query(array(
+            'post_type' => 'post',
+            'post__in' => $pickup_ids,
+            'orderby' => 'post__in',
+            'posts_per_page' => count($pickup_ids),
+        ));
+        if ($pickup_query->have_posts()) :
+    ?>
+    <section class="pickup-section">
+        <div class="pickup-container">
+            <div class="pickup-header fade-in">
+                <h2>⭐ 今週のピックアップ</h2>
+                <p class="pickup-subtitle">編集部おすすめのエピソード</p>
+            </div>
+            <div class="episodes-grid">
+                <?php
+                while ($pickup_query->have_posts()) : $pickup_query->the_post();
+                    get_template_part('template-parts/episode-card');
+                endwhile;
+                wp_reset_postdata();
+                ?>
+            </div>
+        </div>
+    </section>
+    <?php endif; endif; ?>
+
 
     <!-- エピソード一覧 -->
     <section class="episodes-section">
@@ -295,8 +326,44 @@ get_header(); ?>
                 <h2>リスナーの声</h2>
             </div>
             
+            <?php
+            // DB管理のリスナーの声を表示
+            $testimonials_query = new WP_Query(array(
+                'post_type' => 'testimonial',
+                'posts_per_page' => 6,
+                'post_status' => 'publish',
+                'orderby' => 'date',
+                'order' => 'DESC',
+            ));
+
+            if ($testimonials_query->have_posts()) :
+            ?>
             <div class="testimonials-grid">
-                <div class="testimonial-card scale-in delay-100">
+                <?php while ($testimonials_query->have_posts()) : $testimonials_query->the_post();
+                    $t_name = get_post_meta(get_the_ID(), 'testimonial_name', true) ?: '匿名';
+                    $t_source = get_post_meta(get_the_ID(), 'testimonial_source', true) ?: '';
+                    $t_initial = mb_substr($t_name, 0, 1);
+                ?>
+                <div class="testimonial-card scale-in">
+                    <div class="testimonial-quote">
+                        <?php echo esc_html(get_the_content()); ?>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar"><?php echo esc_html($t_initial); ?></div>
+                        <div class="author-info">
+                            <h4><?php echo esc_html($t_name); ?>さん</h4>
+                            <?php if ($t_source) : ?>
+                                <div class="author-role"><?php echo esc_html($t_source); ?></div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endwhile; wp_reset_postdata(); ?>
+            </div>
+            <?php else : ?>
+            <!-- DB未登録時のフォールバック（既存のハードコードデータ） -->
+            <div class="testimonials-grid">
+                <div class="testimonial-card scale-in">
                     <div class="testimonial-quote">
                         いつも配信ありがとうございます！毎度楽しく拝聴しています。お二人が番組内で紹介していたのをきっかけに検索しハマったコンテンツが多くあり、家族や友人に「コンフリの２人がオススメしてた」と話すほど好きな番組です。
                     </div>
@@ -308,8 +375,7 @@ get_header(); ?>
                         </div>
                     </div>
                 </div>
-                
-                <div class="testimonial-card scale-in delay-200">
+                <div class="testimonial-card scale-in">
                     <div class="testimonial-quote">
                         いつも楽しく拝聴させていただいています！自分と違う視点の感想を聞くことが出来て、一緒に盛り上がれるのが嬉しいです。
                     </div>
@@ -321,6 +387,22 @@ get_header(); ?>
                         </div>
                     </div>
                 </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- リスナー投稿フォーム -->
+            <div class="testimonial-form-wrapper fade-in">
+                <h3 class="form-title">✉️ あなたの声を聞かせてください</h3>
+                <form id="testimonial-form" class="testimonial-form">
+                    <div class="form-row">
+                        <input type="text" name="name" placeholder="お名前（ニックネーム可）" required maxlength="50" class="form-input">
+                    </div>
+                    <div class="form-row">
+                        <textarea name="message" placeholder="番組への感想を書いてください（500文字以内）" required maxlength="500" rows="4" class="form-input form-textarea"></textarea>
+                    </div>
+                    <button type="submit" class="form-submit-btn">送信する</button>
+                    <div id="form-message" class="form-message" style="display:none;"></div>
+                </form>
             </div>
         </div>
     </section>

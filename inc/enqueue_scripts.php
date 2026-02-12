@@ -46,6 +46,9 @@ function contentfreaks_enqueue_scripts() {
     
     // マイクロインタラクション（UX向上）
     wp_enqueue_style('contentfreaks-microinteractions', get_stylesheet_directory_uri() . '/microinteractions.css', array('contentfreaks-components'), '1.0.0');
+
+    // UI拡張（トップに戻る、ダークモード、シェア、お気に入り、パンくず）
+    wp_enqueue_style('contentfreaks-ui-enhancements', get_stylesheet_directory_uri() . '/ui-enhancements.css', array('contentfreaks-components'), '1.0.0');
     
     // ページ別専用CSS（パフォーマンス最適化：必要なページでのみ読み込み）
     if (is_front_page()) {
@@ -63,6 +66,8 @@ function contentfreaks_enqueue_scripts() {
         wp_enqueue_style('contentfreaks-profile', get_stylesheet_directory_uri() . '/page-profile.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_single()) {
         wp_enqueue_style('contentfreaks-single', get_stylesheet_directory_uri() . '/single.css', array('contentfreaks-components'), '1.0.0');
+    } elseif (is_page('works')) {
+        wp_enqueue_style('contentfreaks-works', get_stylesheet_directory_uri() . '/page-works.css', array('contentfreaks-components'), '1.0.0');
     } elseif (is_archive() || is_tag() || is_category()) {
         // タグアーカイブ、カテゴリーアーカイブページ用
         wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.2.1');
@@ -85,9 +90,18 @@ function contentfreaks_enqueue_scripts() {
         '1.0.0',
         true // フッターで読み込み
     );
-    
-    // AJAX用の設定（無限スクロール用nonce含む）
-    wp_localize_script('contentfreaks-microinteractions', 'contentfreaks_ajax', array(
+
+    // UI拡張JavaScript（トップに戻る、ダークモード、シェア、お気に入り、AJAX検索）
+    wp_enqueue_script(
+        'contentfreaks-ui-enhancements',
+        get_stylesheet_directory_uri() . '/ui-enhancements.js',
+        array(),
+        '1.0.0',
+        true
+    );
+
+    // AJAX用の設定（無限スクロール+検索用nonce含む）
+    wp_localize_script('contentfreaks-ui-enhancements', 'contentfreaks_ajax', array(
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('contentfreaks_load_more')
     ));

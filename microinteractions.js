@@ -359,7 +359,7 @@
         // リンクアニメーション
         initLinkAnimations();
         
-        console.log('✨ ContentFreaks マイクロインタラクション初期化完了');
+        // ContentFreaks マイクロインタラクション初期化完了
     }
 
     // DOMContentLoaded または即座に実行
