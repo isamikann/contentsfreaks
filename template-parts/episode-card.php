@@ -12,7 +12,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-<?php
 $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
 $episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
 $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
