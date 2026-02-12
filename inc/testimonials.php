@@ -76,7 +76,10 @@ add_action('save_post_testimonial', 'contentfreaks_save_testimonial_meta');
  * AJAX: リスナーの声フォーム送信（下書きとして保存）
  */
 function contentfreaks_submit_testimonial() {
-    check_ajax_referer('contentfreaks_load_more', 'nonce', true);
+    // nonce 検証（失敗時はJSON形式でエラーを返す）
+    if (!check_ajax_referer('contentfreaks_load_more', 'nonce', false)) {
+        wp_send_json_error(array('message' => 'セキュリティ検証に失敗しました。ページを再読み込みしてください。'));
+    }
 
     $name = isset($_POST['name']) ? sanitize_text_field($_POST['name']) : '';
     $message = isset($_POST['message']) ? sanitize_textarea_field($_POST['message']) : '';

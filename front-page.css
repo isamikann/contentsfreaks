@@ -1069,7 +1069,6 @@
         padding: 4rem 0;
         background: var(--hosts-bg);
         color: var(--hosts-text);
-        border-top: 3px solid rgba(34, 197, 94, 0.15);
     }
     
     .hosts-container {
@@ -1207,7 +1206,6 @@
     .episodes-section {
         padding: 4rem 0;
         background: var(--episodes-grid-bg);
-        border-top: 3px solid var(--color-border-light, #e2e8f0);
     }
     
     .episodes-header {
@@ -1237,7 +1235,6 @@
         padding: 4rem 0;
         background: var(--latest-episode-bg);
         position: relative;
-        border-top: 3px solid rgba(102, 126, 234, 0.2);
     }
     
     .latest-episode-container {
@@ -1671,7 +1668,6 @@
         color: var(--testimonials-text);
         position: relative;
         overflow: hidden;
-        border-top: 3px solid rgba(245, 158, 11, 0.15);
     }
     
     .testimonials-section::before {
