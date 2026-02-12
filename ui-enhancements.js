@@ -302,12 +302,29 @@
 
     // ===== 初期化 =====
 
+    /* --- フッター接近時にモバイルCTAバーを隠す --- */
+    function initMobileListenBar() {
+        var bar = document.getElementById('mobile-listen-bar');
+        if (!bar) return;
+        var footer = document.querySelector('.footer-section');
+        if (!footer || !('IntersectionObserver' in window)) return;
+
+        var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                bar.classList.toggle('is-hidden', entry.isIntersecting);
+            });
+        }, { threshold: 0.1 });
+
+        observer.observe(footer);
+    }
+
     function init() {
         initScrollToTop();
         initShareButtons();
         initFavorites();
         initAjaxSearch();
         initTestimonialForm();
+        initMobileListenBar();
     }
 
     if (document.readyState === 'loading') {

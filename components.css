@@ -229,4 +229,66 @@
     }
 }
 
+/* ===== モバイルフローティング CTA バー ===== */
+.mobile-listen-bar {
+    display: none; /* デスクトップでは非表示 */
+}
+
+@media (max-width: 767px) {
+    .mobile-listen-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 9990;
+        display: flex;
+        gap: var(--space-2, 8px);
+        justify-content: center;
+        padding: var(--space-2, 8px) var(--space-4, 16px);
+        background: rgba(26, 32, 44, 0.95);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
+        transition: transform 0.3s ease;
+    }
+
+    .mobile-listen-bar.is-hidden {
+        transform: translateY(100%);
+    }
+
+    .listen-bar-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-size: 0.8125rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: opacity 0.2s ease;
+    }
+
+    .listen-bar-btn:hover,
+    .listen-bar-btn:focus {
+        opacity: 0.85;
+    }
+
+    .listen-bar-spotify {
+        background: #1db954;
+        color: #fff;
+    }
+
+    .listen-bar-apple {
+        background: #fc3c44;
+        color: #fff;
+    }
+
+    /* フッターが見えるときバーを隠すための余白 */
+    .footer-section {
+        padding-bottom: 64px;
+    }
+}
+
 /* ===== 他の共通コンポーネント ===== */

@@ -1,16 +1,16 @@
 /* ===== History Page - Modern Timeline Design ===== */
 
-/* CSS Variables */
+/* CSS Variables — design-system.css のトークンを参照 */
 :root {
-    --history-primary: #667eea;
+    --history-primary: var(--color-info, #667eea);
     --history-secondary: #764ba2;
     --history-accent: #f093fb;
-    --history-yellow: #f7ff0b;
-    --history-orange: #ff6b35;
-    --history-dark: #1a1a1a;
-    --history-light: #ffffff;
-    --history-gray-100: #f7fafc;
-    --history-gray-700: #4a5568;
+    --history-yellow: var(--color-primary-400, #f7ff0b);
+    --history-orange: var(--color-accent-400, #ff6b35);
+    --history-dark: var(--color-bg-inverse, #1a202c);
+    --history-light: var(--color-bg-primary, #ffffff);
+    --history-gray-100: var(--color-bg-secondary, #f7fafc);
+    --history-gray-700: var(--color-text-secondary, #4a5568);
 }
 
 /* Base */
@@ -1012,14 +1012,14 @@ p.section-subtitle {
 .event-title {
     font-size: 1.125rem;
     font-weight: 700;
-    color: #333;
+    color: var(--color-text-primary, #1a202c);
     margin: 0 0 0.5rem 0;
 }
 
 .collab-desc,
 .event-desc {
     font-size: 0.9375rem;
-    color: #666;
+    color: var(--color-text-secondary, #4a5568);
     margin: 0;
 }
 
@@ -1054,7 +1054,7 @@ p.section-subtitle {
 
 .event-badge.featured-badge {
     background: linear-gradient(135deg, var(--history-yellow), #ffd700);
-    color: #333;
+    color: var(--color-text-primary, #1a202c);
 }
 
 .event-content {
@@ -1139,7 +1139,7 @@ p.section-subtitle {
 .award-year-title {
     font-size: 1.25rem;
     font-weight: 700;
-    color: #333;
+    color: var(--color-text-primary, #1a202c);
     margin: 0;
 }
 
@@ -1193,7 +1193,7 @@ p.section-subtitle {
 .award-winner {
     font-size: 1.125rem;
     font-weight: 700;
-    color: #333;
+    color: var(--color-text-primary, #1a202c);
 }
 
 .award-episode-link {
@@ -1259,14 +1259,14 @@ p.section-subtitle {
 .testimonial-text {
     font-size: 1.0625rem;
     line-height: 1.8;
-    color: #333;
+    color: var(--color-text-primary, #1a202c);
     margin: 0 0 1.5rem 0;
     font-style: italic;
 }
 
 .testimonial-author {
     font-size: 0.9375rem;
-    color: #666;
+    color: var(--color-text-secondary, #4a5568);
     font-weight: 600;
     text-align: right;
 }
@@ -1329,7 +1329,7 @@ p.section-subtitle {
 .genre-label {
     font-size: 1rem;
     font-weight: 700;
-    color: #333;
+    color: var(--color-text-primary, #1a202c);
     margin-bottom: 0.75rem;
     display: block;
 }
@@ -1447,14 +1447,14 @@ p.section-subtitle {
 
 .media-date {
     font-size: 0.875rem;
-    color: #999;
+    color: var(--color-text-tertiary, #718096);
     margin: 0 0 0.75rem 0;
     font-weight: 600;
 }
 
 .media-desc {
     font-size: 0.9375rem;
-    color: #666;
+    color: var(--color-text-secondary, #4a5568);
     margin: 0;
     line-height: 1.6;
 }

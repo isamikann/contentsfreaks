@@ -136,6 +136,17 @@
     --color-border-light: #e2e8f0;
     --color-border-medium: #cbd5e0;
     --color-border-dark: #a0aec0;
+
+    /* ブランドカラー */
+    --color-brand-spotify: #1db954;
+    --color-brand-apple: #fc3c44;
+    --color-brand-youtube: #ff0000;
+    --color-brand-twitter: #1da1f2;
+    --color-brand-line: #06c755;
+
+    /* グラデーション */
+    --gradient-brand: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --gradient-accent: linear-gradient(135deg, var(--color-accent-400) 0%, #f7931e 100%);
 }
 
 /* ===== 4. シャドウシステム ===== */
@@ -423,4 +434,25 @@
 
 .animate-scale-in {
     animation: scale-in var(--transition-base);
+}
+
+/* ===== prefers-reduced-motion ===== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .fade-in,
+    .slide-up,
+    .animate-fade-in,
+    .animate-slide-up,
+    .animate-scale-in {
+        opacity: 1 !important;
+        transform: none !important;
+    }
 }

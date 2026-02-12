@@ -13,6 +13,8 @@ if (!defined('ABSPATH')) {
 }
 
 $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
+$episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
+$duration = get_post_meta(get_the_ID(), 'episode_duration', true);
 ?>
 <article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
     <div class="episode-card-header">
@@ -33,10 +35,13 @@ $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: '�
                 <?php else : ?>
                     <a href="<?php the_permalink(); ?>">
                         <div class="default-thumbnail">
-                            <div style="background: linear-gradient(135deg, #f7ff0b, #ff6b35); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; border-radius: 12px;">🎙️</div>
+                            <div class="default-thumbnail-inner">🎙️</div>
                         </div>
                     </a>
                 <?php endif; ?>
+            <?php endif; ?>
+            <?php if ($episode_number) : ?>
+                <span class="episode-number-badge">EP.<?php echo esc_html($episode_number); ?></span>
             <?php endif; ?>
         </div>
     </div>
@@ -44,18 +49,9 @@ $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: '�
     <div class="episode-card-content">
         <div class="episode-meta">
             <div class="episode-meta-left">
-                <span class="episode-date"><?php echo get_the_date('Y年n月j日'); ?></span>
-                
-                <?php 
-                $tags = get_the_tags();
-                if ($tags && !is_wp_error($tags)) : ?>
-                <div class="episode-tags">
-                    <?php foreach ($tags as $tag) : ?>
-                        <a href="<?php echo get_tag_link($tag->term_id); ?>" class="episode-tag">
-                            #<?php echo esc_html($tag->name); ?>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
+                <span class="episode-date"><?php echo get_the_date('Y.n.j'); ?></span>
+                <?php if ($duration) : ?>
+                    <span class="episode-duration-badge">⏱ <?php echo esc_html($duration); ?></span>
                 <?php endif; ?>
             </div>
         </div>
@@ -63,5 +59,17 @@ $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: '�
         <h3 class="episode-title">
             <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
         </h3>
+
+        <?php
+        $tags = get_the_tags();
+        if ($tags && !is_wp_error($tags)) : ?>
+        <div class="episode-tags">
+            <?php foreach (array_slice($tags, 0, 3) as $tag) : ?>
+                <a href="<?php echo get_tag_link($tag->term_id); ?>" class="episode-tag">
+                    #<?php echo esc_html($tag->name); ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
     </div>
 </article>

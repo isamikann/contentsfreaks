@@ -124,15 +124,19 @@ get_header(); ?>
             <?php endif; ?>
         </div>
         
-        <!-- 無限スクロール用のローディングインジケーター -->
+        <!-- Load Moreパターン -->
         <?php if ($episodes_query->found_posts > 18) : ?>
-        <div class="infinite-scroll-indicator" id="loading-indicator" style="display: none;">
+        <div class="load-more-wrapper" id="load-more-wrapper">
+            <button class="load-more-btn" id="load-more-btn" data-offset="18" data-limit="12">
+                もっと見る
+            </button>
+        </div>
+        <div class="load-more-spinner" id="loading-indicator" style="display: none;">
             <div class="loading-spinner">
                 <div class="spinner-ring"></div>
                 <p>エピソードを読み込んでいます...</p>
             </div>
         </div>
-        <div class="infinite-scroll-trigger" id="scroll-trigger" data-offset="18" data-limit="12"></div>
         <?php endif; ?>
         </div>
     </section>
@@ -214,38 +218,28 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(card);
     });
     
-    // 無限スクロール機能
-    const scrollTrigger = document.getElementById('scroll-trigger');
+    // Load More ボタン機能
+    const loadMoreBtn = document.getElementById('load-more-btn');
     const loadingIndicator = document.getElementById('loading-indicator');
     let isLoading = false;
-    let hasMoreContent = true;
     
-    if (scrollTrigger) {
-        const scrollObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && !isLoading && hasMoreContent) {
-                    loadMoreEpisodes();
-                }
-            });
-        }, {
-            rootMargin: '200px'
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+            loadMoreEpisodes();
         });
-        
-        scrollObserver.observe(scrollTrigger);
     }
     
     function loadMoreEpisodes() {
-        if (isLoading || !hasMoreContent) return;
+        if (isLoading) return;
         
         isLoading = true;
-        const offset = parseInt(scrollTrigger.dataset.offset);
-        const limit = parseInt(scrollTrigger.dataset.limit);
+        const offset = parseInt(loadMoreBtn.dataset.offset);
+        const limit = parseInt(loadMoreBtn.dataset.limit);
         
-        // ローディングインジケーターを表示
+        // ボタンを一時的に無効化し、ローディング表示
+        loadMoreBtn.disabled = true;
+        loadMoreBtn.textContent = '読み込み中…';
         loadingIndicator.style.display = 'block';
-        setTimeout(() => {
-            loadingIndicator.classList.add('visible');
-        }, 10);
         
         // AJAXリクエストでエピソードを取得
         fetch(`${window.location.origin}/wp-admin/admin-ajax.php`, {
@@ -278,28 +272,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 // オフセットを更新
-                scrollTrigger.dataset.offset = offset + limit;
+                loadMoreBtn.dataset.offset = offset + limit;
                 
                 // コンテンツがなくなったかチェック
                 if (data.data.has_more === false) {
-                    hasMoreContent = false;
-                    scrollTrigger.style.display = 'none';
+                    document.getElementById('load-more-wrapper').style.display = 'none';
                 }
             } else {
-                hasMoreContent = false;
-                scrollTrigger.style.display = 'none';
+                document.getElementById('load-more-wrapper').style.display = 'none';
             }
         })
         .catch(error => {
             console.error('エピソードの読み込みエラー:', error);
-            hasMoreContent = false;
         })
         .finally(() => {
             isLoading = false;
-            loadingIndicator.classList.remove('visible');
-            setTimeout(() => {
-                loadingIndicator.style.display = 'none';
-            }, 300);
+            loadMoreBtn.disabled = false;
+            loadMoreBtn.textContent = 'もっと見る';
+            loadingIndicator.style.display = 'none';
         });
     }
     

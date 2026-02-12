@@ -100,16 +100,16 @@ body {
 }
 
 .content-text {
-    padding: 3rem;
-    line-height: 1.8;
-    font-size: var(--body-text);
-    color: #333;
-    max-width: none;
+    padding: 2.5rem 3rem;
+    line-height: 1.9;
+    font-size: var(--font-size-md, 1.125rem);
+    color: var(--color-text-primary, #1a202c);
+    max-width: 720px;
+    margin: 0 auto;
     /* モダンな読書体験のための改善 */
-    word-spacing: 0.1em;
-    letter-spacing: 0.02em;
-    /* フォーカス時の読みやすさ向上 */
-    tab-size: 4;
+    word-spacing: 0.05em;
+    letter-spacing: 0.01em;
+    hanging-punctuation: first allow-end last;
 }
 
 .content-text *:focus {
@@ -125,15 +125,14 @@ body {
 .content-text h4,
 .content-text h5,
 .content-text h6 {
-    margin: 2.5rem 0 1.5rem 0;
+    margin: 2.5rem 0 1.25rem 0;
     line-height: 1.4;
-    color: #2c3e50;
+    color: var(--color-text-primary, #1a202c);
     font-weight: 700;
     word-wrap: break-word;
     overflow-wrap: break-word;
     white-space: normal;
-    /* モダンな見出しスタイル */
-    scroll-margin-top: 100px; /* スムーズスクロール時のオフセット */
+    scroll-margin-top: 100px;
     position: relative;
 }
 
@@ -176,12 +175,11 @@ body {
 
 .content-text h4 {
     font-size: var(--card-title);
-    color: #34495e;
+    color: var(--color-text-secondary, #4a5568);
 }
 
 .content-text p {
     margin-bottom: 1.5rem;
-    text-align: justify;
 }
 
 .content-text ul,
@@ -198,8 +196,8 @@ body {
 .content-text blockquote {
     margin: 2rem 0;
     padding: 1.5rem 2rem;
-    border-left: 4px solid #f7ff0b;
-    background: #f8f9fa;
+    border-left: 4px solid var(--color-primary-400, #f7ff0b);
+    background: var(--color-bg-secondary, #f7fafc);
     border-radius: 0 8px 8px 0;
     font-style: italic;
     position: relative;
