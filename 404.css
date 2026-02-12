@@ -1,0 +1,163 @@
+/**
+ * 404 エラーページ スタイル
+ * ダークモード対応
+ */
+
+.error-404-page {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    margin-top: 80px;
+}
+
+.error-404-container {
+    max-width: 600px;
+    text-align: center;
+}
+
+.error-404-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: float-icon 3s ease-in-out infinite;
+}
+
+@keyframes float-icon {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.error-404-title {
+    font-size: 6rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--color-primary-400, #f7ff0b), var(--color-accent-400, #ff6b35));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.error-404-subtitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #1a202c);
+    margin-bottom: 0.75rem;
+}
+
+.error-404-desc {
+    color: var(--color-text-secondary, #4a5568);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.error-404-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 3rem;
+}
+
+.error-404-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.error-404-btn--home {
+    background: var(--color-primary-400, #f7ff0b);
+    color: var(--color-text-primary, #1a202c);
+}
+
+.error-404-btn--home:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(247, 255, 11, 0.3);
+}
+
+.error-404-btn--episodes {
+    background: var(--color-bg-secondary, #f7fafc);
+    color: var(--color-text-primary, #1a202c);
+    border: 1px solid var(--color-border-light, #e2e8f0);
+}
+
+.error-404-btn--episodes:hover {
+    background: var(--color-accent-400, #ff6b35);
+    color: #fff;
+    border-color: var(--color-accent-400, #ff6b35);
+    transform: translateY(-2px);
+}
+
+.error-404-suggestions {
+    border-top: 1px solid var(--color-border-light, #e2e8f0);
+    padding-top: 2rem;
+}
+
+.error-404-suggestions-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--color-text-primary, #1a202c);
+}
+
+.error-404-episodes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.error-404-episode-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-bg-secondary, #f7fafc);
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.error-404-episode-link:hover {
+    background: var(--color-primary-400, #f7ff0b);
+    transform: translateX(4px);
+}
+
+.error-404-episode-date {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-secondary, #4a5568);
+    min-width: 3rem;
+}
+
+.error-404-episode-title {
+    font-weight: 500;
+    color: var(--color-text-primary, #1a202c);
+    font-size: 0.9rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .error-404-title { font-size: 4rem; }
+    .error-404-actions { flex-direction: column; align-items: center; }
+}
+
+/* ダークモード */
+@media (prefers-color-scheme: dark) {
+    .error-404-episode-link:hover {
+        color: var(--color-text-primary, #1a202c);
+    }
+    .error-404-episode-link:hover .error-404-episode-date,
+    .error-404-episode-link:hover .error-404-episode-title {
+        color: var(--color-text-primary, #1a202c);
+    }
+}

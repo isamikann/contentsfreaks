@@ -70,9 +70,15 @@ function contentfreaks_enqueue_scripts() {
         wp_enqueue_style('contentfreaks-single', get_stylesheet_directory_uri() . '/single.css', array('contentfreaks-components'), '1.0.0');
     } elseif (is_page('works')) {
         wp_enqueue_style('contentfreaks-works', get_stylesheet_directory_uri() . '/page-works.css', array('contentfreaks-components'), '1.0.0');
+        wp_enqueue_script('contentfreaks-page-works', get_stylesheet_directory_uri() . '/page-works.js', array(), '1.0.0', true);
     } elseif (is_archive() || is_tag() || is_category()) {
         // タグアーカイブ、カテゴリーアーカイブページ用
         wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.2.1');
+    }
+
+    // 404ページ用CSS
+    if (is_404()) {
+        wp_enqueue_style('contentfreaks-404', get_stylesheet_directory_uri() . '/404.css', array('contentfreaks-components'), '1.0.0');
     }
     
     // マイクロインタラクションのJavaScript

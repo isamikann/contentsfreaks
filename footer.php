@@ -106,24 +106,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.classList.remove('active');
             }
         });
+
+        // ESCキーで検索モーダルを閉じる
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && searchModal.classList.contains('active')) {
+                searchModal.classList.remove('active');
+                searchToggle.focus();
+            }
+        });
     }
-    
-    // ヘッダーのスクロール効果
-    const header = document.getElementById('contentfreaks-header');
-    let lastScrollTop = 0;
-    
-    window.addEventListener('scroll', function() {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        
-        // スクロール時の背景効果
-        if (scrollTop > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-        
-        lastScrollTop = scrollTop;
-    });
     
     // 外部リンクの処理
     const externalLinks = document.querySelectorAll('a[href^="http"]:not([href*="' + window.location.hostname + '"])');

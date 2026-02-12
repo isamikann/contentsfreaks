@@ -48,11 +48,6 @@ get_header(); ?>
             <?php
             if (have_posts()) :
                 while (have_posts()) : the_post();
-                    // カスタムフィールドを取得
-                    $audio_url = get_post_meta(get_the_ID(), 'episode_audio_url', true);
-                    $episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
-                    $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
-                    $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
             ?>
                 <?php get_template_part('template-parts/episode-card'); ?>
             <?php 

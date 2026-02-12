@@ -1441,11 +1441,11 @@ get_header(); ?>
                 </p>
                 
                 <div class="future-cta">
-                    <a href="/episodes/" class="future-cta-button primary">
+                    <a href="<?php echo esc_url(get_permalink(get_page_by_path('episodes'))); ?>" class="future-cta-button primary">
                         <span class="btn-icon">🎧</span>
                         最新エピソードを聴く
                     </a>
-                    <a href="/" class="future-cta-button secondary">
+                    <a href="<?php echo esc_url(home_url('/')); ?>" class="future-cta-button secondary">
                         <span class="btn-icon">🏠</span>
                         ホームへ戻る
                     </a>

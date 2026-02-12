@@ -112,7 +112,10 @@ function contentfreaks_remove_wp_block_styles() {
     wp_dequeue_style('wp-block-library');
     wp_dequeue_style('wp-block-library-theme');
     wp_dequeue_style('wc-block-style'); // WooCommerce
-    wp_dequeue_style('global-styles'); // WordPress 5.9+
+    // 記事ページではGutenbergブロックスタイルを維持
+    if (!is_single() && !is_page('blog')) {
+        wp_dequeue_style('global-styles'); // WordPress 5.9+
+    }
 }
 add_action('wp_enqueue_scripts', 'contentfreaks_remove_wp_block_styles', 100);
 

@@ -28,8 +28,6 @@
     body {
         margin: 0;
         font-family: 'Inter', 'Noto Sans JP', sans-serif;
-        color: var(--text-primary);
-        background: var(--white);
     }
     .minimal-header {
         position: fixed;

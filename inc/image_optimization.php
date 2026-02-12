@@ -121,14 +121,16 @@ add_filter('wp_generate_attachment_metadata', 'contentfreaks_generate_webp', 10,
  * 画像サイズの最適化: 最大幅を設定
  */
 function contentfreaks_max_image_size($file) {
-    if (!function_exists('wp_get_image_editor')) {
+    if (!function_exists('wp_get_image_editor') || $file['error'] !== 0) {
         return $file;
     }
     
     $max_width = 1920;  // 最大幅
     $max_height = 1920; // 最大高さ
     
-    $editor = wp_get_image_editor($file);
+    // wp_handle_upload_prefilter は配列（name, type, tmp_name, error, size）を渡す
+    $tmp_name = $file['tmp_name'];
+    $editor = wp_get_image_editor($tmp_name);
     
     if (is_wp_error($editor)) {
         return $file;
@@ -139,7 +141,7 @@ function contentfreaks_max_image_size($file) {
     // 最大サイズを超えている場合のみリサイズ
     if ($size['width'] > $max_width || $size['height'] > $max_height) {
         $editor->resize($max_width, $max_height, false);
-        $editor->save($file);
+        $editor->save($tmp_name);
     }
     
     return $file;

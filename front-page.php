@@ -60,7 +60,7 @@ get_header(); ?>
                             <span class="podcast-stat-label">エピソード</span>
                         </div>
                         <div class="podcast-stat">
-                            <span class="podcast-stat-number" data-count="<?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>"><?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>+</span>
+                            <span class="podcast-stat-number" data-count="<?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>" data-suffix="+"><?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>+</span>
                             <span class="podcast-stat-label">リスナー</span>
                         </div>
                         <div class="podcast-stat">
@@ -93,8 +93,8 @@ get_header(); ?>
                 if (isDecimal) {
                     element.textContent = current.toFixed(1);
                 } else {
-                    const nextEl = element.nextElementSibling;
-                    element.textContent = Math.floor(current) + (nextEl?.textContent === 'リスナー' ? '+' : '');
+                    const suffix = element.dataset.suffix || '';
+                    element.textContent = Math.floor(current) + suffix;
                 }
                 
                 if (current < target) requestAnimationFrame(update);
