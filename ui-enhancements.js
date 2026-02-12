@@ -1,7 +1,6 @@
 /**
  * ContentFreaks UI Enhancements v1.0
  * - トップに戻るボタン
- * - ダークモード切替
  * - SNSシェア
  * - お気に入りエピソード
  * - パンくずナビ（PHP側で出力）
@@ -40,30 +39,7 @@
         });
     }
 
-    // ===== 2. ダークモード切替 =====
-
-    function initDarkModeToggle() {
-        const btn = document.createElement('button');
-        btn.className = 'dark-mode-toggle';
-        btn.setAttribute('aria-label', 'テーマ切替');
-        document.body.appendChild(btn);
-
-        const saved = localStorage.getItem('cf-theme');
-        if (saved === 'light') {
-            document.body.classList.add('light-mode');
-            btn.innerHTML = '🌙';
-        } else {
-            btn.innerHTML = '☀️';
-        }
-
-        btn.addEventListener('click', function () {
-            const isLight = document.body.classList.toggle('light-mode');
-            localStorage.setItem('cf-theme', isLight ? 'light' : 'dark');
-            btn.innerHTML = isLight ? '🌙' : '☀️';
-        });
-    }
-
-    // ===== 3. SNSシェアボタン（エピソード詳細ページ） =====
+    // ===== 2. SNSシェアボタン（エピソード詳細ページ） =====
 
     function initShareButtons() {
         const episodeHeader = document.querySelector('.episode-platform-links');
@@ -328,7 +304,6 @@
 
     function init() {
         initScrollToTop();
-        initDarkModeToggle();
         initShareButtons();
         initFavorites();
         initAjaxSearch();
@@ -341,6 +316,4 @@
         init();
     }
 
-    // ダークモードの早期適用（FOUC防止）
-    // この部分はheadで実行されることを想定
 })();

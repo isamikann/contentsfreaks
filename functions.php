@@ -1500,17 +1500,4 @@ function contentfreaks_breadcrumb() {
     echo '</nav>';
 }
 
-/**
- * ダークモード早期適用（FOUC防止）
- */
-function contentfreaks_darkmode_script() {
-    echo "<script>
-    (function(){
-        if(localStorage.getItem('cf-theme')==='light'){
-            document.documentElement.classList.add('light-mode');
-        }
-    })();
-    </script>\n";
-}
-add_action('wp_head', 'contentfreaks_darkmode_script', 1);
 
