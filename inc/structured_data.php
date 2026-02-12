@@ -35,6 +35,15 @@ function contentfreaks_output_ogp_tags() {
         $permalink = get_permalink();
         $is_episode = get_post_meta($post_id, 'is_podcast_episode', true) === '1';
         
+        // エピソードの場合、タイムスタンプ行を除去してからディスクリプション生成
+        if ($is_episode && !has_excerpt()) {
+            $raw_content = get_the_content();
+            $clean_content = preg_replace('/^\s*\d{1,2}:\d{2}(:\d{2})?\s+.+$/m', '', $raw_content);
+            $excerpt = wp_trim_words(wp_strip_all_tags($clean_content), 55);
+        } else {
+            $excerpt = has_excerpt() ? get_the_excerpt() : wp_trim_words(get_the_content(), 55);
+        }
+        
         echo '<meta property="og:type" content="article">' . "\n";
         echo '<meta property="og:title" content="' . esc_attr($title) . '">' . "\n";
         echo '<meta property="og:description" content="' . esc_attr(wp_strip_all_tags($excerpt)) . '">' . "\n";
@@ -90,7 +99,7 @@ function contentfreaks_output_structured_data() {
             'name' => $site_name,
             'description' => $description,
             'url' => home_url('/'),
-            'webFeed' => 'https://anchor.fm/s/d8cfdc48/podcast/rss',
+            'webFeed' => CONTENTFREAKS_RSS_URL,
             'inLanguage' => 'ja',
             'author' => array(
                 '@type' => 'Organization',
@@ -132,6 +141,18 @@ function contentfreaks_output_structured_data() {
             
             if ($episode_number) {
                 $episode_data['episodeNumber'] = intval($episode_number);
+            }
+            
+            if ($duration) {
+                // "45:30" や "1:23:45" 形式をISO 8601 duration (PT##H##M##S) に変換
+                $parts = array_map('intval', explode(':', $duration));
+                $iso_duration = 'PT';
+                if (count($parts) === 3) {
+                    $iso_duration .= $parts[0] . 'H' . $parts[1] . 'M' . $parts[2] . 'S';
+                } elseif (count($parts) === 2) {
+                    $iso_duration .= $parts[0] . 'M' . $parts[1] . 'S';
+                }
+                $episode_data['timeRequired'] = $iso_duration;
             }
             
             if ($audio_url) {

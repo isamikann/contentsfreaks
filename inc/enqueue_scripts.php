@@ -15,7 +15,7 @@ function contentfreaks_enqueue_scripts() {
     // Google Fontsの読み込み（一箇所に統一）
     wp_enqueue_style(
         'contentfreaks-fonts',
-        'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap',
+        'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap',
         array(),
         null
     );
@@ -72,9 +72,6 @@ function contentfreaks_enqueue_scripts() {
         // タグアーカイブ、カテゴリーアーカイブページ用
         wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.2.1');
     }
-    
-    // 基本的なJQueryのみ利用可能にする
-    wp_enqueue_script('jquery');
     
     // マイクロインタラクションのJavaScript
     wp_enqueue_script(

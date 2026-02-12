@@ -15,6 +15,7 @@ get_header(); ?>
         $is_podcast_episode = get_post_meta($post_id, 'is_podcast_episode', true);
         $episode_number = get_post_meta($post_id, 'episode_number', true);
         $duration = get_post_meta($post_id, 'episode_duration', true);
+        $audio_url = get_post_meta($post_id, 'episode_audio_url', true);
         $original_url = get_post_meta($post_id, 'episode_original_url', true);
         $episode_category = get_post_meta($post_id, 'episode_category', true) ?: 'エピソード';
         ?>
@@ -67,6 +68,14 @@ get_header(); ?>
                 
                 <!-- ポッドキャストプラットフォームリンク -->
                 <?php if ($is_podcast_episode) : ?>
+                <?php if ($audio_url) : ?>
+                <div class="episode-inline-player">
+                    <audio controls preload="metadata" class="episode-audio-player">
+                        <source src="<?php echo esc_url($audio_url); ?>" type="audio/mpeg">
+                        お使いのブラウザは音声再生に対応していません。
+                    </audio>
+                </div>
+                <?php endif; ?>
                 <div class="episode-platform-links">
                     <h3 class="platform-links-title">🎧 お好みのアプリで聴く</h3>
                     <?php echo do_shortcode('[podcast_platforms]'); ?>

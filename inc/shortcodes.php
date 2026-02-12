@@ -7,19 +7,19 @@ function contentfreaks_podcast_platforms_shortcode() {
         'spotify' => array(
             'name' => 'Spotify', 
             'icon' => get_theme_mod('spotify_icon') ? '<img src="' . esc_url(get_theme_mod('spotify_icon')) . '" alt="Spotify">' : '🎧',
-            'url' => 'https://open.spotify.com/show/20otj7CiCZ0hcWYkkEpnLL?si=w3Jlrpg5Ssmk0TGa_Flb8g',
+            'url' => CONTENTFREAKS_SPOTIFY_URL,
             'color' => '#1DB954'
         ),
         'apple' => array(
             'name' => 'Apple Podcasts', 
             'icon' => get_theme_mod('apple_podcasts_icon') ? '<img src="' . esc_url(get_theme_mod('apple_podcasts_icon')) . '" alt="Apple Podcasts">' : '🍎',
-            'url' => 'https://podcasts.apple.com/jp/podcast/%E3%82%B3%E3%83%B3%E3%83%86%E3%83%B3%E3%83%84%E3%83%95%E3%83%AA%E3%83%BC%E3%82%AF%E3%82%B9/id1692185758',
+            'url' => CONTENTFREAKS_APPLE_URL,
             'color' => '#A855F7'
         ),
         'youtube' => array(
             'name' => 'YouTube', 
             'icon' => get_theme_mod('youtube_icon') ? '<img src="' . esc_url(get_theme_mod('youtube_icon')) . '" alt="YouTube">' : '📺',
-            'url' => 'https://youtube.com/@contentfreaks',
+            'url' => CONTENTFREAKS_YOUTUBE_URL,
             'color' => '#FF0000'
         ),
     );

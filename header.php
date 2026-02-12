@@ -33,9 +33,9 @@
         top: 0;
         left: 0;
         right: 0;
-        background: rgba(255, 255, 255, 0.75);
+        background: rgba(26, 26, 26, 0.75);
         backdrop-filter: blur(20px);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         z-index: 1000;
         height: 70px;
         display: flex;
@@ -305,7 +305,7 @@
                 <h3 class="section-title">聴く</h3>
                 <ul class="nav-list platform-list">
                     <li class="nav-item platform-item">
-                        <a href="https://open.spotify.com/show/20otj7CiCZ0hcWYkkEpnLL" class="nav-link platform-link" target="_blank" rel="noopener">
+                        <a href="<?php echo esc_url(CONTENTFREAKS_SPOTIFY_URL); ?>" class="nav-link platform-link" target="_blank" rel="noopener">
                             <span class="platform-icon spotify-icon">
                                 <?php
                                 $spotify_icon = get_theme_mod('spotify_icon');
@@ -320,7 +320,7 @@
                         </a>
                     </li>
                     <li class="nav-item platform-item">
-                        <a href="https://podcasts.apple.com/jp/podcast/%E3%82%B3%E3%83%B3%E3%83%86%E3%83%B3%E3%83%84%E3%83%95%E3%83%AA%E3%83%BC%E3%82%AF%E3%82%B9/id1692185758" class="nav-link platform-link" target="_blank" rel="noopener">
+                        <a href="<?php echo esc_url(CONTENTFREAKS_APPLE_URL); ?>" class="nav-link platform-link" target="_blank" rel="noopener">
                             <span class="platform-icon apple-icon">
                                 <?php
                                 $apple_icon = get_theme_mod('apple_podcasts_icon');
@@ -335,7 +335,7 @@
                         </a>
                     </li>
                     <li class="nav-item platform-item">
-                        <a href="https://youtube.com/@contentfreaks" class="nav-link platform-link" target="_blank" rel="noopener">
+                        <a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" class="nav-link platform-link" target="_blank" rel="noopener">
                             <span class="platform-icon youtube-icon">
                                 <?php
                                 $youtube_icon = get_theme_mod('youtube_icon');
@@ -354,7 +354,7 @@
         </div>
         
         <div class="menu-footer">
-            <p class="copyright-text">© 2025 ContentFreaks</p>
+            <p class="copyright-text">&copy; <?php echo wp_date('Y'); ?> ContentFreaks</p>
         </div>
     </div>
 </nav>

@@ -35,19 +35,7 @@ get_header(); ?>
             
             <div class="episodes-hero-stats">
                 <div class="episodes-stat">
-                    <span class="episodes-stat-number"><?php 
-                        $total_episodes = new WP_Query(array(
-                            'post_type' => 'post',
-                            'posts_per_page' => 1,
-                            'meta_key' => 'is_podcast_episode',
-                            'meta_value' => '1',
-                            'post_status' => 'publish',
-                            'fields' => 'ids',
-                            'no_found_rows' => false
-                        ));
-                        echo $total_episodes->found_posts ? $total_episodes->found_posts : '0';
-                        wp_reset_postdata();
-                    ?></span>
+                    <span class="episodes-stat-number"><?php echo contentfreaks_get_podcast_count(); ?></span>
                     <span class="episodes-stat-label">エピソード</span>
                 </div>
                 <div class="episodes-stat">

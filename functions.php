@@ -1331,26 +1331,38 @@ function contentfreaks_extract_and_create_tags_from_title($post_id, $title) {
  */
 
 /**
- * ポッドキャストエピソード数を取得
+ * ポッドキャストエピソード数を取得（キャッシュ利用）
  */
 function contentfreaks_get_podcast_count() {
+    $count = get_transient('contentfreaks_podcast_count');
+    if ($count !== false) {
+        return (int) $count;
+    }
     $query = new WP_Query(array(
         'post_type' => 'post',
-        'posts_per_page' => -1,
+        'posts_per_page' => 1,
+        'fields' => 'ids',
         'meta_key' => 'is_podcast_episode',
         'meta_value' => '1',
         'post_status' => 'publish'
     ));
-    return $query->found_posts;
+    $count = $query->found_posts;
+    set_transient('contentfreaks_podcast_count', $count, HOUR_IN_SECONDS);
+    return $count;
 }
 
 /**
- * ブログ記事数を取得
+ * ブログ記事数を取得（キャッシュ利用）
  */
 function contentfreaks_get_blog_count() {
+    $count = get_transient('contentfreaks_blog_count');
+    if ($count !== false) {
+        return (int) $count;
+    }
     $query = new WP_Query(array(
         'post_type' => 'post',
-        'posts_per_page' => -1,
+        'posts_per_page' => 1,
+        'fields' => 'ids',
         'meta_query' => array(
             array(
                 'key' => 'is_podcast_episode',
@@ -1359,8 +1371,20 @@ function contentfreaks_get_blog_count() {
         ),
         'post_status' => 'publish'
     ));
-    return $query->found_posts;
+    $count = $query->found_posts;
+    set_transient('contentfreaks_blog_count', $count, HOUR_IN_SECONDS);
+    return $count;
 }
+
+/**
+ * 記事の保存・削除時にカウントキャッシュをクリア
+ */
+function contentfreaks_clear_count_cache() {
+    delete_transient('contentfreaks_podcast_count');
+    delete_transient('contentfreaks_blog_count');
+}
+add_action('save_post', 'contentfreaks_clear_count_cache');
+add_action('delete_post', 'contentfreaks_clear_count_cache');
 
 /**
  * 最新ポッドキャストエピソードを取得

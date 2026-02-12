@@ -25,19 +25,7 @@ get_header(); ?>
                 </p>
                 <div class="journey-stats">
                     <div class="journey-stat">
-                        <span class="stat-value"><?php 
-                            $ep_count_q = new WP_Query(array(
-                                'post_type' => 'post',
-                                'posts_per_page' => 1,
-                                'meta_key' => 'is_podcast_episode',
-                                'meta_value' => '1',
-                                'post_status' => 'publish',
-                                'fields' => 'ids',
-                                'no_found_rows' => false
-                            ));
-                            echo $ep_count_q->found_posts;
-                            wp_reset_postdata();
-                        ?>+</span>
+                        <span class="stat-value"><?php echo contentfreaks_get_podcast_count(); ?>+</span>
                         <span class="stat-unit">エピソード</span>
                     </div>
                     <div class="journey-stat">

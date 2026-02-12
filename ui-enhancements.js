@@ -208,6 +208,8 @@
             if (term.length === 0) {
                 // 検索語が空なら元に戻す
                 if (grid) grid.innerHTML = originalHTML;
+                var countEl = document.getElementById('search-result-count');
+                if (countEl) countEl.style.display = 'none';
                 initFavorites(); // お気に入りボタン再初期化
                 return;
             }
@@ -230,8 +232,20 @@
                         if (data.success && grid) {
                             if (data.data.html) {
                                 grid.innerHTML = data.data.html;
+                                // 検索結果件数を表示
+                                var countEl = document.getElementById('search-result-count');
+                                if (!countEl) {
+                                    countEl = document.createElement('div');
+                                    countEl.id = 'search-result-count';
+                                    countEl.className = 'search-result-count';
+                                    grid.parentNode.insertBefore(countEl, grid);
+                                }
+                                countEl.textContent = '\u300c' + term + '\u300d\u306e\u691c\u7d22\u7d50\u679c: ' + data.data.count + '\u4ef6';
+                                countEl.style.display = '';
                             } else {
-                                grid.innerHTML = '<div class="no-episodes"><div class="no-episodes-icon">🔍</div><h3>見つかりませんでした</h3><p>「' + term + '」に一致するエピソードはありません。</p></div>';
+                                grid.innerHTML = '<div class="no-episodes"><div class="no-episodes-icon">\ud83d\udd0d</div><h3>\u898b\u3064\u304b\u308a\u307e\u305b\u3093\u3067\u3057\u305f</h3><p>\u300c' + term + '\u300d\u306b\u4e00\u81f4\u3059\u308b\u30a8\u30d4\u30bd\u30fc\u30c9\u306f\u3042\u308a\u307e\u305b\u3093\u3002</p></div>';
+                                var countEl2 = document.getElementById('search-result-count');
+                                if (countEl2) countEl2.style.display = 'none';
                             }
                             initFavorites(); // お気に入りボタン再初期化
                         }

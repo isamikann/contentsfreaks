@@ -321,6 +321,27 @@ body {
     flex-shrink: 0; /* サムネイルのサイズを固定 */
 }
 
+/* カードホバー時の再生CTAオーバーレイ */
+.episode-thumbnail::after {
+    content: '▶';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 2rem;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.episode-card:hover .episode-thumbnail::after {
+    opacity: 1;
+}
+
 .episode-thumbnail img {
     width: 100%;
     height: 100%;
@@ -461,6 +482,18 @@ body {
     background: rgba(102, 126, 234, 0.15);
     color: #5a6fd8;
     transform: translateY(-1px);
+}
+
+/* 検索結果件数表示 */
+.search-result-count {
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--episodes-card-meta, #666);
+    background: var(--episodes-card-bg, rgba(255,255,255,0.05));
+    border-radius: 10px;
+    border-left: 3px solid var(--color-primary-400, #f7ff0b);
 }
 
 /* エピソードなし状態 */
