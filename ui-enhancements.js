@@ -470,6 +470,232 @@
         observer.observe(footer);
     }
 
+    // ===== 9. ランダムエピソードボタン =====
+
+    function initRandomEpisode() {
+        var btn = document.getElementById('random-episode-btn');
+        if (!btn) return;
+        if (typeof contentfreaks_ajax === 'undefined') return;
+
+        btn.addEventListener('click', function () {
+            btn.disabled = true;
+            btn.textContent = '🎲 選んでいます...';
+
+            var formData = new URLSearchParams();
+            formData.append('action', 'random_episode');
+            formData.append('nonce', contentfreaks_ajax.nonce);
+
+            fetch(contentfreaks_ajax.ajax_url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data.success && data.data.url) {
+                        window.location.href = data.data.url;
+                    } else {
+                        btn.textContent = '🎲 今日の1本';
+                        btn.disabled = false;
+                    }
+                })
+                .catch(function () {
+                    btn.textContent = '🎲 今日の1本';
+                    btn.disabled = false;
+                });
+        });
+    }
+
+    // ===== 10. 再生速度コントロール =====
+
+    function initPlaybackSpeed() {
+        var buttons = document.querySelectorAll('.speed-btn');
+        if (buttons.length === 0) return;
+
+        var audio = document.querySelector('.episode-audio-player');
+        if (!audio) return;
+
+        // localStorageから前回の設定を復元
+        var saved = localStorage.getItem('cf-playback-speed');
+        if (saved) {
+            var rate = parseFloat(saved);
+            audio.playbackRate = rate;
+            buttons.forEach(function (b) {
+                b.classList.toggle('active', parseFloat(b.dataset.speed) === rate);
+            });
+        }
+
+        buttons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var speed = parseFloat(this.dataset.speed);
+                audio.playbackRate = speed;
+                localStorage.setItem('cf-playback-speed', speed);
+                buttons.forEach(function (b) { b.classList.remove('active'); });
+                this.classList.add('active');
+            });
+        });
+    }
+
+    // ===== 11. エピソードリアクション =====
+
+    function initReactions() {
+        var container = document.getElementById('episode-reactions');
+        if (!container) return;
+        if (typeof contentfreaks_ajax === 'undefined') return;
+
+        var postId = container.dataset.postId;
+
+        // リアクション数を取得
+        fetch(contentfreaks_ajax.ajax_url + '?action=get_reactions&post_id=' + postId)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    updateReactionCounts(data.data.counts);
+                }
+            });
+
+        // 送信済みリアクションをlocalStorageで管理
+        var reacted = getReactedMap();
+
+        var buttons = container.querySelectorAll('.reaction-btn');
+        buttons.forEach(function (btn) {
+            var reaction = btn.dataset.reaction;
+            if (reacted[postId] && reacted[postId].indexOf(reaction) > -1) {
+                btn.classList.add('reacted');
+            }
+
+            btn.addEventListener('click', function () {
+                if (btn.classList.contains('reacted')) return; // 既に押下済み
+
+                btn.classList.add('reacted');
+                btn.disabled = true;
+
+                // アニメーション
+                var emoji = btn.querySelector('.reaction-emoji');
+                emoji.style.transform = 'scale(1.4)';
+                setTimeout(function () { emoji.style.transform = ''; }, 300);
+
+                var formData = new URLSearchParams();
+                formData.append('action', 'save_reaction');
+                formData.append('nonce', contentfreaks_ajax.nonce);
+                formData.append('post_id', postId);
+                formData.append('reaction', reaction);
+
+                fetch(contentfreaks_ajax.ajax_url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData.toString()
+                })
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        if (data.success) {
+                            updateReactionCounts(data.data.counts);
+                            saveReacted(postId, reaction);
+                        }
+                        btn.disabled = false;
+                    })
+                    .catch(function () {
+                        btn.classList.remove('reacted');
+                        btn.disabled = false;
+                    });
+            });
+        });
+
+        function updateReactionCounts(counts) {
+            Object.keys(counts).forEach(function (key) {
+                var el = container.querySelector('[data-count="' + key + '"]');
+                if (el) el.textContent = counts[key] > 0 ? counts[key] : '';
+            });
+        }
+
+        function getReactedMap() {
+            try {
+                return JSON.parse(localStorage.getItem('cf-reactions') || '{}');
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveReacted(pid, reaction) {
+            var map = getReactedMap();
+            if (!map[pid]) map[pid] = [];
+            if (map[pid].indexOf(reaction) === -1) {
+                map[pid].push(reaction);
+            }
+            localStorage.setItem('cf-reactions', JSON.stringify(map));
+        }
+    }
+
+    // ===== 12. タグフィルター =====
+
+    function initTagFilter() {
+        var bar = document.getElementById('tag-filter-bar');
+        if (!bar) return;
+
+        var chips = bar.querySelectorAll('.tag-filter-chip');
+        var grid = document.getElementById('episodes-grid');
+        var loadMoreWrapper = document.getElementById('load-more-wrapper');
+
+        chips.forEach(function (chip) {
+            chip.addEventListener('click', function () {
+                var tag = this.dataset.tag;
+
+                chips.forEach(function (c) { c.classList.remove('active'); });
+                this.classList.add('active');
+
+                var cards = grid.querySelectorAll('.episode-card');
+                var visibleCount = 0;
+
+                cards.forEach(function (card) {
+                    if (!tag) {
+                        card.style.display = '';
+                        visibleCount++;
+                    } else {
+                        var cardTags = (card.dataset.tags || '').split(',');
+                        if (cardTags.indexOf(tag) > -1) {
+                            card.style.display = '';
+                            visibleCount++;
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    }
+                });
+
+                // フィルター中はLoad Moreを非表示
+                if (loadMoreWrapper) {
+                    loadMoreWrapper.style.display = tag ? 'none' : '';
+                }
+            });
+        });
+    }
+
+    // ===== 13. リスニング統計（localStorage） =====
+
+    function initListeningStats() {
+        if (!document.querySelector('.single-episode-container')) return;
+
+        // 訪問エピソードを記録
+        var postId = '';
+        var reactionsEl = document.getElementById('episode-reactions');
+        if (reactionsEl) {
+            postId = reactionsEl.dataset.postId;
+        } else if (typeof contentfreaks_ajax !== 'undefined' && contentfreaks_ajax.post_id) {
+            postId = String(contentfreaks_ajax.post_id);
+        }
+
+        if (postId) {
+            try {
+                var visited = JSON.parse(localStorage.getItem('cf-visited') || '[]');
+                if (visited.indexOf(postId) === -1) {
+                    visited.push(postId);
+                    localStorage.setItem('cf-visited', JSON.stringify(visited));
+                }
+                // 最終視聴日を記録
+                localStorage.setItem('cf-last-listen', new Date().toISOString().split('T')[0]);
+            } catch (e) {}
+        }
+    }
+
     function init() {
         initScrollToTop();
         initShareButtons();
@@ -479,6 +705,11 @@
         initMobileListenBar();
         initReadingProgress();
         initChapterSeek();
+        initRandomEpisode();
+        initPlaybackSpeed();
+        initReactions();
+        initTagFilter();
+        initListeningStats();
     }
 
     if (document.readyState === 'loading') {

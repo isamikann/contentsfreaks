@@ -171,7 +171,7 @@ get_header(); ?>
                         
                         <div class="featured-episode-details">
                             <div class="episode-meta-info">
-                                <span class="episode-date"><?php echo get_the_date('Y年n月j日'); ?></span>
+                                <span class="episode-date"><?php echo get_the_date('Y.n.j'); ?></span>
                             </div>
                             
                             <h3 class="featured-episode-title"><?php the_title(); ?></h3>

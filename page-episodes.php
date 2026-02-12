@@ -58,7 +58,30 @@ get_header(); ?>
                     <input type="text" id="episode-search" class="search-input" placeholder="エピソードを検索..." />
                     <button type="button" class="search-button">🔍</button>
                 </div>
+                <button type="button" class="random-episode-btn" id="random-episode-btn" title="ランダムなエピソードを開く">
+                    🎲 今日の1本
+                </button>
             </div>
+            
+            <?php
+            // 人気タグを取得してフィルターとして表示
+            $popular_tags = get_tags(array(
+                'orderby' => 'count',
+                'order' => 'DESC',
+                'number' => 12,
+                'hide_empty' => true,
+            ));
+            if ($popular_tags && !is_wp_error($popular_tags)) : ?>
+            <div class="tag-filter-bar" id="tag-filter-bar">
+                <button type="button" class="tag-filter-chip active" data-tag="">すべて</button>
+                <?php foreach ($popular_tags as $tag) : ?>
+                    <button type="button" class="tag-filter-chip" data-tag="<?php echo esc_attr($tag->slug); ?>">
+                        #<?php echo esc_html($tag->name); ?>
+                        <span class="tag-count"><?php echo $tag->count; ?></span>
+                    </button>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
             
             <div class="episodes-grid" id="episodes-grid">
             <?php
@@ -77,18 +100,8 @@ get_header(); ?>
                     // カスタムフィールドを取得
                     $audio_url_raw = get_post_meta(get_the_ID(), 'episode_audio_url', true);
                     
-                    // 音声URLの修正処理
-                    $audio_url = $audio_url_raw;
-                    if ($audio_url_raw) {
-                        // 二重エンコーディングの修正
-                        if (strpos($audio_url_raw, 'https%3A%2F%2F') !== false) {
-                            // パターン1: cloudfront.net/ID/https%3A%2F%2Fcloudfront.net/path
-                            if (preg_match('/https:\/\/d3ctxlq1ktw2nl\.cloudfront\.net\/\d+\/https%3A%2F%2Fd3ctxlq1ktw2nl\.cloudfront\.net%2F(.+)/', $audio_url_raw, $matches)) {
-                                $correct_path = urldecode($matches[1]);
-                                $audio_url = 'https://d3ctxlq1ktw2nl.cloudfront.net/' . $correct_path;
-                            }
-                        }
-                    }
+                    // 音声URLの修正処理（ヘルパー関数で統一）
+                    $audio_url = contentfreaks_fix_audio_url($audio_url_raw);
                     
                     $episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
                     $duration = get_post_meta(get_the_ID(), 'episode_duration', true);

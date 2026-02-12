@@ -683,6 +683,112 @@ function contentfreaks_get_rss_episode_count() {
 }
 
 /**
+ * 音声URLの二重エンコーディングを修正するヘルパー関数
+ * CloudFrontの二重エンコード問題に対応
+ */
+function contentfreaks_fix_audio_url($url) {
+    if (empty($url)) return '';
+    
+    $fixed = $url;
+    if (strpos($url, 'https%3A%2F%2F') !== false) {
+        if (preg_match('/https:\/\/d3ctxlq1ktw2nl\.cloudfront\.net\/\d+\/https%3A%2F%2Fd3ctxlq1ktw2nl\.cloudfront\.net%2F(.+)/', $url, $matches)) {
+            $correct_path = urldecode($matches[1]);
+            $fixed = 'https://d3ctxlq1ktw2nl.cloudfront.net/' . $correct_path;
+        }
+    }
+    // 一般的なURLデコード（念のため）
+    if (strpos($fixed, '%') !== false && strpos($fixed, 'https%3A') !== false) {
+        $fixed = urldecode($fixed);
+    }
+    return $fixed;
+}
+
+/**
+ * AJAX: ランダムエピソードを取得
+ */
+function contentfreaks_random_episode() {
+    if (!check_ajax_referer('contentfreaks_load_more', 'nonce', false)) {
+        wp_send_json_error('Security check failed');
+    }
+    
+    $random_query = new WP_Query(array(
+        'post_type' => 'post',
+        'posts_per_page' => 1,
+        'meta_key' => 'is_podcast_episode',
+        'meta_value' => '1',
+        'orderby' => 'rand',
+    ));
+    
+    if ($random_query->have_posts()) {
+        $random_query->the_post();
+        $url = get_permalink();
+        $title = get_the_title();
+        $ep_number = get_post_meta(get_the_ID(), 'episode_number', true);
+        wp_reset_postdata();
+        wp_send_json_success(array(
+            'url' => $url,
+            'title' => $title,
+            'episode_number' => $ep_number
+        ));
+    } else {
+        wp_send_json_error('No episodes found');
+    }
+}
+add_action('wp_ajax_random_episode', 'contentfreaks_random_episode');
+add_action('wp_ajax_nopriv_random_episode', 'contentfreaks_random_episode');
+
+/**
+ * AJAX: エピソードリアクションの保存
+ */
+function contentfreaks_save_reaction() {
+    if (!check_ajax_referer('contentfreaks_load_more', 'nonce', false)) {
+        wp_send_json_error('Security check failed');
+    }
+    
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    $reaction = isset($_POST['reaction']) ? sanitize_text_field($_POST['reaction']) : '';
+    
+    $allowed = array('fire', 'laugh', 'idea', 'cry', 'heart');
+    if (!$post_id || !in_array($reaction, $allowed, true)) {
+        wp_send_json_error('Invalid parameters');
+    }
+    
+    $meta_key = 'reaction_' . $reaction;
+    $current = (int) get_post_meta($post_id, $meta_key, true);
+    update_post_meta($post_id, $meta_key, $current + 1);
+    
+    // 全リアクション数を返す
+    $counts = array();
+    foreach ($allowed as $r) {
+        $counts[$r] = (int) get_post_meta($post_id, 'reaction_' . $r, true);
+    }
+    
+    wp_send_json_success(array('counts' => $counts));
+}
+add_action('wp_ajax_save_reaction', 'contentfreaks_save_reaction');
+add_action('wp_ajax_nopriv_save_reaction', 'contentfreaks_save_reaction');
+
+/**
+ * AJAX: エピソードリアクション数を取得
+ */
+function contentfreaks_get_reactions() {
+    $post_id = isset($_GET['post_id']) ? intval($_GET['post_id']) : 0;
+    if (!$post_id) {
+        wp_send_json_error('Invalid post ID');
+    }
+    
+    $allowed = array('fire', 'laugh', 'idea', 'cry', 'heart');
+    $counts = array();
+    foreach ($allowed as $r) {
+        $counts[$r] = (int) get_post_meta($post_id, 'reaction_' . $r, true);
+    }
+    
+    wp_send_json_success(array('counts' => $counts));
+}
+add_action('wp_ajax_get_reactions', 'contentfreaks_get_reactions');
+add_action('wp_ajax_nopriv_get_reactions', 'contentfreaks_get_reactions');
+
+/**
  * AJAX: エピソードページ用の無限スクロール
  */
 function contentfreaks_load_more_episodes() {

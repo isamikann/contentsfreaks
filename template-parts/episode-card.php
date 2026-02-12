@@ -12,11 +12,17 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+<?php
 $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
 $episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
 $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
+$card_tags = get_the_tags();
+$tag_slugs = '';
+if ($card_tags && !is_wp_error($card_tags)) {
+    $tag_slugs = implode(',', wp_list_pluck($card_tags, 'slug'));
+}
 ?>
-<article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
+<article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>" data-tags="<?php echo esc_attr($tag_slugs); ?>">
     <div class="episode-card-header">
         <div class="episode-thumbnail">
             <?php if (has_post_thumbnail()) : ?>
@@ -59,6 +65,16 @@ $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
         <h3 class="episode-title">
             <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
         </h3>
+
+        <?php
+        // エピソード概要（抜粋 or 本文先頭）
+        $excerpt = get_the_excerpt();
+        if (!$excerpt) {
+            $excerpt = wp_trim_words(get_the_content(), 30, '…');
+        }
+        if ($excerpt) : ?>
+        <p class="episode-excerpt"><?php echo esc_html(wp_trim_words($excerpt, 25, '…')); ?></p>
+        <?php endif; ?>
 
         <?php
         $tags = get_the_tags();

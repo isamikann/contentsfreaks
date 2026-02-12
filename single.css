@@ -1431,3 +1431,133 @@ html {
         gap: 2.5rem;
     }
 }
+
+/* ===== 再生速度コントロール ===== */
+
+.playback-speed-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.speed-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary, #555);
+    margin-right: 0.25rem;
+    white-space: nowrap;
+}
+
+.speed-btn {
+    padding: 0.3rem 0.65rem;
+    border-radius: 8px;
+    border: 1px solid var(--color-border-light, #e2e8f0);
+    background: var(--color-bg-secondary, #f7fafc);
+    color: var(--color-text-secondary, #4a5568);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 44px;
+    text-align: center;
+}
+
+.speed-btn:hover {
+    border-color: var(--color-primary-400, #f7ff0b);
+    background: rgba(247, 255, 11, 0.15);
+}
+
+.speed-btn.active {
+    background: var(--color-primary-400, #f7ff0b);
+    color: var(--color-text-primary, #1a202c);
+    border-color: var(--color-primary-400, #f7ff0b);
+    font-weight: 700;
+}
+
+/* ===== エピソードリアクション ===== */
+
+.episode-reactions {
+    margin: 2.5rem 0;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(247,255,11,0.08), rgba(255,107,53,0.05));
+    border-radius: 16px;
+    border: 1px solid rgba(247,255,11,0.15);
+    text-align: center;
+}
+
+.reactions-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 1.25rem;
+    color: var(--color-text-primary, #1a202c);
+}
+
+.reactions-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.reaction-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    background: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    min-width: 60px;
+}
+
+.reaction-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    border-color: var(--color-primary-400, #f7ff0b);
+}
+
+.reaction-btn.reacted {
+    border-color: var(--color-accent-400, #ff6b35);
+    background: rgba(255, 107, 53, 0.08);
+}
+
+.reaction-emoji {
+    font-size: 1.75rem;
+    line-height: 1;
+    transition: transform 0.3s ease;
+}
+
+.reaction-count {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-text-secondary, #4a5568);
+    min-height: 1em;
+}
+
+.reaction-btn.reacted .reaction-count {
+    color: var(--color-accent-400, #ff6b35);
+}
+
+@media (max-width: 768px) {
+    .playback-speed-controls {
+        justify-content: center;
+    }
+    
+    .reactions-buttons {
+        gap: 0.5rem;
+    }
+    
+    .reaction-btn {
+        padding: 0.6rem 0.7rem;
+        min-width: 50px;
+    }
+    
+    .reaction-emoji {
+        font-size: 1.5rem;
+    }
+}

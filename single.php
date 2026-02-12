@@ -17,20 +17,8 @@ get_header(); ?>
         $duration = get_post_meta($post_id, 'episode_duration', true);
         $audio_url_raw = get_post_meta($post_id, 'episode_audio_url', true);
         
-        // 音声URLの修正処理（二重エンコーディング対応）
-        $audio_url = $audio_url_raw;
-        if ($audio_url_raw) {
-            if (strpos($audio_url_raw, 'https%3A%2F%2F') !== false) {
-                if (preg_match('/https:\/\/d3ctxlq1ktw2nl\.cloudfront\.net\/\d+\/https%3A%2F%2Fd3ctxlq1ktw2nl\.cloudfront\.net%2F(.+)/', $audio_url_raw, $matches)) {
-                    $correct_path = urldecode($matches[1]);
-                    $audio_url = 'https://d3ctxlq1ktw2nl.cloudfront.net/' . $correct_path;
-                }
-            }
-            // 一般的なURLデコード（念のため）
-            if (strpos($audio_url, '%') !== false && strpos($audio_url, 'https%3A') !== false) {
-                $audio_url = urldecode($audio_url);
-            }
-        }
+        // 音声URLの修正処理（ヘルパー関数で統一）
+        $audio_url = contentfreaks_fix_audio_url($audio_url_raw);
         
         $original_url = get_post_meta($post_id, 'episode_original_url', true);
         $episode_category = get_post_meta($post_id, 'episode_category', true) ?: 'エピソード';
@@ -90,6 +78,14 @@ get_header(); ?>
                         <source src="<?php echo esc_url($audio_url); ?>" type="audio/mpeg">
                         お使いのブラウザは音声再生に対応していません。
                     </audio>
+                    <div class="playback-speed-controls">
+                        <span class="speed-label">再生速度</span>
+                        <button type="button" class="speed-btn" data-speed="0.75">0.75x</button>
+                        <button type="button" class="speed-btn active" data-speed="1">1x</button>
+                        <button type="button" class="speed-btn" data-speed="1.25">1.25x</button>
+                        <button type="button" class="speed-btn" data-speed="1.5">1.5x</button>
+                        <button type="button" class="speed-btn" data-speed="2">2x</button>
+                    </div>
                 </div>
                 <?php endif; ?>
                 <div class="episode-platform-links">
@@ -151,6 +147,35 @@ get_header(); ?>
                 </div>
             </div>
 
+            <!-- エピソードリアクション -->
+            <?php if ($is_podcast_episode) : ?>
+            <div class="episode-reactions" id="episode-reactions" data-post-id="<?php echo esc_attr($post_id); ?>">
+                <h3 class="reactions-title">このエピソードの感想は？</h3>
+                <div class="reactions-buttons">
+                    <button type="button" class="reaction-btn" data-reaction="fire" title="熱い！">
+                        <span class="reaction-emoji">🔥</span>
+                        <span class="reaction-count" data-count="fire">0</span>
+                    </button>
+                    <button type="button" class="reaction-btn" data-reaction="laugh" title="笑った！">
+                        <span class="reaction-emoji">🤣</span>
+                        <span class="reaction-count" data-count="laugh">0</span>
+                    </button>
+                    <button type="button" class="reaction-btn" data-reaction="idea" title="なるほど！">
+                        <span class="reaction-emoji">💡</span>
+                        <span class="reaction-count" data-count="idea">0</span>
+                    </button>
+                    <button type="button" class="reaction-btn" data-reaction="cry" title="泣ける…">
+                        <span class="reaction-emoji">😢</span>
+                        <span class="reaction-count" data-count="cry">0</span>
+                    </button>
+                    <button type="button" class="reaction-btn" data-reaction="heart" title="好き！">
+                        <span class="reaction-emoji">❤️</span>
+                        <span class="reaction-count" data-count="heart">0</span>
+                    </button>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <!-- 関連エピソード -->
             <?php if ($is_podcast_episode) : ?>
             <div class="related-episodes">
@@ -205,7 +230,7 @@ get_header(); ?>
                             </div>
                             
                             <div class="related-episode-info">
-                                <div class="related-episode-date"><?php echo get_the_date('Y年n月j日'); ?></div>
+                                <div class="related-episode-date"><?php echo get_the_date('Y.n.j'); ?></div>
                                 <h4 class="related-episode-title">
                                     <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
                                 </h4>

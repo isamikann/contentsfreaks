@@ -94,10 +94,14 @@ function contentfreaks_enqueue_scripts() {
     );
 
     // AJAX用の設定（無限スクロール+検索用nonce含む）
-    wp_localize_script('contentfreaks-ui-enhancements', 'contentfreaks_ajax', array(
+    $ajax_data = array(
         'ajax_url' => admin_url('admin-ajax.php'),
-        'nonce' => wp_create_nonce('contentfreaks_load_more')
-    ));
+        'nonce' => wp_create_nonce('contentfreaks_load_more'),
+    );
+    if (is_single()) {
+        $ajax_data['post_id'] = get_the_ID();
+    }
+    wp_localize_script('contentfreaks-ui-enhancements', 'contentfreaks_ajax', $ajax_data);
 }
 add_action('wp_enqueue_scripts', 'contentfreaks_enqueue_scripts');
 
