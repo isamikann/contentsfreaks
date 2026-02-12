@@ -81,9 +81,6 @@ function contentfreaks_re_extract_all_tags() {
     ));
     $processed_count = 0;
     foreach ($podcast_posts as $post) {
-        // 既存のタグをクリア（必要に応じて）
-        // wp_set_post_tags($post->ID, array());
-        // タイトルからタグを再抽出
         contentfreaks_extract_and_create_tags_from_title($post->ID, $post->post_title);
         $processed_count++;
     }
@@ -1499,5 +1496,3 @@ function contentfreaks_breadcrumb() {
     echo '</ol>';
     echo '</nav>';
 }
-
-

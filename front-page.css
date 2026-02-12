@@ -33,8 +33,6 @@
     }
 }
 
-/* グレイン・パーティクルは廃止 → クリーンなグラデーション背景のみ */
-
 .podcast-hero-content {
     position: relative;
     z-index: 10;
@@ -655,11 +653,6 @@
     
     .podcast-hero-text {
         margin: 0.8rem 0;
-    }
-    
-    /* フロントページ特有のパーティクルアニメーション無効化 */
-    .podcast-hero-particles {
-        display: none;
     }
     
     /* フロントページ特有の統計情報レイアウト */
@@ -1560,12 +1553,6 @@
         }
     }
     
-    /* エピソードセクションのスタイルはpage-episodes.cssを使用 */
-    
-    /* episodes-container と episodes-header のスタイルはpage-episodes.cssを使用 */
-    
-    /* エピソードカードのスタイルはpage-episodes.cssを使用 */
-    
     .episodes-cta {
         text-align: center;
         margin-top: 3rem;
@@ -1653,11 +1640,7 @@
         box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
     }
     
-    /* 上記の統合モバイルCSSで対応済み */
-    
     @media (max-width: 480px) {
-        /* 上記の統合モバイルCSSで対応済み */
-        
         .episodes-view-all-btn, .blog-view-all-btn {
             width: 250px;
             padding: 0.8rem 1.5rem;
@@ -1890,13 +1873,13 @@
 .pickup-header h2 {
     font-size: 1.75rem;
     font-weight: 800;
-    color: var(--text-primary, #fff);
+    color: var(--color-text-primary, #1a202c);
     margin-bottom: 0.5rem;
 }
 
 .pickup-subtitle {
     font-size: 0.9375rem;
-    color: var(--text-secondary, #a0a0a0);
+    color: var(--color-text-secondary, #4a5568);
 }
 
 @media (max-width: 768px) {
@@ -1918,15 +1901,16 @@
     max-width: 600px;
     margin: 3rem auto 0;
     padding: 2rem;
-    background: var(--surface-primary, #141414);
-    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.1));
+    background: var(--color-bg-primary, #fff);
+    border: 1px solid var(--color-border-light, #e2e8f0);
     border-radius: 16px;
+    box-shadow: var(--shadow-sm);
 }
 
 .form-title {
     font-size: 1.125rem;
     font-weight: 700;
-    color: var(--text-primary, #fff);
+    color: var(--color-text-primary, #1a202c);
     text-align: center;
     margin: 0 0 1.5rem;
 }
@@ -1943,9 +1927,9 @@
     width: 100%;
     padding: 0.75rem 1rem;
     border-radius: 12px;
-    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.15));
-    background: var(--surface-secondary, #1a1a1a);
-    color: var(--text-primary, #fff);
+    border: 1px solid var(--color-border-light, #e2e8f0);
+    background: var(--color-bg-secondary, #f7fafc);
+    color: var(--color-text-primary, #1a202c);
     font-size: 0.9375rem;
     font-family: inherit;
     outline: none;
@@ -1954,7 +1938,7 @@
 }
 
 .form-input:focus {
-    border-color: var(--primary, #f7ff0b);
+    border-color: var(--color-accent-400, #ff6b35);
 }
 
 .form-textarea {
@@ -1964,8 +1948,8 @@
 
 .form-submit-btn {
     padding: 0.75rem 2rem;
-    background: var(--primary, #f7ff0b);
-    color: var(--black, #0a0a0a);
+    background: var(--color-accent-400, #ff6b35);
+    color: #fff;
     border: none;
     border-radius: 12px;
     font-size: 1rem;
@@ -1976,8 +1960,8 @@
 }
 
 .form-submit-btn:hover {
-    background: var(--accent, #ff6b35);
-    color: #fff;
+    background: var(--color-primary-400, #f7ff0b);
+    color: var(--color-text-primary, #1a202c);
     transform: translateY(-2px);
 }
 

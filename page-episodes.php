@@ -143,25 +143,6 @@ get_header(); ?>
 </main>
 
 <script>
-// エピソードページでのjavascript.js音声機能の無効化（DOMContentLoaded前に実行）
-(function() {
-    console.log('Pre-disabling javascript.js audio functions');
-    
-    // initAudioPlayer関数を無効化
-    window.initAudioPlayer = function() {
-        console.log('initAudioPlayer disabled on episodes page');
-        return;
-    };
-    
-    // initPodcastPlayer関数も無効化
-    window.initPodcastPlayer = function() {
-        console.log('initPodcastPlayer disabled on episodes page');
-        return;
-    };
-})();
-</script>
-
-<script>
 document.addEventListener('DOMContentLoaded', function() {
     // 初期カードにloadedクラスを追加
     const initialCards = document.querySelectorAll('.episode-card');

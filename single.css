@@ -1225,17 +1225,18 @@ html {
 /* ===== 話題チャプター ===== */
 
 .episode-chapters {
-    background: var(--surface-primary, #141414);
-    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.1));
+    background: var(--color-bg-primary, #fff);
+    border: 1px solid var(--color-border-light, #e2e8f0);
     border-radius: 16px;
     padding: 1.5rem;
     margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
 }
 
 .chapters-title {
     font-size: 1.125rem;
     font-weight: 700;
-    color: var(--text-primary, #fff);
+    color: var(--color-text-primary, #1a202c);
     margin: 0 0 1rem;
 }
 
@@ -1251,7 +1252,7 @@ html {
     align-items: baseline;
     gap: 1rem;
     padding: 0.625rem 0;
-    border-bottom: 1px solid var(--border-secondary, rgba(255, 255, 255, 0.06));
+    border-bottom: 1px solid var(--color-border-light, #e2e8f0);
     transition: background 0.15s ease;
     margin: 0;
 }
@@ -1261,7 +1262,7 @@ html {
 }
 
 .chapter-item:hover {
-    background: var(--surface-secondary, #1a1a1a);
+    background: var(--color-bg-secondary, #f7fafc);
     border-radius: 8px;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
@@ -1271,8 +1272,8 @@ html {
     font-family: 'SF Mono', 'Fira Code', monospace;
     font-size: 0.8125rem;
     font-weight: 600;
-    color: var(--primary, #f7ff0b);
-    background: rgba(247, 255, 11, 0.08);
+    color: var(--color-accent-400, #ff6b35);
+    background: rgba(255, 107, 53, 0.08);
     padding: 0.125rem 0.5rem;
     border-radius: 6px;
     white-space: nowrap;
@@ -1282,7 +1283,7 @@ html {
 
 .chapter-name {
     font-size: 0.9375rem;
-    color: var(--text-primary, #fff);
+    color: var(--color-text-primary, #1a202c);
     line-height: 1.5;
 }
 

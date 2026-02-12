@@ -15,8 +15,8 @@
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    background: var(--primary, #f7ff0b);
-    color: var(--black, #0a0a0a);
+    background: var(--color-primary-400, #f7ff0b);
+    color: var(--color-text-primary, #1a202c);
     border: none;
     cursor: pointer;
     display: flex;
@@ -38,7 +38,7 @@
 }
 
 .scroll-to-top:hover {
-    background: var(--accent, #ff6b35);
+    background: var(--color-accent-400, #ff6b35);
     color: #fff;
     transform: translateY(-3px);
     box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
@@ -61,7 +61,7 @@
 .share-buttons-title {
     font-size: 0.875rem;
     font-weight: 600;
-    color: var(--text-secondary, #a0a0a0);
+    color: var(--color-text-secondary, #4a5568);
     margin-right: 0.5rem;
     white-space: nowrap;
 }
@@ -106,15 +106,15 @@
 }
 
 .share-btn-copy {
-    background: var(--surface-secondary, #1a1a1a);
-    color: var(--text-primary, #ffffff);
-    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.15));
+    background: var(--color-bg-secondary, #f7fafc);
+    color: var(--color-text-primary, #1a202c);
+    border: 1px solid var(--color-border-light, #e2e8f0);
 }
 
 .share-btn-copy:hover {
-    background: var(--primary, #f7ff0b);
-    color: var(--black, #0a0a0a);
-    border-color: var(--primary, #f7ff0b);
+    background: var(--color-primary-400, #f7ff0b);
+    color: var(--color-text-primary, #1a202c);
+    border-color: var(--color-primary-400, #f7ff0b);
 }
 
 .share-btn-copy.copied {
@@ -185,9 +185,9 @@
     gap: 0.5rem;
     padding: 0.5rem 1rem;
     border-radius: 9999px;
-    background: var(--surface-secondary, #1a1a1a);
-    border: 1px solid var(--border-primary, rgba(247, 255, 11, 0.15));
-    color: var(--text-primary, #fff);
+    background: var(--color-bg-secondary, #f7fafc);
+    border: 1px solid var(--color-border-light, #e2e8f0);
+    color: var(--color-text-primary, #1a202c);
     cursor: pointer;
     font-size: 0.8125rem;
     font-weight: 500;
@@ -197,9 +197,9 @@
 
 .favorites-filter:hover,
 .favorites-filter.active {
-    background: var(--primary, #f7ff0b);
-    color: var(--black, #0a0a0a);
-    border-color: var(--primary, #f7ff0b);
+    background: var(--color-primary-400, #f7ff0b);
+    color: var(--color-text-primary, #1a202c);
+    border-color: var(--color-primary-400, #f7ff0b);
 }
 
 .favorites-count {
@@ -209,7 +209,7 @@
     min-width: 20px;
     height: 20px;
     border-radius: 10px;
-    background: var(--accent, #ff6b35);
+    background: var(--color-accent-400, #ff6b35);
     color: #fff;
     font-size: 0.6875rem;
     font-weight: 700;
@@ -242,22 +242,22 @@
 
 .breadcrumb-list li:not(:last-child)::after {
     content: '›';
-    color: var(--text-tertiary, #666);
+    color: var(--color-text-tertiary, #718096);
     font-size: 1rem;
 }
 
 .breadcrumb-list a {
-    color: var(--text-secondary, #a0a0a0);
+    color: var(--color-text-secondary, #4a5568);
     text-decoration: none;
     transition: color 0.2s ease;
 }
 
 .breadcrumb-list a:hover {
-    color: var(--primary, #f7ff0b);
+    color: var(--color-primary-400, #f7ff0b);
 }
 
 .breadcrumb-list .current {
-    color: var(--text-primary, #fff);
+    color: var(--color-text-primary, #1a202c);
     font-weight: 500;
     overflow: hidden;
     text-overflow: ellipsis;

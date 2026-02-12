@@ -47,7 +47,7 @@ function contentfreaks_enqueue_scripts() {
     // マイクロインタラクション（UX向上）
     wp_enqueue_style('contentfreaks-microinteractions', get_stylesheet_directory_uri() . '/microinteractions.css', array('contentfreaks-components'), '1.0.0');
 
-    // UI拡張（トップに戻る、ダークモード、シェア、お気に入り、パンくず）
+    // UI拡張（トップに戻る、シェア、お気に入り、パンくず）
     wp_enqueue_style('contentfreaks-ui-enhancements', get_stylesheet_directory_uri() . '/ui-enhancements.css', array('contentfreaks-components'), '1.0.0');
     
     // ページ別専用CSS（パフォーマンス最適化：必要なページでのみ読み込み）
@@ -73,12 +73,6 @@ function contentfreaks_enqueue_scripts() {
         wp_enqueue_style('contentfreaks-episodes', get_stylesheet_directory_uri() . '/page-episodes.css', array('contentfreaks-components'), '1.2.1');
     }
     
-    // 存在しないファイルの読み込みを無効化
-    // wp_enqueue_style('contentfreaks-final-style', get_stylesheet_directory_uri() . '/contentfreaks-final.css', array('contentfreaks-components'), '2.0.0');
-    
-    // 存在しないJavaScriptファイルの読み込みを無効化
-    // wp_enqueue_script('contentfreaks-script', get_stylesheet_directory_uri() . '/javascript.js', array('jquery'), '2.0.0', true);
-    
     // 基本的なJQueryのみ利用可能にする
     wp_enqueue_script('jquery');
     
@@ -91,7 +85,7 @@ function contentfreaks_enqueue_scripts() {
         true // フッターで読み込み
     );
 
-    // UI拡張JavaScript（トップに戻る、ダークモード、シェア、お気に入り、AJAX検索）
+    // UI拡張JavaScript（トップに戻る、シェア、お気に入り、AJAX検索）
     wp_enqueue_script(
         'contentfreaks-ui-enhancements',
         get_stylesheet_directory_uri() . '/ui-enhancements.js',
