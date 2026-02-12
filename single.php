@@ -141,8 +141,9 @@ get_header(); ?>
                 <h3 class="related-episodes-title">🎵 関連エピソード</h3>
                 <div class="related-episodes-grid">
                     <?php
-                    // 関連エピソードを取得（同じカテゴリーから3件）
-                    $related_query = new WP_Query(array(
+                    // 関連エピソードを取得（タグベースで関連性の高いものを優先）
+                    $current_tags = wp_get_post_tags(get_the_ID(), array('fields' => 'ids'));
+                    $related_args = array(
                         'post_type' => 'post',
                         'posts_per_page' => 3,
                         'post__not_in' => array(get_the_ID()),
@@ -150,7 +151,17 @@ get_header(); ?>
                         'meta_value' => '1',
                         'orderby' => 'date',
                         'order' => 'DESC'
-                    ));
+                    );
+                    if (!empty($current_tags)) {
+                        $related_args['tag__in'] = $current_tags;
+                    }
+                    $related_query = new WP_Query($related_args);
+                    // タグで見つからない場合は最新でフォールバック
+                    if (!$related_query->have_posts() && !empty($current_tags)) {
+                        $related_args_fallback = $related_args;
+                        unset($related_args_fallback['tag__in']);
+                        $related_query = new WP_Query($related_args_fallback);
+                    }
 
                     if ($related_query->have_posts()) :
                         while ($related_query->have_posts()) : $related_query->the_post();
@@ -211,7 +222,7 @@ get_header(); ?>
                     </div>
                     
                     <div class="nav-center">
-                        <a href="/episodes/" class="episode-nav-link episodes-list">
+                        <a href="<?php echo esc_url(get_permalink(get_page_by_path('episodes'))); ?>" class="episode-nav-link episodes-list">
                             🎧 エピソード一覧
                         </a>
                     </div>

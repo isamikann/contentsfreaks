@@ -140,33 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // エピソード検索機能
-    const searchInput = document.getElementById('episode-search');
-    const episodeCards = document.querySelectorAll('.episode-card');
-    
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            
-            episodeCards.forEach(card => {
-                const titleElement = card.querySelector('.episode-title');
-                
-                // 要素が存在するかチェック
-                const title = titleElement ? titleElement.textContent.toLowerCase() : '';
-                
-                if (searchTerm === '' || title.includes(searchTerm)) {
-                    // 表示
-                    card.style.display = '';
-                    card.style.opacity = '';
-                    card.style.transform = '';
-                    card.style.visibility = '';
-                } else {
-                    // 非表示
-                    card.style.display = 'none';
-                }
-            });
-        });
-    }
+    // エピソード検索機能はui-enhancements.jsのAJAX検索に統合済み
     
     // スクロールアニメーション
     const observerOptions = {
@@ -211,7 +185,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadingIndicator.style.display = 'block';
         
         // AJAXリクエストでエピソードを取得
-        fetch(`${window.location.origin}/wp-admin/admin-ajax.php`, {
+        fetch(contentfreaks_ajax.ajax_url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

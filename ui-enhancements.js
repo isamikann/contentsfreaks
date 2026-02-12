@@ -47,23 +47,42 @@
 
         const url = encodeURIComponent(window.location.href);
         const title = encodeURIComponent(document.title);
+        const rawUrl = window.location.href;
+        const rawTitle = document.title;
 
         const container = document.createElement('div');
         container.className = 'share-buttons';
-        container.innerHTML = `
-            <span class="share-buttons-title">📤 シェア</span>
-            <a href="https://twitter.com/intent/tweet?url=${url}&text=${title}" 
-               target="_blank" rel="noopener" class="share-btn share-btn-x">
-                𝕏 ポスト
-            </a>
-            <a href="https://social-plugins.line.me/lineit/share?url=${url}" 
-               target="_blank" rel="noopener" class="share-btn share-btn-line">
-                LINE 送る
-            </a>
-            <button class="share-btn share-btn-copy" data-url="${window.location.href}">
-                🔗 コピー
-            </button>
-        `;
+
+        // Web Share API 対応チェック
+        if (navigator.share) {
+            container.innerHTML = `
+                <span class="share-buttons-title">📤 シェア</span>
+                <button class="share-btn share-btn-native">📤 シェアする</button>
+                <a href="https://twitter.com/intent/tweet?url=${url}&text=${title}" 
+                   target="_blank" rel="noopener" class="share-btn share-btn-x">
+                    𝕏 ポスト
+                </a>
+            `;
+            const nativeBtn = container.querySelector('.share-btn-native');
+            nativeBtn.addEventListener('click', function () {
+                navigator.share({ title: rawTitle, url: rawUrl }).catch(function () {});
+            });
+        } else {
+            container.innerHTML = `
+                <span class="share-buttons-title">📤 シェア</span>
+                <a href="https://twitter.com/intent/tweet?url=${url}&text=${title}" 
+                   target="_blank" rel="noopener" class="share-btn share-btn-x">
+                    𝕏 ポスト
+                </a>
+                <a href="https://social-plugins.line.me/lineit/share?url=${url}" 
+                   target="_blank" rel="noopener" class="share-btn share-btn-line">
+                    LINE 送る
+                </a>
+                <button class="share-btn share-btn-copy" data-url="${rawUrl}">
+                    🔗 コピー
+                </button>
+            `;
+        }
 
         episodeHeader.parentNode.insertBefore(container, episodeHeader.nextSibling);
 
@@ -217,6 +236,12 @@
             if (term.length < 2) return;
 
             debounceTimer = setTimeout(function () {
+                // ローディング表示
+                if (grid) {
+                    grid.classList.add('is-searching');
+                    grid.insertAdjacentHTML('afterbegin', '<div class="search-loading-indicator" id="search-loading"><div class="search-spinner"></div></div>');
+                }
+
                 const formData = new URLSearchParams();
                 formData.append('action', 'search_episodes');
                 formData.append('nonce', contentfreaks_ajax.nonce);
@@ -229,6 +254,11 @@
                 })
                     .then(function (r) { return r.json(); })
                     .then(function (data) {
+                        // ローディング解除
+                        grid.classList.remove('is-searching');
+                        var loadingEl = document.getElementById('search-loading');
+                        if (loadingEl) loadingEl.remove();
+
                         if (data.success && grid) {
                             if (data.data.html) {
                                 grid.innerHTML = data.data.html;
@@ -316,6 +346,32 @@
 
     // ===== 初期化 =====
 
+    // ===== 7. 読了プログレスバー（エピソード詳細） =====
+
+    function initReadingProgress() {
+        if (!document.querySelector('.single-episode-container')) return;
+
+        var bar = document.createElement('div');
+        bar.className = 'reading-progress-bar';
+        bar.innerHTML = '<div class="reading-progress-fill"></div>';
+        document.body.appendChild(bar);
+
+        var fill = bar.querySelector('.reading-progress-fill');
+        var ticking = false;
+
+        window.addEventListener('scroll', function () {
+            if (!ticking) {
+                requestAnimationFrame(function () {
+                    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                    var progress = docHeight > 0 ? (window.scrollY / docHeight) * 100 : 0;
+                    fill.style.width = Math.min(progress, 100) + '%';
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        });
+    }
+
     /* --- フッター接近時にモバイルCTAバーを隠す --- */
     function initMobileListenBar() {
         var bar = document.getElementById('mobile-listen-bar');
@@ -339,6 +395,7 @@
         initAjaxSearch();
         initTestimonialForm();
         initMobileListenBar();
+        initReadingProgress();
     }
 
     if (document.readyState === 'loading') {

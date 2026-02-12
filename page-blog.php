@@ -35,21 +35,7 @@ get_header(); ?>
                 <div class="blog-stats">
                     <div class="blog-stat">
                         <span class="blog-stat-number">
-                            <?php 
-                            $total_blog_posts = new WP_Query(array(
-                                'post_type' => 'post',
-                                'posts_per_page' => -1,
-                                'meta_query' => array(
-                                    array(
-                                        'key' => 'is_podcast_episode',
-                                        'compare' => 'NOT EXISTS'
-                                    )
-                                ),
-                                'post_status' => 'publish'
-                            ));
-                            echo $total_blog_posts->found_posts;
-                            wp_reset_postdata();
-                            ?>
+                            <?php echo contentfreaks_get_blog_count(); ?>
                         </span>
                         <span class="blog-stat-label">記事</span>
                     </div>
