@@ -62,28 +62,6 @@ function contentfreaks_defer_non_critical_css($html, $handle) {
 add_filter('style_loader_tag', 'contentfreaks_defer_non_critical_css', 10, 2);
 
 /**
- * Google Fontsの最適化
- */
-function contentfreaks_optimize_google_fonts() {
-    ?>
-    <!-- Google Fonts preconnect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <!-- Font display swap for better performance -->
-    <link rel="stylesheet" 
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap" 
-          media="print" 
-          onload="this.media='all'">
-    <noscript>
-        <link rel="stylesheet" 
-              href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
-    </noscript>
-    <?php
-}
-add_action('wp_head', 'contentfreaks_optimize_google_fonts', 2);
-
-/**
  * JavaScriptの遅延実行
  */
 function contentfreaks_defer_scripts($tag, $handle, $src) {
@@ -101,29 +79,7 @@ function contentfreaks_defer_scripts($tag, $handle, $src) {
 }
 add_filter('script_loader_tag', 'contentfreaks_defer_scripts', 10, 3);
 
-/**
- * DNS Prefetch / Preconnect
- */
-function contentfreaks_resource_hints_optimization($hints, $relation_type) {
-    if ('dns-prefetch' === $relation_type) {
-        $hints[] = '//fonts.googleapis.com';
-        $hints[] = '//fonts.gstatic.com';
-    }
-    
-    if ('preconnect' === $relation_type) {
-        $hints[] = array(
-            'href' => 'https://fonts.googleapis.com',
-            'crossorigin',
-        );
-        $hints[] = array(
-            'href' => 'https://fonts.gstatic.com',
-            'crossorigin',
-        );
-    }
-    
-    return $hints;
-}
-add_filter('wp_resource_hints', 'contentfreaks_resource_hints_optimization', 10, 2);
+/* DNS Prefetch / Preconnect は enqueue_scripts.php の contentfreaks_resource_hints() に統一済み */
 
 /**
  * Above the Fold画像のプリロード

@@ -4,13 +4,15 @@
  * HTTP/2 Server Push最適化対応
  */
 function contentfreaks_enqueue_scripts() {
-    // Google Fontsの読み込み（パフォーマンス最適化済み）
+    // Google Fontsの読み込み（一箇所に統一）
     wp_enqueue_style(
         'contentfreaks-fonts',
         'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Noto+Sans+JP:wght@400;500;700;900&display=swap',
         array(),
         null
     );
+    // フォントのpreconnectヒント
+    wp_style_add_data('contentfreaks-fonts', 'crossorigin', 'anonymous');
     
     // 親テーマのスタイルを読み込み
     wp_enqueue_style('cocoon-style', get_template_directory_uri() . '/style.css');
@@ -26,6 +28,10 @@ function contentfreaks_enqueue_scripts() {
     // 共通コンポーネントのスタイル（フッター等）- 高優先度
     wp_enqueue_style('contentfreaks-components', get_stylesheet_directory_uri() . '/components.css', array('contentfreaks-main-style'), '2.0.2');
     wp_style_add_data('contentfreaks-components', 'priority', 'high');
+    
+    // ヘッダー専用CSS（header.phpから外部化）
+    wp_enqueue_style('contentfreaks-header', get_stylesheet_directory_uri() . '/header.css', array('contentfreaks-components'), '1.0.0');
+    wp_style_add_data('contentfreaks-header', 'priority', 'high');
     
     // ローディング & インタラクションフィードバック
     wp_enqueue_style('contentfreaks-loading', get_stylesheet_directory_uri() . '/loading.css', array('contentfreaks-components'), '1.0.0');
@@ -72,11 +78,11 @@ function contentfreaks_enqueue_scripts() {
         true // フッターで読み込み
     );
     
-    // AJAX用の設定を追加（必要に応じて有効化）
-    // wp_localize_script('contentfreaks-script', 'contentfreaks_ajax', array(
-    //     'ajax_url' => admin_url('admin-ajax.php'),
-    //     'nonce' => wp_create_nonce('contentfreaks_ajax_nonce')
-    // ));
+    // AJAX用の設定（無限スクロール用nonce含む）
+    wp_localize_script('contentfreaks-microinteractions', 'contentfreaks_ajax', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce' => wp_create_nonce('contentfreaks_load_more')
+    ));
 }
 add_action('wp_enqueue_scripts', 'contentfreaks_enqueue_scripts');
 

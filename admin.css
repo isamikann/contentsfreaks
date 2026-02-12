@@ -1,0 +1,127 @@
+/**
+ * ContentFreaks 管理画面専用スタイル
+ */
+
+/* ポッドキャスト管理ページ */
+.contentfreaks-admin .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.contentfreaks-admin .stat-card {
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.contentfreaks-admin .stat-card--rss {
+    background: #f0f8ff;
+    border-left: 4px solid #2196F3;
+}
+
+.contentfreaks-admin .stat-card--podcast {
+    background: #f0fff0;
+    border-left: 4px solid #4CAF50;
+}
+
+.contentfreaks-admin .stat-card--tags {
+    background: #fff8f0;
+    border-left: 4px solid #ff9800;
+}
+
+.contentfreaks-admin .stat-card h4 {
+    margin: 0 0 10px 0;
+}
+
+.contentfreaks-admin .stat-card--rss h4 { color: #2196F3; }
+.contentfreaks-admin .stat-card--podcast h4 { color: #4CAF50; }
+.contentfreaks-admin .stat-card--tags h4 { color: #ff9800; }
+
+.contentfreaks-admin .stat-card .stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 0;
+    color: #333;
+}
+
+.contentfreaks-admin .sync-info {
+    background: #fff;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+
+.contentfreaks-admin .sync-info h4 {
+    margin: 0 0 10px 0;
+}
+
+.contentfreaks-admin .actions-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.contentfreaks-admin .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+}
+
+.contentfreaks-admin .info-card {
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.contentfreaks-admin .info-card--tags {
+    background: #f0f8ff;
+    border-left: 4px solid #2196F3;
+}
+
+.contentfreaks-admin .info-card--classify {
+    background: #fff3cd;
+    border-left: 4px solid #ffc107;
+}
+
+.contentfreaks-admin .info-card--rss {
+    background: #f9f9f9;
+    border-left: 4px solid #0073aa;
+}
+
+.contentfreaks-admin .info-card--troubleshoot {
+    background: #fffbf0;
+    border-left: 4px solid #ff9800;
+}
+
+.contentfreaks-admin .error-box {
+    background: #ffeaa7;
+    padding: 15px;
+    border-left: 4px solid #fdcb6e;
+    border-radius: 4px;
+}
+
+.contentfreaks-admin .error-box h4 {
+    margin: 0 0 10px 0;
+    color: #d63638;
+}
+
+.contentfreaks-admin .rss-test-results {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    background: #f9f9f9;
+}
+
+.contentfreaks-admin .rss-test-item {
+    background: white;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border-left: 4px solid #2196F3;
+}
+
+.contentfreaks-admin .rss-test-item h4 {
+    margin: 0 0 10px 0;
+}

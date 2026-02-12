@@ -42,7 +42,7 @@
     </div>
     
     <div class="footer-bottom">
-        <p>&copy; <?php echo date('Y'); ?> <?php bloginfo('name'); ?>. All rights reserved.</p>
+        <p>&copy; <?php echo wp_date('Y'); ?> <?php bloginfo('name'); ?>. All rights reserved.</p>
     </div>
 </footer>
 
@@ -51,10 +51,9 @@
 <!-- ContentFreaks専用JavaScript -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // デバッグ: 不要なmobile-menu-toggleがあるかチェック
+    // 不要なmobile-menu-toggleがあれば除去
     const oldMobileToggle = document.querySelector('.mobile-menu-toggle');
     if (oldMobileToggle) {
-        console.warn('⚠️ mobile-menu-toggle が検出されました。削除します。', oldMobileToggle);
         oldMobileToggle.style.display = 'none';
         oldMobileToggle.remove();
     }
@@ -65,13 +64,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const slideMenuOverlay = document.querySelector('.slide-menu-overlay');
     const slideMenuClose = document.querySelector('.slide-menu-close');
     const body = document.body;
-    
-    console.log('🔍 Menu Elements Check:', {
-        hamburgerToggle: !!hamburgerToggle,
-        slideMenu: !!slideMenu,
-        slideMenuOverlay: !!slideMenuOverlay,
-        slideMenuClose: !!slideMenuClose
-    });
     
     // ハンバーガーメニューの開閉
     if (hamburgerToggle && slideMenu && slideMenuOverlay) {
@@ -99,8 +91,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 body.classList.remove('mobile-menu-open');
             });
         }
-    } else {
-        console.error('❌ ハンバーガーメニューの必要な要素が見つかりません');
     }
     
     // 検索モーダルの制御
@@ -151,12 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
         link.setAttribute('target', '_blank');
         link.setAttribute('rel', 'noopener noreferrer');
     });
-    
-    // デバッグ情報をコンソールに出力
-    console.log('ContentFreaks Theme Loaded');
-    console.log('Header:', header ? 'Found' : 'Not Found');
-    console.log('Mobile Menu:', mobileMenu ? 'Found' : 'Not Found');
-    console.log('Search Modal:', searchModal ? 'Found' : 'Not Found');
 });
 </script>
 

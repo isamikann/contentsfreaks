@@ -69,13 +69,17 @@ get_header(); ?>
                     <div class="podcast-stats">
                         <div class="podcast-stat">
                             <span class="podcast-stat-number" data-count="<?php 
-                                $episode_count = get_posts(array(
+                                $episode_count_query = new WP_Query(array(
+                                    'post_type' => 'post',
+                                    'posts_per_page' => 1,
                                     'meta_key' => 'is_podcast_episode',
                                     'meta_value' => '1',
                                     'post_status' => 'publish',
-                                    'numberposts' => -1
+                                    'fields' => 'ids',
+                                    'no_found_rows' => false
                                 ));
-                                echo count($episode_count);
+                                echo $episode_count_query->found_posts;
+                                wp_reset_postdata();
                                 ?>">0
                             </span>
                             <span class="podcast-stat-label">エピソード</span>
@@ -233,69 +237,8 @@ get_header(); ?>
                 ));
                 
                 if ($recent_episodes_query->have_posts()) :
-                    $delay_index = 0;
                     while ($recent_episodes_query->have_posts()) : $recent_episodes_query->the_post();
-                        $audio_url = get_post_meta(get_the_ID(), 'episode_audio_url', true);
-                        $episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
-                        $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
-                        $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
-                        $delay_class = 'delay-' . ($delay_index * 100 + 100);
-                        $delay_index++;
-                ?>
-                    <article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
-                        <div class="episode-card-header">
-                            <div class="episode-thumbnail">
-                                <?php if (has_post_thumbnail()) : ?>
-                                    <a href="<?php the_permalink(); ?>">
-                                        <?php the_post_thumbnail('medium', array(
-                                            'alt' => get_the_title(),
-                                            'loading' => 'lazy'
-                                        )); ?>
-                                    </a>
-                                <?php else : 
-                                    // アイキャッチ画像がない場合、エピソードのメタデータから画像URLを取得を試行
-                                    $episode_image_url = get_post_meta(get_the_ID(), 'episode_image_url', true);
-                                    if ($episode_image_url) : ?>
-                                        <a href="<?php the_permalink(); ?>">
-                                            <img src="<?php echo esc_url($episode_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy">
-                                        </a>
-                                    <?php else : ?>
-                                        <a href="<?php the_permalink(); ?>">
-                                            <div class="default-thumbnail">
-                                                <div style="background: linear-gradient(135deg, #f7ff0b, #ff6b35); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; border-radius: 12px;">🎙️</div>
-                                            </div>
-                                        </a>
-                                    <?php endif; ?>
-                                <?php endif; ?>
-                            </div>
-                        </div>
-                        
-                        <div class="episode-card-content">
-                            <div class="episode-meta">
-                                <div class="episode-meta-left">
-                                    <span class="episode-date"><?php echo get_the_date('Y年n月j日'); ?></span>
-                                    
-                                    <?php 
-                                    // タグを取得・表示
-                                    $tags = get_the_tags();
-                                    if ($tags && !is_wp_error($tags)) : ?>
-                                    <div class="episode-tags">
-                                        <?php foreach ($tags as $tag) : ?>
-                                            <a href="<?php echo get_tag_link($tag->term_id); ?>" class="episode-tag">
-                                                #<?php echo esc_html($tag->name); ?>
-                                            </a>
-                                        <?php endforeach; ?>
-                                    </div>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            
-                            <h3 class="episode-title">
-                                <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                            </h3>
-                        </div>
-                    </article>
-                <?php 
+                        get_template_part('template-parts/episode-card');
                     endwhile;
                     wp_reset_postdata();
                 else:

@@ -1,0 +1,22 @@
+# WordPress
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+*Zone.Identifier
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+debug.log
+
+# Node
+node_modules/

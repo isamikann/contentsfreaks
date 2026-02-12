@@ -19,6 +19,7 @@ require_once get_stylesheet_directory() . '/inc/customizer.php';
 require_once get_stylesheet_directory() . '/inc/dynamic_styles.php';
 require_once get_stylesheet_directory() . '/inc/image_optimization.php'; // 画像最適化
 require_once get_stylesheet_directory() . '/inc/performance_optimization.php'; // パフォーマンス最適化
+require_once get_stylesheet_directory() . '/inc/structured_data.php'; // 構造化データ・OGP
 
 // RSS自動投稿関連の読み込み
 require_once get_stylesheet_directory() . '/rss-auto-post.php';
@@ -686,7 +687,11 @@ function contentfreaks_get_rss_episode_count() {
  * AJAX: エピソードページ用の無限スクロール
  */
 function contentfreaks_load_more_episodes() {
-    // セキュリティチェック
+    // セキュリティチェック（nonce検証）
+    if (!check_ajax_referer('contentfreaks_load_more', 'nonce', false)) {
+        wp_send_json_error('Security check failed');
+    }
+    
     if (!isset($_POST['offset']) || !isset($_POST['limit'])) {
         wp_send_json_error('Invalid parameters');
     }
@@ -711,70 +716,7 @@ function contentfreaks_load_more_episodes() {
     
     ob_start();
     while ($episodes_query->have_posts()) : $episodes_query->the_post();
-        // カスタムフィールドを取得
-        $audio_url_raw = get_post_meta(get_the_ID(), 'episode_audio_url', true);
-        
-        // 音声URLの修正処理
-        $audio_url = $audio_url_raw;
-        if ($audio_url_raw) {
-            // 二重エンコーディングの修正
-            if (strpos($audio_url_raw, 'https%3A%2F%2F') !== false) {
-                // パターン1: cloudfront.net/ID/https%3A%2F%2Fcloudfront.net/path
-                if (preg_match('/https:\/\/d3ctxlq1ktw2nl\.cloudfront\.net\/\d+\/https%3A%2F%2Fd3ctxlq1ktw2nl\.cloudfront\.net%2F(.+)/', $audio_url_raw, $matches)) {
-                    $correct_path = urldecode($matches[1]);
-                    $audio_url = 'https://d3ctxlq1ktw2nl.cloudfront.net/' . $correct_path;
-                }
-            }
-        }
-        
-        $episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
-        $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
-        $original_url = get_post_meta(get_the_ID(), 'episode_original_url', true);
-        $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
-?>
-        <article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
-            <div class="episode-card-header">
-                <div class="episode-thumbnail">
-                    <?php if (has_post_thumbnail()) : ?>
-                        <a href="<?php the_permalink(); ?>">
-                            <?php the_post_thumbnail('medium', array('alt' => get_the_title())); ?>
-                        </a>
-                    <?php else : ?>
-                        <a href="<?php the_permalink(); ?>">
-                            <div class="default-thumbnail">
-                                <div style="background: linear-gradient(135deg, #f7ff0b, #ff6b35); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; border-radius: 12px;">🎙️</div>
-                            </div>
-                        </a>
-                    <?php endif; ?>
-                </div>
-            </div>
-            
-            <div class="episode-card-content">
-                <div class="episode-meta">
-                    <div class="episode-meta-left">
-                        <span class="episode-date"><?php echo get_the_date('Y年n月j日'); ?></span>
-                        
-                        <?php 
-                        // タグを取得・表示（日付の横に配置）
-                        $tags = get_the_tags();
-                        if ($tags && !is_wp_error($tags)) : ?>
-                        <div class="episode-tags">
-                            <?php foreach ($tags as $tag) : ?>
-                                <a href="<?php echo get_tag_link($tag->term_id); ?>" class="episode-tag">
-                                    #<?php echo esc_html($tag->name); ?>
-                                </a>
-                            <?php endforeach; ?>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
-                
-                <h3 class="episode-title">
-                    <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
-                </h3>
-            </div>
-        </article>
-<?php 
+        get_template_part('template-parts/episode-card');
     endwhile;
     wp_reset_postdata();
     
@@ -1051,17 +993,14 @@ add_action('send_headers', 'contentfreaks_http2_server_push');
  * 管理画面のカスタムスタイル
  */
 function contentfreaks_admin_styles() {
-    echo '<style>
-        /* 管理画面専用のカスタムスタイル */
-        .wrap h1 {
-            color: #0073aa;
-        }
-        .notice {
-            font-size: 14px;
-        }
-    </style>';
+    wp_enqueue_style(
+        'contentfreaks-admin',
+        get_stylesheet_directory_uri() . '/admin.css',
+        array(),
+        '1.0.0'
+    );
 }
-add_action('admin_head', 'contentfreaks_admin_styles');
+add_action('admin_enqueue_scripts', 'contentfreaks_admin_styles');
 
 /**
  * ========================================
