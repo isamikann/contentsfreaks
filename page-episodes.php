@@ -164,7 +164,7 @@ get_header(); ?>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // 初期カードにloadedクラスを追加
-    const initialCards = document.querySelectorAll('.modern-episode-card');
+    const initialCards = document.querySelectorAll('.episode-card');
     initialCards.forEach(card => {
         card.addEventListener('animationend', () => {
             card.classList.add('loaded');
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // エピソード検索機能
     const searchInput = document.getElementById('episode-search');
-    const episodeCards = document.querySelectorAll('.modern-episode-card, .episode-card');
+    const episodeCards = document.querySelectorAll('.episode-card');
     
     if (searchInput) {
         searchInput.addEventListener('input', function() {
@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 tempDiv.innerHTML = data.data.html;
                 
                 // 各カードを個別に追加してアニメーション
-                const newCards = tempDiv.querySelectorAll('.modern-episode-card');
+                const newCards = tempDiv.querySelectorAll('.episode-card');
                 newCards.forEach((card, index) => {
                     card.style.opacity = '0';
                     card.style.transform = 'translateY(30px)';

@@ -285,6 +285,11 @@
         color: #fff;
     }
 
+    .listen-bar-youtube {
+        background: #ff0000;
+        color: #fff;
+    }
+
     /* フッターが見えるときバーを隠すための余白 */
     .footer-section {
         padding-bottom: 64px;

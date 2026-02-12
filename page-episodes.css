@@ -831,8 +831,7 @@ body {
         gap: 1.2rem;
     }
     
-    .episode-card,
-    .modern-episode-card {
+    .episode-card {
         display: flex;
         flex-direction: row;
         height: 160px; /* 高さを調整 */
@@ -1007,8 +1006,7 @@ body {
         gap: 1.2rem;
     }
     
-    .episode-card,
-    .modern-episode-card {
+    .episode-card {
         display: flex;
         flex-direction: row;
         height: 130px; /* 小さい画面では少し低く */
