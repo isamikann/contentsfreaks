@@ -269,10 +269,11 @@
 
 @media (max-width: 768px) {
     .scroll-to-top {
-        bottom: 1.5rem;
+        bottom: 4.5rem; /* mobile-listen-bar(~50px)の上に配置 */
         right: 1rem;
-        width: 44px;
-        height: 44px;
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
     }
 
     .share-buttons {
