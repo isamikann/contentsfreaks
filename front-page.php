@@ -346,7 +346,11 @@ get_header(); ?>
         <div class="subscribe-cta-inner">
             <h2 class="subscribe-cta-title">番組を聴いてみませんか？</h2>
             <p class="subscribe-cta-desc">お好きなプラットフォームでコンテンツフリークスを購読して、最新エピソードを見逃さずチェックしましょう。</p>
-            <?php echo do_shortcode('[podcast_platforms]'); ?>
+            <div class="subscribe-cta-buttons">
+                <a href="<?php echo esc_url(CONTENTFREAKS_SPOTIFY_URL); ?>" class="subscribe-btn subscribe-btn--spotify" target="_blank" rel="noopener">Spotify</a>
+                <a href="<?php echo esc_url(CONTENTFREAKS_APPLE_URL); ?>" class="subscribe-btn subscribe-btn--apple" target="_blank" rel="noopener">Apple Podcasts</a>
+                <a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" class="subscribe-btn subscribe-btn--youtube" target="_blank" rel="noopener">YouTube</a>
+            </div>
         </div>
     </section>
 
