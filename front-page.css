@@ -6,7 +6,7 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: calc(8rem + 120px) 0 6rem 0; /* 上部にヘッダー高さ分を加算 */
+    padding: calc(8rem + 200px) 0 6rem 0; /* 上部にヘッダー高さ分を加算 */
 }
 
 @media (max-width: 768px) {
@@ -17,7 +17,7 @@
 
 @media (max-width: 480px) {
     .podcast-hero {
-        padding: calc(4rem + 150px) 0 3rem 0; /* モバイルヘッダーは少し小さい */
+        padding: calc(4rem + 200px) 0 3rem 0; /* モバイルヘッダーは少し小さい */
     }
 }
 
