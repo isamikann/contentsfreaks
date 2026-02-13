@@ -21,15 +21,15 @@ get_header(); ?>
                 </p>
                 <div class="journey-stats">
                     <div class="journey-stat">
-                        <span class="stat-value"><?php echo contentfreaks_get_podcast_count(); ?>+</span>
+                        <span class="stat-value"><?php echo contentfreaks_get_podcast_count(); ?></span>
                         <span class="stat-unit">エピソード</span>
                     </div>
                     <div class="journey-stat">
-                        <span class="stat-value">200+</span>
+                        <span class="stat-value">200</span>
                         <span class="stat-unit">配信時間</span>
                     </div>
                     <div class="journey-stat">
-                        <span class="stat-value"><?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>+</span>
+                        <span class="stat-value"><?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?></span>
                         <span class="stat-unit">フォロワー</span>
                     </div>
                     <div class="journey-stat">
@@ -38,7 +38,7 @@ get_header(); ?>
                             $current_date = new DateTime();
                             $interval = $start_date->diff($current_date);
                             echo $interval->days;
-                        ?>+</span>
+                        ?></span>
                         <span class="stat-unit">継続日数</span>
                     </div>
                 </div>
@@ -977,7 +977,7 @@ get_header(); ?>
                         <div class="data-point current" style="left: 100%; bottom: 100%;" data-aos="zoom-in" data-aos-delay="800">
                             <div class="point-marker current-marker"></div>
                             <div class="point-label">
-                                <span class="point-value">1500+</span>
+                                <span class="point-value">1500</span>
                                 <span class="point-date">2025.10</span>
                                 <span class="milestone-badge current-badge">現在</span>
                             </div>
@@ -1048,7 +1048,7 @@ get_header(); ?>
                                 </span>
                                 Spotify
                             </span>
-                            <span class="platform-count">300+</span>
+                            <span class="platform-count">300</span>
                         </div>
                         <div class="bar-container">
                             <div class="bar-fill spotify-bar" style="width: 60%"></div>
@@ -1070,7 +1070,7 @@ get_header(); ?>
                                 </span>
                                 YouTube
                             </span>
-                            <span class="platform-count">1,000+</span>
+                            <span class="platform-count">1,000</span>
                         </div>
                         <div class="bar-container">
                             <div class="bar-fill youtube-bar" style="width: 100%"></div>
@@ -1092,7 +1092,7 @@ get_header(); ?>
                                 </span>
                                 Apple Podcasts
                             </span>
-                            <span class="platform-count">200+</span>
+                            <span class="platform-count">200</span>
                         </div>
                         <div class="bar-container">
                             <div class="bar-fill apple-bar" style="width: 40%"></div>
@@ -1315,7 +1315,7 @@ get_header(); ?>
                         <div class="genre-label">📺 ドラマ</div>
                         <div class="genre-bar-container">
                             <div class="genre-bar drama-bar" style="width: 85%">
-                                <span class="genre-count">45+</span>
+                                <span class="genre-count">45</span>
                             </div>
                         </div>
                     </div>
@@ -1323,7 +1323,7 @@ get_header(); ?>
                         <div class="genre-label">🎬 アニメ</div>
                         <div class="genre-bar-container">
                             <div class="genre-bar anime-bar" style="width: 70%">
-                                <span class="genre-count">35+</span>
+                                <span class="genre-count">35</span>
                             </div>
                         </div>
                     </div>
@@ -1331,7 +1331,7 @@ get_header(); ?>
                         <div class="genre-label">🎥 映画</div>
                         <div class="genre-bar-container">
                             <div class="genre-bar movie-bar" style="width: 55%">
-                                <span class="genre-count">25+</span>
+                                <span class="genre-count">25</span>
                             </div>
                         </div>
                     </div>
@@ -1339,7 +1339,7 @@ get_header(); ?>
                         <div class="genre-label">💬 雑談・分析</div>
                         <div class="genre-bar-container">
                             <div class="genre-bar talk-bar" style="width: 40%">
-                                <span class="genre-count">20+</span>
+                                <span class="genre-count">20</span>
                             </div>
                         </div>
                     </div>
@@ -1347,7 +1347,7 @@ get_header(); ?>
                         <div class="genre-label">📚 その他</div>
                         <div class="genre-bar-container">
                             <div class="genre-bar other-bar" style="width: 25%">
-                                <span class="genre-count">10+</span>
+                                <span class="genre-count">10</span>
                             </div>
                         </div>
                     </div>

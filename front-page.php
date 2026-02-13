@@ -314,17 +314,17 @@ get_header(); ?>
             <div class="achievements-badges">
                 <div class="achievement-badge fade-in">
                     <span class="badge-icon">🎙️</span>
-                    <span class="badge-value"><?php echo contentfreaks_get_podcast_count(); ?>+回</span>
+                    <span class="badge-value"><?php echo contentfreaks_get_podcast_count(); ?>回</span>
                     <span class="badge-label">配信実績</span>
                 </div>
                 <div class="achievement-badge fade-in">
                     <span class="badge-icon">👥</span>
-                    <span class="badge-value"><?php echo esc_html(get_option('contentfreaks_listener_count', '1500')); ?>+</span>
+                    <span class="badge-value"><?php echo esc_html(get_option('contentfreaks_listener_count', '1500')); ?></span>
                     <span class="badge-label">総フォロワー</span>
                 </div>
                 <div class="achievement-badge fade-in">
                     <span class="badge-icon">🤝</span>
-                    <span class="badge-value">3+組</span>
+                    <span class="badge-value">3組</span>
                     <span class="badge-label">コラボ実績</span>
                 </div>
                 <div class="achievement-badge fade-in">
