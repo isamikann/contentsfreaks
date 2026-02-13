@@ -157,7 +157,7 @@ get_header(); ?>
                 // 投稿記事から最近のエピソードを取得（最新エピソードを除外）
                 $recent_episodes_query = new WP_Query(array(
                     'post_type' => 'post',
-                    'posts_per_page' => 6,
+                    'posts_per_page' => 3,
                     'meta_key' => 'is_podcast_episode',
                     'meta_value' => '1',
                     'orderby' => 'date',
