@@ -8,15 +8,11 @@ get_header(); ?>
 <main id="main" class="site-main history-page">
     <!-- 歴史ヒーローセクション -->
     <section class="history-hero">
-        <div class="history-hero-bg">
-            <div class="hero-particles"></div>
-            <div class="hero-waves"></div>
-        </div>
+        <div class="history-hero-bg"></div>
         <div class="history-hero-content">
             <div class="history-hero-header">
                 <div class="hero-icon-container">
                     <div class="hero-icon">📖</div>
-                    <div class="hero-icon-glow"></div>
                 </div>
                 <h1 class="history-hero-title">Our Journey</h1>
                 <p class="history-hero-subtitle">
@@ -76,7 +72,6 @@ get_header(); ?>
                     <div class="timeline-item launch" data-aos="fade-up">
                         <div class="timeline-marker">
                             <div class="marker-icon">🎙️</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">6月</span>
@@ -108,7 +103,6 @@ get_header(); ?>
                     <div class="timeline-item milestone" data-aos="fade-up" data-aos-delay="100">
                         <div class="timeline-marker">
                             <div class="marker-icon">🎬</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">7月</span>
@@ -135,7 +129,6 @@ get_header(); ?>
                     <div class="timeline-item innovation" data-aos="fade-up" data-aos-delay="200">
                         <div class="timeline-marker">
                             <div class="marker-icon">📊</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">8〜9月</span>
@@ -162,7 +155,6 @@ get_header(); ?>
                     <div class="timeline-item featured breakthrough" data-aos="fade-up" data-aos-delay="300">
                         <div class="timeline-marker featured-marker">
                             <div class="marker-icon">⭐</div>
-                            <div class="marker-pulse featured-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">10月</span>
@@ -199,7 +191,6 @@ get_header(); ?>
                     <div class="timeline-item community" data-aos="fade-up" data-aos-delay="400">
                         <div class="timeline-marker">
                             <div class="marker-icon">🔬</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">11月</span>
@@ -226,7 +217,6 @@ get_header(); ?>
                     <div class="timeline-item awards" data-aos="fade-up" data-aos-delay="500">
                         <div class="timeline-marker">
                             <div class="marker-icon">🏆</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">12月</span>
@@ -283,7 +273,6 @@ get_header(); ?>
                     <div class="timeline-item upgrade" data-aos="fade-up">
                         <div class="timeline-marker">
                             <div class="marker-icon">🎵</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">1月</span>
@@ -318,7 +307,6 @@ get_header(); ?>
                     <div class="timeline-item featured celebration" data-aos="fade-up" data-aos-delay="100">
                         <div class="timeline-marker featured-marker">
                             <div class="marker-icon">🎉</div>
-                            <div class="marker-pulse featured-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">2〜3月</span>
@@ -348,7 +336,6 @@ get_header(); ?>
                     <div class="timeline-item collaboration" data-aos="fade-up" data-aos-delay="200">
                         <div class="timeline-marker">
                             <div class="marker-icon">🎙</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">4月</span>
@@ -377,7 +364,6 @@ get_header(); ?>
                     <div class="timeline-item collaboration" data-aos="fade-up" data-aos-delay="300">
                         <div class="timeline-marker">
                             <div class="marker-icon">🎙</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">5月</span>
@@ -405,7 +391,6 @@ get_header(); ?>
                     <div class="timeline-item launch" data-aos="fade-up" data-aos-delay="400">
                         <div class="timeline-marker">
                             <div class="marker-icon">🌐</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">6月</span>
@@ -430,7 +415,6 @@ get_header(); ?>
                     <div class="timeline-item milestone" data-aos="fade-up" data-aos-delay="500">
                         <div class="timeline-marker">
                             <div class="marker-icon">🎯</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">7月</span>
@@ -456,7 +440,6 @@ get_header(); ?>
                     <div class="timeline-item breakthrough" data-aos="fade-up" data-aos-delay="600">
                         <div class="timeline-marker">
                             <div class="marker-icon">📺</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">8月</span>
@@ -482,7 +465,6 @@ get_header(); ?>
                     <div class="timeline-item innovation" data-aos="fade-up" data-aos-delay="700">
                         <div class="timeline-marker">
                             <div class="marker-icon">🚀</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">9月</span>
@@ -508,7 +490,6 @@ get_header(); ?>
                     <div class="timeline-item viral" data-aos="fade-up" data-aos-delay="800">
                         <div class="timeline-marker">
                             <div class="marker-icon">🔥</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">10〜11月</span>
@@ -535,7 +516,6 @@ get_header(); ?>
                     <div class="timeline-item awards" data-aos="fade-up" data-aos-delay="900">
                         <div class="timeline-marker">
                             <div class="marker-icon">🏆</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">12月</span>
@@ -596,7 +576,6 @@ get_header(); ?>
                     <div class="timeline-item breakthrough" data-aos="fade-up">
                         <div class="timeline-marker">
                             <div class="marker-icon">🎉</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">1月</span>
@@ -623,7 +602,6 @@ get_header(); ?>
                     <div class="timeline-item featured celebration" data-aos="fade-up" data-aos-delay="100">
                         <div class="timeline-marker featured-marker">
                             <div class="marker-icon">🎨</div>
-                            <div class="marker-pulse featured-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">2〜3月</span>
@@ -656,7 +634,6 @@ get_header(); ?>
                     <div class="timeline-item growth" data-aos="fade-up" data-aos-delay="200">
                         <div class="timeline-marker">
                             <div class="marker-icon">📈</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">4〜5月</span>
@@ -682,7 +659,6 @@ get_header(); ?>
                     <div class="timeline-item milestone" data-aos="fade-up" data-aos-delay="300">
                         <div class="timeline-marker">
                             <div class="marker-icon">🎯</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">6月</span>
@@ -707,7 +683,6 @@ get_header(); ?>
                     <div class="timeline-item featured community" data-aos="fade-up" data-aos-delay="400">
                         <div class="timeline-marker featured-marker">
                             <div class="marker-icon">🎤</div>
-                            <div class="marker-pulse featured-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">7月</span>
@@ -740,7 +715,6 @@ get_header(); ?>
                     <div class="timeline-item innovation" data-aos="fade-up" data-aos-delay="500">
                         <div class="timeline-marker">
                             <div class="marker-icon">🎨</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">8月</span>
@@ -770,7 +744,6 @@ get_header(); ?>
                     <div class="timeline-item breakthrough" data-aos="fade-up" data-aos-delay="600">
                         <div class="timeline-marker">
                             <div class="marker-icon">🎉</div>
-                            <div class="marker-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">9月</span>
@@ -796,7 +769,6 @@ get_header(); ?>
                     <div class="timeline-item featured celebration" data-aos="fade-up" data-aos-delay="700">
                         <div class="timeline-marker featured-marker">
                             <div class="marker-icon">🏆</div>
-                            <div class="marker-pulse featured-pulse"></div>
                         </div>
                         <div class="timeline-date">
                             <span class="date-month">10月</span>

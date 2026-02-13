@@ -11,66 +11,27 @@ get_header(); ?>
     <!-- ポッドキャスト専用ヒーローセクション -->
     <section class="podcast-hero" aria-labelledby="hero-title">
         <div class="podcast-hero-content">
-            <!-- 左側：メインコンテンツ -->
-            <div class="podcast-hero-main">
-                <!-- タイトル -->
-                <h1 id="hero-title" class="hero-title">ContentFreaks</h1>
-                <p class="hero-subtitle">好きな作品、語り尽くそう！</p>
-                
-                <!-- アートワーク + ディスクリプションを1つのコンテナに統合 -->
-                <div class="podcast-hero-content-block">
-                    <!-- アートワーク -->
-                    <div class="podcast-hero-artwork">
-                        <?php 
-                        $podcast_artwork = get_theme_mod('podcast_artwork');
-                        if ($podcast_artwork): ?>
-                            <img src="<?php echo esc_url($podcast_artwork); ?>" alt="<?php echo esc_attr(get_theme_mod('podcast_name')); ?>" class="podcast-artwork">
-                        <?php else: ?>
-                            <div class="podcast-artwork" style="background: var(--latest-episode-badge-bg); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: var(--black);">
-                                🎙️
-                            </div>
-                        <?php endif; ?>
+            <div class="podcast-hero-artwork">
+                <?php 
+                $podcast_artwork = get_theme_mod('podcast_artwork');
+                if ($podcast_artwork): ?>
+                    <img src="<?php echo esc_url($podcast_artwork); ?>" alt="<?php echo esc_attr(get_theme_mod('podcast_name')); ?>" class="podcast-artwork">
+                <?php else: ?>
+                    <div class="podcast-artwork" style="background: var(--latest-episode-badge-bg); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: var(--black);">
+                        🎙️
                     </div>
-                    
-                    <!-- ディスクリプション -->
-                    <div class="podcast-hero-text">
-                        <div class="podcast-hero-description">
-                            <?php echo esc_html(get_theme_mod('podcast_description', '「コンテンツフリークス」は、大学時代からの友人2人で「いま気になる」注目のエンタメコンテンツを熱く語るポッドキャスト')); ?>
-                        </div>
-                        
-                        <!-- コンテンツフリークスの歩みページへのリンク -->
-                        <div class="history-cta">
-                            <a href="<?php echo get_permalink(get_page_by_path('history')); ?>" class="history-btn">
-                                📜 コンフリの歩みを見る
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                <?php endif; ?>
             </div>
-
-            <!-- 右側：統計情報とナビゲーション -->
-            <div class="podcast-hero-sidebar">
-                <!-- 統計情報 -->
-                <div class="stats-section">
-                    <h3 class="sidebar-section-title">📊 ポッドキャスト情報</h3>
-                    <div class="podcast-stats">
-                        <div class="podcast-stat">
-                            <span class="podcast-stat-number" data-count="<?php echo contentfreaks_get_podcast_count(); ?>">0
-                            </span>
-                            <span class="podcast-stat-label">エピソード</span>
-                        </div>
-                        <div class="podcast-stat">
-                            <span class="podcast-stat-number" data-count="<?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>" data-suffix="+"><?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>+</span>
-                            <span class="podcast-stat-label">リスナー</span>
-                        </div>
-                        <div class="podcast-stat">
-                            <span class="podcast-stat-number" data-count="4.7" data-decimal="true">0</span>
-                            <span class="podcast-stat-label">評価</span>
-                        </div>
-                    </div>
-                </div>
-                
-
+            
+            <h1 id="hero-title" class="hero-title">ContentFreaks</h1>
+            <p class="hero-subtitle">好きな作品、語り尽くそう！</p>
+            
+            <p class="podcast-hero-description">
+                <?php echo esc_html(get_theme_mod('podcast_description', '「コンテンツフリークス」は、大学時代からの友人2人で「いま気になる」注目のエンタメコンテンツを熱く語るポッドキャスト')); ?>
+            </p>
+            
+            <div class="podcast-hero-platforms">
+                <?php echo do_shortcode('[podcast_platforms]'); ?>
             </div>
         </div>
     </section>

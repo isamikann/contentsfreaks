@@ -47,28 +47,16 @@ $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
     </div>
     
     <div class="episode-card-content">
-        <div class="episode-meta">
-            <div class="episode-meta-left">
-                <span class="episode-date"><?php echo get_the_date('Y.n.j'); ?></span>
-                <?php if ($duration) : ?>
-                    <span class="episode-duration-badge">⏱ <?php echo esc_html($duration); ?></span>
-                <?php endif; ?>
-            </div>
-        </div>
-        
         <h3 class="episode-title">
             <a href="<?php the_permalink(); ?>"><?php the_title(); ?></a>
         </h3>
 
-        <?php
-        // エピソード概要（抜粋 or 本文先頭）
-        $excerpt = get_the_excerpt();
-        if (!$excerpt) {
-            $excerpt = wp_trim_words(get_the_content(), 30, '…');
-        }
-        if ($excerpt) : ?>
-        <p class="episode-excerpt"><?php echo esc_html(wp_trim_words($excerpt, 25, '…')); ?></p>
-        <?php endif; ?>
+        <div class="episode-meta">
+            <span class="episode-date"><?php echo get_the_date('Y.n.j'); ?></span>
+            <?php if ($duration) : ?>
+                <span class="episode-duration-badge">⏱ <?php echo esc_html($duration); ?></span>
+            <?php endif; ?>
+        </div>
 
         <?php
         $tags = get_the_tags();

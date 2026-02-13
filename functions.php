@@ -2033,4 +2033,3 @@ function contentfreaks_contact_submit() {
 }
 add_action('wp_ajax_contentfreaks_contact_submit', 'contentfreaks_contact_submit');
 add_action('wp_ajax_nopriv_contentfreaks_contact_submit', 'contentfreaks_contact_submit');
-

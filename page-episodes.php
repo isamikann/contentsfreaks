@@ -16,15 +16,6 @@ get_header(); ?>
             <div class="hero-pattern"></div>
         </div>
         
-        <div class="episodes-hero-particles">
-            <div class="episodes-particle"></div>
-            <div class="episodes-particle"></div>
-            <div class="episodes-particle"></div>
-            <div class="episodes-particle"></div>
-            <div class="episodes-particle"></div>
-            <div class="episodes-particle"></div>
-        </div>
-        
         <div class="episodes-hero-content">
             <div class="episodes-hero-icon">🎙️</div>
             <h1>Podcast Episodes</h1>

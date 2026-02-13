@@ -15,16 +15,6 @@ get_header(); ?>
                 <div class="hero-pattern"></div>
             </div>
             
-            <!-- パーティクルアニメーション -->
-            <div class="blog-hero-particles">
-                <div class="blog-particle"></div>
-                <div class="blog-particle"></div>
-                <div class="blog-particle"></div>
-                <div class="blog-particle"></div>
-                <div class="blog-particle"></div>
-                <div class="blog-particle"></div>
-            </div>
-            
             <div class="blog-hero-content">
                 <div class="blog-hero-icon">📖</div>
                 <h1>Blog Articles</h1>

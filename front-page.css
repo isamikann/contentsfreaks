@@ -1,35 +1,23 @@
 /* ヒーローセクションの基本スタイル */
 .podcast-hero {
     position: relative;
-    min-height: auto;
     background: var(--front-hero-bg);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: 6rem 0 3rem 0;
+    padding: 5rem 0 3rem 0;
 }
 
-/* モバイル最適化: ヒーロー高さを大幅削減 */
-@media (max-width: 968px) {
-    .podcast-hero {
-        min-height: auto;
-        padding: 4rem 0 1.5rem 0;
-    }
-}
-
-/* フロントページ特有のモバイル調整 */
 @media (max-width: 768px) {
     .podcast-hero {
-        min-height: auto;
-        padding: 3rem 0 1rem 0;
+        padding: 3rem 0 2rem 0;
     }
 }
 
 @media (max-width: 480px) {
     .podcast-hero {
-        min-height: auto;
-        padding: 2.5rem 0 0.8rem 0;
+        padding: 2rem 0 1.5rem 0;
     }
 }
 
@@ -37,62 +25,22 @@
     position: relative;
     z-index: 10;
     color: white;
-    max-width: 1200px;
+    max-width: 640px;
     margin: 0 auto;
-    padding: 0 1rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4rem;
-    align-items: center;
-}
-
-.podcast-hero-main {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    text-align: left;
-    animation: fadeInUp 1s ease-out;
-}
-
-/* podcast-hero-content-blockの追加に対応 */
-.podcast-hero-content-block {
+    padding: 0 1.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.5rem;
-    width: 100%;
-}
-
-.podcast-hero-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-    align-items: center;
-    justify-content: center;
     text-align: center;
-    height: 100%;
-}
-
-.sidebar-section-title {
-    font-size: var(--card-title-large);
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.9);
-    margin-bottom: 1.5rem;
-    text-align: center;
-    letter-spacing: 0.5px;
-}
-
-.stats-section,
-.navigation-section {
-    width: 100%;
-    margin-bottom: 2.5rem;
+    gap: 1rem;
+    animation: fadeInUp 0.8s ease-out;
 }
 
 /* フロントページ特有のアニメーション */
 @keyframes fadeInUp {
     from {
         opacity: 0;
-        transform: translate3d(0, 50px, 0);
+        transform: translate3d(0, 30px, 0);
     }
     to {
         opacity: 1;
@@ -103,292 +51,144 @@
 .hero-title {
     font-size: var(--hero-title);
     font-weight: 900;
-    margin-bottom: 1rem;
+    margin-bottom: 0.25rem;
     background: var(--front-hero-title-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
     line-height: 1.1;
-    text-align: left;
+    text-align: center;
 }
 
 .hero-subtitle {
     font-size: var(--hero-subtitle);
     font-weight: 800;
-    margin-bottom: 1.5rem;
+    margin-bottom: 0;
     color: var(--front-hero-text);
     letter-spacing: 0.5px;
-    text-align: left;
+    text-align: center;
 }
 
 .podcast-hero-artwork {
-    margin: 1.5rem 0;
     position: relative;
-    animation: gentleGlow 3s ease-in-out infinite;
-    align-self: center;
-    /* 幅を制限してレイアウトの崩れを防ぐ */
-    max-width: 300px;
+    max-width: 200px;
     width: 100%;
 }
 
 .podcast-artwork {
-    width: 300px;
-    height: 300px;
-    border-radius: 25px;
+    width: 200px;
+    height: 200px;
+    border-radius: 20px;
     box-shadow: var(--front-hero-artwork-shadow);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform;
 }
 
 .podcast-artwork:hover {
-    transform: translate3d(0, 0, 0) scale(1.05) rotate(2deg);
-}
-
-@keyframes gentleGlow {
-    0%, 100% {
-        box-shadow: 
-            0 20px 40px rgba(0,0,0,0.3),
-            0 0 0 8px rgba(255,255,255,0.1),
-            0 0 0 16px rgba(255,255,255,0.05),
-            0 0 30px rgba(255,255,255,0.15);
-    }
-    50% {
-        box-shadow: 
-            0 22px 44px rgba(0,0,0,0.32),
-            0 0 0 9px rgba(255,255,255,0.12),
-            0 0 0 18px rgba(255,255,255,0.06),
-            0 0 40px rgba(255,255,255,0.2);
-    }
-}
-
-.podcast-hero-text {
-    margin: 1.5rem 0;
-    text-align: center; /* content-block内では中央揃え */
-    width: 100%;
+    transform: scale(1.03);
 }
 
 .podcast-hero-description {
     font-size: var(--body-text);
-    line-height: 1.6;
+    line-height: 1.7;
     color: var(--front-hero-text);
-    max-width: 500px;
-    margin: 0 auto; /* 中央揃えのためのマージン */
+    opacity: 0.9;
+    max-width: 480px;
 }
 
-.podcast-stats {
+.podcast-hero-platforms {
+    margin-top: 0.5rem;
+}
+
+/* ヒーロー内プラットフォームリンク - コンパクトなインラインスタイル */
+.podcast-hero-platforms .platforms-grid {
     display: flex;
-    flex-direction: row;
-    gap: 1.2rem;
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    justify-content: center;
     flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+    margin-top: 0;
 }
 
-.podcast-stat {
-    text-align: center;
-    background: var(--front-nav-link-bg);
-    padding: 1.3rem 1rem;
-    border-radius: 18px;
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--front-nav-link-border);
+.podcast-hero-platforms .platform-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.2rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50px;
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.875rem;
+    font-weight: 600;
     transition: all 0.3s ease;
-    flex: 1;
-    min-width: 120px;
-    max-width: 150px;
+    backdrop-filter: blur(10px);
+    min-height: auto;
+    flex-direction: row;
 }
 
-.podcast-stat:hover {
-    transform: translateY(-5px);
-    background: var(--front-nav-link-hover);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+.podcast-hero-platforms .platform-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    color: #fff;
+    text-decoration: none;
 }
 
-.podcast-stat-number {
-    display: block;
-    font-size: var(--page-title);
-    font-weight: 900;
-    color: var(--front-stats-number);
-    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    counter-reset: number;
-    animation: countUp 2s ease-out forwards;
-    margin-bottom: 0.3rem;
+.podcast-hero-platforms .platform-spotify:hover {
+    border-color: #1DB954;
+    background: rgba(29, 185, 84, 0.2);
 }
 
-.podcast-stat-label {
-    display: block;
-    font-size: var(--meta-primary);
-    color: var(--front-stats-label);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    line-height: 1.2;
+.podcast-hero-platforms .platform-apple:hover {
+    border-color: #A855F7;
+    background: rgba(168, 85, 247, 0.2);
 }
 
-/* ナビゲーション プリロード効果 - フロントページ特有 */
-.hero-nav-menu {
-    opacity: 0;
-    animation: fadeInUp 0.8s ease forwards;
-    animation-delay: 0.5s;
+.podcast-hero-platforms .platform-youtube:hover {
+    border-color: #FF0000;
+    background: rgba(255, 0, 0, 0.2);
 }
 
-.hero-nav-link:nth-child(1) { animation-delay: 0.1s; }
-.hero-nav-link:nth-child(2) { animation-delay: 0.2s; }
-.hero-nav-link:nth-child(3) { animation-delay: 0.3s; }
-.hero-nav-link:nth-child(4) { animation-delay: 0.4s; }
-
-/* ヒーローナビゲーションセクション */
-.hero-navigation {
-    width: 100%;
-    margin-top: 1rem;
-}
-
-.hero-nav-menu {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.8rem;
-    width: 100%;
-    max-width: 380px;
-    margin: 0 auto;
-}
-
-.hero-nav-link {
+.podcast-hero-platforms .platform-icon {
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem 0.8rem;
-    background: var(--front-nav-link-bg);
-    color: var(--front-nav-link-text);
-    text-decoration: none;
-    border-radius: 16px;
-    border: 1px solid var(--front-nav-link-border);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
-    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1rem;
+    margin: 0;
+    background: none;
+    border-radius: 0;
+}
+
+.podcast-hero-platforms .platform-icon img {
+    width: 20px;
+    height: 20px;
+}
+
+.podcast-hero-platforms .platform-name {
+    font-size: 0.875rem;
     font-weight: 600;
-    font-size: 0.85rem;
-    text-align: center;
-    min-height: 60px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    will-change: transform;
+    color: inherit;
+    margin: 0;
 }
 
-/* シマーエフェクト */
-.hero-nav-link::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: left 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1;
-    will-change: left;
+.podcast-hero-platforms .platform-action {
+    display: none;
 }
 
-.hero-nav-link:hover::before {
-    left: 100%;
+@media (max-width: 480px) {
+    .podcast-hero-platforms .platforms-grid {
+        gap: 0.5rem;
+    }
+    
+    .podcast-hero-platforms .platform-link {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+    }
 }
 
-/* グラデーションボーダー効果 */
-.hero-nav-link::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, #ff6b35, #f7931e, #667eea, #764ba2);
-    background-size: 400% 400%;
-    border-radius: 16px;
-    opacity: 0;
-    z-index: -1;
-    animation: gradientShift 3s ease infinite;
-    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity;
-}
-
-.hero-nav-link:hover::after {
-    opacity: 0.3;
-}
-
-@keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-
-.hero-nav-link:hover {
-    background: var(--front-nav-link-hover);
-    transform: translate3d(0, -3px, 0) scale(1.02);
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
-    color: var(--front-nav-link-text);
-    border-color: rgba(255, 255, 255, 0.4);
-}
-
-.hero-nav-link:active {
-    transform: translate3d(0, -1px, 0) scale(1.01);
-    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* フォーカス状態（アクセシビリティ） */
-.hero-nav-link:focus,
-.hero-nav-link.focused {
-    outline: 2px solid rgba(255, 255, 255, 0.6);
-    outline-offset: 2px;
-    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
-}
-
-/* タッチデバイス対応 */
-.hero-nav-link.touch-active {
-    transform: scale(0.98);
-    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* プレロード状態 */
-.hero-nav-link.preload {
-    opacity: 0;
-    transform: translate3d(0, 20px, 0);
-}
-
-/* ナビゲーションアイコンとテキストの配置 */
-.hero-nav-link {
-    flex-direction: column;
-    gap: 0.3rem;
-}
-
-.hero-nav-link .nav-icon {
-    font-size: var(--card-title);
-    opacity: 0.9;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 2;
-    position: relative;
-    will-change: transform, opacity;
-}
-
-.hero-nav-link:hover .nav-icon {
-    opacity: 1;
-    transform: scale(1.1);
-}
-
-.hero-nav-link .nav-text {
-    font-size: var(--meta-small);
-    line-height: 1.2;
-    font-weight: 500;
-    z-index: 2;
-    position: relative;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hero-nav-link:hover .nav-text {
-    font-weight: 600;
-}
-
+/* ヒーローCTA */
 .podcast-hero-cta {
     margin-top: 2rem;
     display: flex;
@@ -437,92 +237,6 @@
 
 /* レスポンシブ対応 */
 @media (max-width: 968px) {
-    .podcast-hero-content {
-        grid-template-columns: 1fr;
-        gap: 2rem;
-        text-align: center;
-    }
-    
-    .podcast-hero-main {
-        align-items: center;
-        text-align: center;
-        order: 1;
-    }
-
-    .podcast-hero-content-block {
-        align-items: center;
-        text-align: center;
-    }
-    
-    .hero-title {
-        text-align: center;
-    }
-    
-    .hero-subtitle {
-        text-align: center;
-    }
-    
-    .podcast-hero-text {
-        text-align: center;
-    }
-    
-    .podcast-hero-main {
-        order: 1;
-    }
-    
-    .podcast-hero-sidebar {
-        order: 2;
-    }
-    
-    /* 統計情報は横並びで表示 */
-    .podcast-stats {
-        display: flex;
-        flex-direction: row;
-        gap: 1rem;
-        max-width: 450px;
-        margin: 0 auto;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-    
-    .podcast-stat {
-        flex: 1;
-        min-width: 110px;
-        max-width: 140px;
-        padding: 1.2rem 0.8rem;
-    }
-    
-    /* ナビゲーションのレスポンシブ対応 */
-    .hero-nav-menu {
-        grid-template-columns: 1fr 1fr;
-        gap: 0.7rem;
-        max-width: 320px;
-    }
-    
-    .hero-nav-link {
-        padding: 0.9rem 0.6rem;
-        font-size: 0.8rem;
-        min-height: 55px;
-        border-radius: 14px;
-    }
-    
-    .hero-nav-link .nav-icon {
-        font-size: 1.1rem;
-    }
-    
-    .hero-nav-link .nav-text {
-        font-size: 0.7rem;
-    }
-    
-    /* ホバー効果をモバイルでは軽量化 */
-    .hero-nav-link::after {
-        display: none;
-    }
-    
-    .hero-nav-link:hover {
-        transform: translateY(-2px) scale(1.01);
-    }
-    
     /* エピソードボタンの中央揃え */
     .episodes-cta {
         text-align: center;
@@ -539,70 +253,13 @@
 }
 
 @media (max-width: 768px) {
-    .podcast-hero {
-        min-height: 65vh;
-        padding: 1rem 0;
-    }
-
-    .podcast-hero-content-block {
-        gap: 1rem;
-    }
-    
     .podcast-hero-artwork {
-        margin: 1rem 0;
-        max-width: 220px;
+        max-width: 160px;
     }
     
     .podcast-artwork {
-        width: 220px;
-        height: 220px;
-    }
-    
-    /* 統計情報を横並びで表示 */
-    .podcast-stats {
-        display: flex;
-        flex-direction: row;
-        gap: 0.8rem;
-        max-width: 350px;
-        margin: 0 auto;
-        justify-content: center;
-    }
-    
-    .podcast-stat {
-        flex: 1;
-        min-width: 100px;
-        padding: 1rem 0.5rem;
-        text-align: center;
-        border-radius: 15px;
-    }
-    
-    .podcast-stat-number {
-        font-size: 1.6rem;
-        margin-bottom: 0.3rem;
-    }
-    
-    .podcast-stat-label {
-        font-size: 0.7rem;
-        line-height: 1.2;
-    }
-    }
-    
-    /* ナビゲーションを2x2グリッドに変更 */
-    .hero-nav-menu {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.6rem;
-        max-width: 300px;
-        margin: 0 auto;
-    }
-    
-    .hero-nav-link {
-        width: auto;
-        justify-content: center;
-        padding: 0.7rem 0.4rem;
-        font-size: 0.8rem;
-        text-align: center;
-        border-radius: 12px;
+        width: 160px;
+        height: 160px;
     }
     
     .podcast-hero-cta {
@@ -615,108 +272,20 @@
         width: 280px;
         justify-content: center;
     }
-    
-    /* フロントページ特有のセクション調整 */
-    .sidebar-section-title {
-        font-size: 0.9rem;
-        margin-bottom: 0.8rem;
-    }
-    
-    .podcast-hero-artwork {
-        margin: 1rem 0;
-    }
-    
-    .podcast-hero-sidebar {
-        gap: 1.5rem;
-    }
 }
 
 /* フロントページ特有のモバイル最適化 */
 @media (max-width: 480px) {
-    .podcast-hero {
-        min-height: 60vh;
-    }
-
-    .podcast-hero-content-block {
-        gap: 0.8rem;
-    }
-    
     .podcast-hero-artwork {
-        margin: 0.8rem 0;
-        max-width: 200px;
+        max-width: 140px;
     }
     
     .podcast-artwork {
-        width: 200px;
-        height: 200px;
-    }
-    
-    .podcast-hero-text {
-        margin: 0.8rem 0;
-    }
-    
-    /* フロントページ特有の統計情報レイアウト */
-    .podcast-stats {
-        display: flex;
-        flex-direction: row;
-        gap: 0.4rem;
-        max-width: 300px;
-        margin: 1rem auto;
-        justify-content: center;
-    }
-    
-    .podcast-stat {
-        flex: 1;
-        min-width: 85px;
-        padding: 0.7rem 0.2rem;
-        border-radius: 10px;
-    }
-    
-    .podcast-stat-number {
-        font-size: 1.3rem;
-        margin-bottom: 0.1rem;
-    }
-    
-    .podcast-stat-label {
-        font-size: 0.6rem;
-        line-height: 1.0;
-    }
-    
-    /* フロントページ特有のナビゲーション最適化 */
-    .hero-nav-menu {
-        grid-template-columns: 1fr 1fr;
-        gap: 0.5rem;
-        max-width: 260px;
-    }
-    
-    .hero-nav-link {
-        padding: 0.7rem 0.4rem;
-        font-size: 0.7rem;
-        min-height: 45px;
-        border-radius: 10px;
-    }
-    
-    .hero-nav-link .nav-icon {
-        font-size: 0.9rem;
-    }
-    
-    .hero-nav-link .nav-text {
-        font-size: 0.6rem;
-        line-height: 1.0;
-    }
-    
-    /* フロントページ特有のシンプルなホバー効果 */
-    .hero-nav-link::before,
-    .hero-nav-link::after {
-        display: none;
-    }
-    
-    .hero-nav-link:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: none;
+        width: 140px;
+        height: 140px;
     }
 }
-}
+
     /* プラットフォームセクション */
     .podcast-platforms-section {
         padding: 4rem 0;
@@ -732,13 +301,6 @@
         right: 0;
         bottom: 0;
         background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(102,126,234,0.1)"/><circle cx="80" cy="40" r="3" fill="rgba(118,75,162,0.08)"/><circle cx="40" cy="70" r="2" fill="rgba(240,147,251,0.1)"/></svg>');
-        animation: float-bg 15s infinite ease-in-out;
-    }
-    
-    @keyframes float-bg {
-        0%, 100% { transform: translate(0, 0) rotate(0deg); }
-        33% { transform: translate(-10px, -10px) rotate(1deg); }
-        66% { transform: translate(10px, -5px) rotate(-1deg); }
     }
     
     .platforms-container {
@@ -755,7 +317,7 @@
     }
     
     .platforms-header h2 {
-        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-size: var(--page-title);
         font-weight: 900;
         background: var(--platforms-title);
         -webkit-background-clip: text;
@@ -865,45 +427,6 @@
     .platforms-grid .platform-youtube:hover .platform-icon {
         background: #FF0000;
         color: #fff;
-    }
-    
-    /* コンテンツフリークスの歩みボタン */
-    .history-cta {
-        text-align: center;
-        margin-top: 3rem;
-    }
-    
-    .history-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 1rem 2rem;
-        background: var(--history-btn-gradient);
-        color: var(--white);
-        text-decoration: none;
-        border-radius: 50px;
-        font-weight: 600;
-        font-size: 1.1rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(142, 36, 170, 0.3);
-    }
-    
-    .history-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 35px rgba(142, 36, 170, 0.5);
-        color: var(--white);
-        text-decoration: none;
-    }
-    
-    @media (max-width: 768px) {
-        .history-btn {
-            padding: 0.8rem 1.5rem;
-            font-size: 1rem;
-        }
-        
-        .history-cta {
-            margin-top: 2rem;
-        }
     }
     
     /* デスクトップレイアウト（1025px以上） */
@@ -1083,7 +606,7 @@
     }
     
     .hosts-header h2 {
-        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-size: var(--page-title);
         font-weight: 900;
         background: var(--hosts-title-gradient);
         -webkit-background-clip: text;
@@ -1214,7 +737,7 @@
     }
     
     .episodes-header h2 {
-        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-size: var(--page-title);
         font-weight: 900;
         background: var(--recent-episodes-title-gradient);
         -webkit-background-clip: text;
@@ -1249,7 +772,7 @@
     }
     
     .latest-episode-header h2 {
-        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-size: var(--page-title);
         font-weight: 900;
         background: linear-gradient(135deg, #667eea, #764ba2);
         -webkit-background-clip: text;
@@ -1678,12 +1201,6 @@
         right: 0;
         bottom: 0;
         background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,20 Q30,10 40,20 T60,20" stroke="rgba(217,119,6,0.1)" stroke-width="2" fill="none"/><path d="M10,60 Q25,50 40,60 T70,60" stroke="rgba(217,119,6,0.08)" stroke-width="1.5" fill="none"/></svg>');
-        animation: float-waves 10s infinite ease-in-out;
-    }
-    
-    @keyframes float-waves {
-        0%, 100% { transform: translateX(0); }
-        50% { transform: translateX(20px); }
     }
     
     .testimonials-container {
@@ -1700,7 +1217,7 @@
     }
     
     .testimonials-header h2 {
-        font-size: clamp(2.5rem, 5vw, 4rem);
+        font-size: var(--page-title);
         font-weight: 900;
         background: linear-gradient(135deg, var(--testimonials-title), var(--testimonials-accent));
         -webkit-background-clip: text;
@@ -2178,7 +1695,7 @@
 }
 
 .achievements-header h2 {
-    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-size: var(--page-title);
     font-weight: 900;
     background: linear-gradient(135deg, var(--primary, #f7ff0b), var(--accent, #ff6b35));
     -webkit-background-clip: text;

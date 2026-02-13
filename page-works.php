@@ -14,14 +14,6 @@ get_header(); ?>
         <div class="works-hero-bg">
             <div class="hero-pattern"></div>
         </div>
-        <div class="works-hero-particles">
-            <div class="works-particle"></div>
-            <div class="works-particle"></div>
-            <div class="works-particle"></div>
-            <div class="works-particle"></div>
-            <div class="works-particle"></div>
-            <div class="works-particle"></div>
-        </div>
         <div class="works-hero-content">
             <div class="works-hero-icon">🎬</div>
             <h1>Works Database</h1>

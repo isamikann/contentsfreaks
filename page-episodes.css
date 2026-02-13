@@ -28,6 +28,7 @@ body {
     z-index: 1;
 }
 
+/* hero-pattern: 静的な背景装飾（アニメーションなし） */
 .hero-pattern {
     position: absolute;
     top: 0;
@@ -35,45 +36,6 @@ body {
     width: 100%;
     height: 100%;
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23f7ff0b1a" points="0,1000 500,800 1000,1000"/><circle fill="%23ff6b3533" cx="800" cy="200" r="100"/><circle fill="%23f7ff0b26" cx="200" cy="300" r="80"/></svg>');
-    animation: float 20s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(2deg); }
-}
-
-.episodes-hero-particles {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.episodes-particle {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: var(--episodes-hero-particle);
-    border-radius: 50%;
-    animation: episodes-float 10s infinite ease-in-out;
-}
-
-.episodes-particle:nth-child(1) { left: 15%; animation-delay: 0s; }
-.episodes-particle:nth-child(2) { left: 30%; animation-delay: 2s; }
-.episodes-particle:nth-child(3) { left: 45%; animation-delay: 4s; }
-.episodes-particle:nth-child(4) { left: 60%; animation-delay: 1s; }
-.episodes-particle:nth-child(5) { left: 75%; animation-delay: 3s; }
-.episodes-particle:nth-child(6) { left: 90%; animation-delay: 1.5s; }
-
-@keyframes episodes-float {
-    0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; }
-    10% { opacity: 1; transform: translateY(90vh) scale(1); }
-    90% { opacity: 1; transform: translateY(-10vh) scale(1); }
-    100% { opacity: 0; transform: translateY(-20vh) scale(0); }
 }
 
 .episodes-hero-content {
@@ -86,16 +48,9 @@ body {
 }
 
 .episodes-hero-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
     display: inline-block;
-    animation: pulse 3s ease-in-out infinite;
-    filter: drop-shadow(var(--episodes-hero-icon-shadow));
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
 }
 
 @keyframes fadeInUp {
@@ -409,11 +364,10 @@ body {
 
 .episode-meta {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    gap: 0.8rem;
+    margin-top: 0.5rem;
     flex-wrap: wrap;
-    gap: 0.5rem;
 }
 
 .episode-meta-left {
@@ -1249,16 +1203,7 @@ body {
 
 /* ===== エピソードカード 概要テキスト ===== */
 
-.episode-excerpt {
-    font-size: 0.8125rem;
-    line-height: 1.5;
-    color: var(--color-text-secondary, #718096);
-    margin: 0.5rem 0 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
+/* episode-excerpt 削除済み - カードからexcerptを除外 */
 
 @media (max-width: 768px) {
     .random-episode-btn {

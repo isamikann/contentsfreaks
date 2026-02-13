@@ -35,6 +35,7 @@ html {
     z-index: 1;
 }
 
+/* hero-pattern: 静的な背景装飾（アニメーションなし） */
 .hero-pattern {
     position: absolute;
     top: 0;
@@ -42,45 +43,6 @@ html {
     width: 100%;
     height: 100%;
     background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23f7ff0b1a" points="0,1000 500,800 1000,1000"/><circle fill="%23ff6b3533" cx="800" cy="200" r="100"/><circle fill="%23f7ff0b26" cx="200" cy="300" r="80"/></svg>');
-    animation: float 20s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(2deg); }
-}
-
-.blog-hero-particles {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.blog-particle {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: var(--blog-hero-particle);
-    border-radius: 50%;
-    animation: blog-float 10s infinite ease-in-out;
-}
-
-.blog-particle:nth-child(1) { left: 15%; animation-delay: 0s; }
-.blog-particle:nth-child(2) { left: 30%; animation-delay: 2s; }
-.blog-particle:nth-child(3) { left: 45%; animation-delay: 4s; }
-.blog-particle:nth-child(4) { left: 60%; animation-delay: 1s; }
-.blog-particle:nth-child(5) { left: 75%; animation-delay: 3s; }
-.blog-particle:nth-child(6) { left: 90%; animation-delay: 1.5s; }
-
-@keyframes blog-float {
-    0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; }
-    10% { opacity: 1; transform: translateY(90vh) scale(1); }
-    90% { opacity: 1; transform: translateY(-10vh) scale(1); }
-    100% { opacity: 0; transform: translateY(-20vh) scale(0); }
 }
 
 .blog-hero-content {
@@ -93,15 +55,9 @@ html {
 }
 
 .blog-hero-icon {
-    font-size: 4rem;
-    margin-bottom: 1rem;
+    font-size: 3rem;
+    margin-bottom: 0.75rem;
     display: inline-block;
-    animation: pulse 3s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
 }
 
 .blog-hero h1 {

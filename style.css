@@ -112,12 +112,6 @@ Version: 2.0.0
     --history-btn-gradient: linear-gradient(45deg, #8e24aa, #9c27b0);
 
     /* 履歴ページ装飾 */
-    --history-particle-primary: rgba(247, 255, 11, 0.2);
-    --history-particle-secondary: rgba(255, 107, 53, 0.2);
-    --history-particle-light: rgba(247, 255, 11, 0.15);
-    --history-particle-subtle: rgba(255, 107, 53, 0.1);
-    --history-wave-primary: rgba(247, 255, 11, 0.15);
-    --history-wave-secondary: rgba(255, 107, 53, 0.1);
     --history-glow-primary: rgba(247, 255, 11, 0.3);
     --history-glow-secondary: rgba(255, 107, 53, 0.3);
 
@@ -187,11 +181,8 @@ Version: 2.0.0
     /* ヒーローセクション（現状維持） */
     --front-hero-bg: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
     --front-hero-text: var(--white);
-    --front-hero-particle: rgba(255, 255, 255, 0.6);
-    --front-hero-grain: rgba(255, 255, 255, 0.1);
     --front-hero-title-gradient: linear-gradient(45deg, #ffffff, #f0f8ff);
     --front-hero-artwork-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    --front-hero-artwork-glow: rgba(255, 255, 255, 0.15);
 
     /* 最新エピソードセクション - ヒーローから自然に続く薄い紫〜白 */
     --latest-episode-bg: linear-gradient(135deg, #f3f0ff 0%, #ffffff 100%);
@@ -260,7 +251,6 @@ Version: 2.0.0
     /* エピソード一覧ページのヒーローセクション */
     --episodes-hero-bg: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8e2de2 100%);
     --episodes-hero-text: var(--white);
-    --episodes-hero-particle: rgba(255, 255, 255, 0.7);
     --episodes-hero-pattern: rgba(247, 255, 11, 0.1);
     --episodes-hero-pattern-accent: rgba(255, 107, 53, 0.2);
     --episodes-hero-pattern-alt: rgba(247, 255, 11, 0.15);
@@ -308,7 +298,6 @@ Version: 2.0.0
     /* ブログページのヒーローセクション */
     --blog-hero-bg: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #ff8a65 100%);
     --blog-hero-text: var(--white);
-    --blog-hero-particle: rgba(255, 255, 255, 0.7);
     --blog-hero-pattern: rgba(247, 255, 11, 0.1);
     --blog-hero-pattern-accent: rgba(255, 107, 53, 0.2);
     --blog-hero-pattern-alt: rgba(247, 255, 11, 0.15);
@@ -863,45 +852,45 @@ h6 {
 
 /* 見出しのフォントサイズ設定 */
 h1 {
-    font-size: 2.5rem;
+    font-size: var(--font-size-4xl);
     font-weight: 900;
 }
 
 h2 {
-    font-size: 2rem;
+    font-size: var(--font-size-3xl);
     font-weight: 800;
 }
 
 h3 {
-    font-size: 1.5rem;
+    font-size: var(--font-size-xl);
     font-weight: 700;
 }
 
 h4 {
-    font-size: 1.25rem;
+    font-size: var(--font-size-lg);
     font-weight: 700;
 }
 
 h5 {
-    font-size: 1.125rem;
+    font-size: var(--font-size-md);
     font-weight: 600;
 }
 
 h6 {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 600;
 }
 
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
     h1 {
-        font-size: 2rem;
+        font-size: var(--font-size-3xl);
     }
     h2 {
-        font-size: 1.75rem;
+        font-size: var(--font-size-2xl);
     }
     h3 {
-        font-size: 1.375rem;
+        font-size: var(--font-size-lg);
     }
 }
 
@@ -937,10 +926,6 @@ h6 {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-}
-
-.front-hero-particle {
-    background: var(--front-hero-particle);
 }
 
 .front-hero-artwork-shadow {
