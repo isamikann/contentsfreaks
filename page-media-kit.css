@@ -1,0 +1,435 @@
+/* =============================================
+   Media Kit ページ専用スタイル
+   ============================================= */
+
+.media-kit-page {
+    background: var(--color-bg-primary, #ffffff);
+}
+
+/* ヒーロー */
+.mk-hero {
+    background: var(--black, #1a1a1a);
+    color: var(--white, #fff);
+    padding: 6rem 1.5rem 4rem;
+    text-align: center;
+}
+
+.mk-hero-inner {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.mk-hero-artwork {
+    margin-bottom: 1.5rem;
+}
+
+.mk-hero-artwork img {
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+.mk-hero-title {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    margin-bottom: 0.75rem;
+    background: linear-gradient(135deg, var(--primary, #f7ff0b), var(--accent, #ff6b35));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.mk-hero-subtitle {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* セクション共通 */
+.mk-section {
+    padding: 4rem 1.5rem;
+}
+
+.mk-section-alt {
+    background: var(--color-bg-secondary, #f7fafc);
+}
+
+.mk-section-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.mk-section-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+/* 番組概要 */
+.mk-overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+}
+
+.mk-lead {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-secondary, #555);
+    margin-bottom: 1.5rem;
+}
+
+.mk-data-list {
+    margin: 0;
+}
+
+.mk-data-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+
+.mk-data-row dt {
+    font-weight: 600;
+    color: var(--text-secondary, #666);
+    font-size: 0.9rem;
+}
+
+.mk-data-row dd {
+    margin: 0;
+    font-weight: 700;
+    color: var(--text-primary, #1a1a1a);
+    font-size: 0.9rem;
+}
+
+/* プラットフォームカード */
+.mk-overview-platforms {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.mk-platform-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.25rem 1rem;
+    background: var(--color-bg-secondary, #f7fafc);
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.05);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mk-platform-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    color: inherit;
+}
+
+.mk-pf-name {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--text-secondary, #666);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mk-pf-number {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--text-primary, #1a1a1a);
+    line-height: 1.2;
+}
+
+.mk-pf-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary, #666);
+}
+
+.mk-platform-total {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--primary, #f7ff0b), var(--accent, #ff6b35));
+}
+
+.mk-platform-total .mk-pf-name,
+.mk-platform-total .mk-pf-label {
+    color: rgba(26,26,26,0.65);
+}
+
+.mk-platform-total .mk-pf-number {
+    font-size: 2.2rem;
+}
+
+.mk-platform-monthly {
+    grid-column: 1 / -1;
+    background: var(--color-bg-primary, #fff);
+    border: 2px solid var(--primary, #f7ff0b);
+}
+
+/* リスナー属性 */
+.mk-audience-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.mk-audience-card {
+    text-align: center;
+    padding: 2rem 1.5rem;
+    background: var(--color-bg-primary, #fff);
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+.mk-audience-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.mk-audience-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.mk-audience-card p {
+    font-size: 0.88rem;
+    color: var(--text-secondary, #666);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* コラボ実績 */
+.mk-collab-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.mk-collab-card {
+    padding: 1.75rem;
+    background: var(--color-bg-secondary, #f7fafc);
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+}
+
+.mk-collab-card:hover {
+    transform: translateY(-2px);
+}
+
+.mk-collab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.mk-collab-header h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.mk-collab-badge {
+    flex-shrink: 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.25rem 0.6rem;
+    background: rgba(6,199,85,0.1);
+    color: #06c755;
+    border-radius: 50px;
+}
+
+.mk-collab-card p {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #666);
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* 提供可能メニュー */
+.mk-services-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.mk-service-card {
+    padding: 2rem 1.5rem;
+    background: var(--color-bg-primary, #fff);
+    border-radius: 16px;
+    border: 1px solid rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.mk-service-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.mk-service-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.mk-service-card h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.mk-service-card > p {
+    font-size: 0.88rem;
+    color: var(--text-secondary, #666);
+    line-height: 1.6;
+    margin-bottom: 1rem;
+}
+
+.mk-service-details {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mk-service-details li {
+    position: relative;
+    padding-left: 1.25rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary, #555);
+    line-height: 1.8;
+}
+
+.mk-service-details li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--accent, #ff6b35);
+    font-weight: 700;
+}
+
+/* CTA */
+.mk-cta-section {
+    padding: 4rem 1.5rem;
+    background: var(--black, #1a1a1a);
+    color: var(--white, #fff);
+}
+
+.mk-cta-inner {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.mk-cta-content {
+    text-align: center;
+}
+
+.mk-cta-content h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.mk-cta-content > p {
+    color: rgba(255,255,255,0.75);
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.mk-cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.mk-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+
+.mk-cta-primary {
+    background: linear-gradient(135deg, var(--primary, #f7ff0b), var(--accent, #ff6b35));
+    color: var(--black, #1a1a1a);
+}
+
+.mk-cta-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(247,255,11,0.3);
+    color: var(--black, #1a1a1a);
+}
+
+.mk-cta-secondary {
+    background: transparent;
+    color: var(--white, #fff);
+    border: 1px solid rgba(255,255,255,0.25);
+}
+
+.mk-cta-secondary:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--white, #fff);
+}
+
+/* =============================================
+   レスポンシブ
+   ============================================= */
+@media (max-width: 768px) {
+    .mk-hero {
+        padding: 5rem 1.25rem 3rem;
+    }
+
+    .mk-overview-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .mk-audience-grid,
+    .mk-collab-grid,
+    .mk-services-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .mk-section {
+        padding: 3rem 1.25rem;
+    }
+
+    .mk-collab-header {
+        flex-direction: column;
+    }
+
+    .mk-cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .mk-cta-btn {
+        width: 100%;
+        max-width: 320px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .mk-overview-platforms {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .mk-pf-number {
+        font-size: 1.4rem;
+    }
+}

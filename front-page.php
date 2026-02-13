@@ -374,7 +374,7 @@ get_header(); ?>
                 </div>
             </div>
             <div class="achievements-cta fade-in">
-                <a href="<?php echo esc_url(contentfreaks_get_page_url('profile')); ?>#media-kit" class="achievements-business-link">
+                <a href="<?php echo esc_url(contentfreaks_get_page_url('media-kit')); ?>" class="achievements-business-link">
                     お仕事のご依頼・Media Kit →
                 </a>
             </div>

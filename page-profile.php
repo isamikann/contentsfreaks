@@ -308,127 +308,7 @@ get_header(); ?>
         </div>
     </section>
 
-    <!-- メディアキット / ビジネス情報セクション -->
-    <section class="media-kit-section" id="media-kit">
-        <div class="media-kit-container">
-            <div class="media-kit-header fade-in">
-                <span class="section-badge">📊 Media Kit</span>
-                <h2 class="section-title">番組について</h2>
-                <p class="section-subtitle">コンテンツフリークスの実績とコラボレーションメニュー</p>
-            </div>
-
-            <div class="media-kit-grid">
-                <!-- 番組概要 -->
-                <div class="media-kit-card fade-in">
-                    <h3 class="mk-card-title">🎙️ 番組概要</h3>
-                    <dl class="mk-data-list">
-                        <div class="mk-data-row">
-                            <dt>番組名</dt>
-                            <dd><?php echo esc_html(get_theme_mod('podcast_name', 'コンテンツフリークス')); ?></dd>
-                        </div>
-                        <div class="mk-data-row">
-                            <dt>ジャンル</dt>
-                            <dd>エンタメ・カルチャー（映画/ドラマ/アニメ/マンガ）</dd>
-                        </div>
-                        <div class="mk-data-row">
-                            <dt>配信頻度</dt>
-                            <dd><?php echo esc_html(get_theme_mod('mk_frequency', '毎週配信')); ?></dd>
-                        </div>
-                        <div class="mk-data-row">
-                            <dt>配信開始</dt>
-                            <dd><?php echo esc_html(get_theme_mod('mk_since', '2023年')); ?></dd>
-                        </div>
-                        <div class="mk-data-row">
-                            <dt>累計配信</dt>
-                            <dd><?php echo contentfreaks_get_podcast_count(); ?>+ エピソード</dd>
-                        </div>
-                    </dl>
-                </div>
-
-                <!-- 実績数値 -->
-                <div class="media-kit-card fade-in">
-                    <h3 class="mk-card-title">📈 リーチ実績</h3>
-                    <div class="mk-stats-grid">
-                        <div class="mk-stat">
-                            <span class="mk-stat-platform">Spotify</span>
-                            <span class="mk-stat-number"><?php echo esc_html(get_theme_mod('mk_spotify_followers', '300')); ?>+</span>
-                            <span class="mk-stat-label">フォロワー</span>
-                        </div>
-                        <div class="mk-stat">
-                            <span class="mk-stat-platform">Apple Podcasts</span>
-                            <span class="mk-stat-number"><?php echo esc_html(get_theme_mod('mk_apple_followers', '150')); ?>+</span>
-                            <span class="mk-stat-label">フォロワー</span>
-                        </div>
-                        <div class="mk-stat">
-                            <span class="mk-stat-platform">YouTube</span>
-                            <span class="mk-stat-number"><?php echo esc_html(get_theme_mod('mk_youtube_subscribers', '900')); ?>+</span>
-                            <span class="mk-stat-label">登録者</span>
-                        </div>
-                        <div class="mk-stat mk-stat-total">
-                            <span class="mk-stat-platform">合計</span>
-                            <span class="mk-stat-number"><?php echo esc_html(get_option('contentfreaks_listener_count', '1500')); ?>+</span>
-                            <span class="mk-stat-label">総フォロワー</span>
-                        </div>
-                    </div>
-                    <?php $mk_monthly = get_theme_mod('mk_monthly_plays', ''); if ($mk_monthly) : ?>
-                    <div class="mk-monthly">
-                        <span class="mk-monthly-label">月間再生数</span>
-                        <span class="mk-monthly-number"><?php echo esc_html($mk_monthly); ?>+</span>
-                    </div>
-                    <?php endif; ?>
-                </div>
-
-                <!-- コラボ実績 -->
-                <div class="media-kit-card fade-in">
-                    <h3 class="mk-card-title">🤝 コラボレーション実績</h3>
-                    <ul class="mk-collab-list">
-                        <li>
-                            <span class="collab-name">平成男女のイドバタラジオ</span>
-                            <span class="collab-type">ゲスト出演</span>
-                        </li>
-                        <li>
-                            <span class="collab-name">ひよっこ研究者のさばいばる日記</span>
-                            <span class="collab-type">ゲスト出演</span>
-                        </li>
-                        <li>
-                            <span class="collab-name">推し活2次元LIFEラジオ</span>
-                            <span class="collab-type">コラボ配信</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- 提供可能メニュー -->
-                <div class="media-kit-card fade-in">
-                    <h3 class="mk-card-title">📋 提供可能メニュー</h3>
-                    <div class="mk-menu-list">
-                        <div class="mk-menu-item">
-                            <div class="mk-menu-icon">🎤</div>
-                            <div class="mk-menu-info">
-                                <h4>ゲスト出演 / コラボ配信</h4>
-                                <p>他ポッドキャスト・YouTubeチャンネルとの相互出演。エンタメ系番組との相性◎</p>
-                            </div>
-                        </div>
-                        <div class="mk-menu-item">
-                            <div class="mk-menu-icon">📺</div>
-                            <div class="mk-menu-info">
-                                <h4>作品紹介タイアップ</h4>
-                                <p>映画・ドラマ・アニメ等の作品レビュー。リスナーへの自然な形での紹介が可能</p>
-                            </div>
-                        </div>
-                        <div class="mk-menu-item">
-                            <div class="mk-menu-icon">🎪</div>
-                            <div class="mk-menu-info">
-                                <h4>イベント出演</h4>
-                                <p>オフライン/オンラインイベントでのトーク出演・MC</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- お問い合わせセクション（2系統CTA） -->
+    <!-- お問い合わせセクション -->
     <section class="contact-cta-section">
         <div class="contact-cta-bg">
             <div class="cta-pattern"></div>
@@ -468,7 +348,7 @@ get_header(); ?>
                             <span class="btn-icon">📩</span>
                             お仕事のご依頼・ご相談
                         </a>
-                        <a href="#media-kit" class="contact-cta-button business-secondary">
+                        <a href="<?php echo esc_url(contentfreaks_get_page_url('media-kit')); ?>" class="contact-cta-button business-secondary">
                             <span class="btn-icon">📊</span>
                             Media Kitを見る
                         </a>
