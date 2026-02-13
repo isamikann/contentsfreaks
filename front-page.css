@@ -6,18 +6,18 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    padding: calc(6rem + 70px) 0 5rem 0; /* 上部にヘッダー高さ分を加算 */
+    padding: calc(8rem + 70px) 0 6rem 0; /* 上部にヘッダー高さ分を加算 */
 }
 
 @media (max-width: 768px) {
     .podcast-hero {
-        padding: calc(4rem + 70px) 0 3rem 0;
+        padding: calc(5rem + 70px) 0 4rem 0;
     }
 }
 
 @media (max-width: 480px) {
     .podcast-hero {
-        padding: calc(3rem + 60px) 0 2.5rem 0; /* モバイルヘッダーは少し小さい */
+        padding: calc(4rem + 60px) 0 3rem 0; /* モバイルヘッダーは少し小さい */
     }
 }
 
