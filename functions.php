@@ -1848,3 +1848,91 @@ function contentfreaks_auto_link_works($content) {
     return $content;
 }
 add_filter('the_content', 'contentfreaks_auto_link_works', 20);
+
+// =============================================
+// お問い合わせフォーム AJAX 処理
+// =============================================
+
+/**
+ * お問い合わせフォーム送信処理
+ * リスナー / ビジネスの両タイプに対応
+ */
+function contentfreaks_contact_submit() {
+    header('Content-Type: application/json; charset=utf-8');
+
+    // nonce検証
+    if (!check_ajax_referer('contentfreaks_load_more', 'nonce', false)) {
+        wp_send_json_error(array('message' => 'セキュリティ検証に失敗しました。ページを再読み込みしてください。'));
+    }
+
+    // ハニーポット
+    if (!empty($_POST['website_url'])) {
+        wp_send_json_success(array('message' => 'ありがとうございます！メッセージを受け付けました。'));
+    }
+
+    $contact_type = sanitize_text_field($_POST['contact_type'] ?? 'listener');
+    $name     = sanitize_text_field($_POST['name'] ?? '');
+    $email    = sanitize_email($_POST['email'] ?? '');
+    $message  = sanitize_textarea_field($_POST['message'] ?? '');
+    $category = sanitize_text_field($_POST['category'] ?? '');
+    $company  = sanitize_text_field($_POST['company'] ?? '');
+
+    // 必須チェック
+    if (empty($name) || empty($message)) {
+        wp_send_json_error(array('message' => 'お名前とメッセージは必須項目です。'));
+    }
+
+    if ($contact_type === 'business' && empty($email)) {
+        wp_send_json_error(array('message' => 'メールアドレスをご入力ください。'));
+    }
+
+    // メッセージ長チェック
+    $max_len = ($contact_type === 'business') ? 5000 : 2000;
+    if (mb_strlen($message) > $max_len) {
+        wp_send_json_error(array('message' => 'メッセージが長すぎます。'));
+    }
+
+    // レート制限（同一IPから10分に1回）
+    $ip = function_exists('contentfreaks_get_client_ip') ? contentfreaks_get_client_ip() : $_SERVER['REMOTE_ADDR'];
+    $rate_key = 'cf_contact_' . md5($ip);
+    if (get_transient($rate_key)) {
+        wp_send_json_error(array('message' => '連続送信はできません。しばらくお待ちください。'));
+    }
+
+    // メール送信
+    $admin_email = get_option('admin_email');
+    $type_label  = ($contact_type === 'business') ? 'お仕事のご依頼' : 'リスナーからのメッセージ';
+    $subject     = '[ContentFreaks] ' . $type_label . '：' . $category;
+
+    $body = "【{$type_label}】\n\n";
+    $body .= "お名前: {$name}\n";
+    if (!empty($email))   $body .= "メール: {$email}\n";
+    if (!empty($company))  $body .= "会社/番組名: {$company}\n";
+    if (!empty($category)) $body .= "カテゴリ: {$category}\n";
+    $body .= "\n---メッセージ---\n{$message}\n---\n\n";
+    $body .= "送信元IP: {$ip}\n";
+    $body .= "送信日時: " . wp_date('Y-m-d H:i:s') . "\n";
+
+    $headers = array('Content-Type: text/plain; charset=UTF-8');
+    if (!empty($email)) {
+        $headers[] = 'Reply-To: ' . $name . ' <' . $email . '>';
+    }
+
+    $sent = wp_mail($admin_email, $subject, $body, $headers);
+
+    if (!$sent) {
+        wp_send_json_error(array('message' => '送信に失敗しました。時間を空けて再度お試しください。'));
+    }
+
+    // レート制限セット（10分）
+    set_transient($rate_key, true, 10 * MINUTE_IN_SECONDS);
+
+    $success_msg = ($contact_type === 'business')
+        ? 'お問い合わせありがとうございます。3営業日以内にご連絡いたします。'
+        : 'メッセージありがとうございます！番組内でご紹介させていただくことがあります。';
+
+    wp_send_json_success(array('message' => $success_msg));
+}
+add_action('wp_ajax_contentfreaks_contact_submit', 'contentfreaks_contact_submit');
+add_action('wp_ajax_nopriv_contentfreaks_contact_submit', 'contentfreaks_contact_submit');
+

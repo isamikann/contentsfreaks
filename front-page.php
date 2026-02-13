@@ -351,6 +351,7 @@ get_header(); ?>
     <!-- 実績バッジセクション -->
     <section class="achievements-badge-section">
         <div class="achievements-badge-container">
+            <h2 class="achievements-section-title">Numbers</h2>
             <div class="achievements-badges">
                 <div class="achievement-badge fade-in">
                     <span class="badge-icon">🎙️</span>

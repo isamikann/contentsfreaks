@@ -2172,6 +2172,14 @@
     text-align: center;
 }
 
+.achievements-section-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text-primary, #1a1a1a);
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+}
+
 .achievements-badges {
     display: flex;
     justify-content: center;
