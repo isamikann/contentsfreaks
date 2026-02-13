@@ -176,6 +176,60 @@ get_header(); ?>
             </div>
             <?php endif; ?>
 
+            <!-- 今回紹介した作品（タグから自動取得） -->
+            <?php
+            $post_tags = wp_get_post_tags($post_id, array('fields' => 'names'));
+            if (!empty($post_tags)) :
+                $featured_works = contentfreaks_get_works_by_tags($post_tags);
+                if (!empty($featured_works)) :
+            ?>
+            <div class="episode-featured-works">
+                <h3 class="featured-works-title">📚 今回紹介した作品</h3>
+                <div class="featured-works-grid">
+                    <?php foreach ($featured_works as $work) : ?>
+                    <div class="featured-work-card">
+                        <?php if (has_post_thumbnail($work->ID)) : ?>
+                        <div class="fw-thumbnail">
+                            <?php echo get_the_post_thumbnail($work->ID, 'thumbnail', array('loading' => 'lazy', 'alt' => esc_attr($work->post_title))); ?>
+                        </div>
+                        <?php endif; ?>
+                        <div class="fw-info">
+                            <h4 class="fw-title"><?php echo esc_html($work->post_title); ?></h4>
+                            <?php
+                            $w_type = get_post_meta($work->ID, 'work_type', true);
+                            $w_rating = get_post_meta($work->ID, 'work_rating', true);
+                            ?>
+                            <?php if ($w_type) : ?>
+                            <span class="fw-type"><?php echo esc_html($w_type); ?></span>
+                            <?php endif; ?>
+                            <?php if ($w_rating) : ?>
+                            <span class="fw-rating"><?php echo str_repeat('⭐', intval($w_rating)); ?></span>
+                            <?php endif; ?>
+                            <div class="fw-links">
+                                <?php
+                                $amazon_url = get_post_meta($work->ID, 'work_amazon_url', true);
+                                $affiliate_url = get_post_meta($work->ID, 'work_affiliate_url', true);
+                                $amazon_tag = get_theme_mod('mk_amazon_tag', '');
+                                // Amazon URLにタグを自動付与
+                                if ($amazon_url && $amazon_tag && strpos($amazon_url, 'tag=') === false) {
+                                    $separator = (strpos($amazon_url, '?') !== false) ? '&' : '?';
+                                    $amazon_url .= $separator . 'tag=' . urlencode($amazon_tag);
+                                }
+                                if ($amazon_url) : ?>
+                                <a href="<?php echo esc_url($amazon_url); ?>" target="_blank" rel="noopener sponsored" class="fw-link fw-link-amazon">Amazonで見る</a>
+                                <?php endif; ?>
+                                <?php if ($affiliate_url) : ?>
+                                <a href="<?php echo esc_url($affiliate_url); ?>" target="_blank" rel="noopener sponsored" class="fw-link fw-link-other">詳細を見る</a>
+                                <?php endif; ?>
+                                <a href="<?php echo esc_url(get_permalink($work->ID)); ?>" class="fw-link fw-link-db">作品DB</a>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <?php endif; endif; ?>
+
             <!-- 関連エピソード -->
             <?php if ($is_podcast_episode) : ?>
             <div class="related-episodes">

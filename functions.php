@@ -1736,3 +1736,115 @@ function contentfreaks_breadcrumb() {
  * → inc/structured_data.php に統合済みのため削除
  * 以前はここに contentfreaks_episode_jsonld() があったが重複出力になっていた
  */
+
+// =============================================
+// アフィリエイト & 作品連携機能
+// =============================================
+
+/**
+ * タグ名から作品DBの投稿を取得（エピソード詳細ページ用）
+ * エピソードのタグ（＝作品名）と作品CPTのタイトルを照合
+ */
+function contentfreaks_get_works_by_tags($tag_names) {
+    if (empty($tag_names)) return array();
+
+    $works = array();
+    foreach ($tag_names as $tag_name) {
+        $found = get_posts(array(
+            'post_type'      => 'work',
+            'post_status'    => 'publish',
+            'title'          => $tag_name,
+            'posts_per_page' => 1,
+            'fields'         => '',
+        ));
+        // タイトル完全一致がない場合は部分一致でフォールバック
+        if (empty($found)) {
+            $found = get_posts(array(
+                'post_type'      => 'work',
+                'post_status'    => 'publish',
+                's'              => $tag_name,
+                'posts_per_page' => 1,
+            ));
+        }
+        if (!empty($found)) {
+            // 重複排除
+            $ids = wp_list_pluck($works, 'ID');
+            if (!in_array($found[0]->ID, $ids)) {
+                $works[] = $found[0];
+            }
+        }
+    }
+    return $works;
+}
+
+/**
+ * 本文中の『作品名』を作品DBのリンクに自動変換（アフィリエイト対応）
+ * 作品DBに登録されている作品のみ変換。未登録の『...』はそのまま。
+ */
+function contentfreaks_auto_link_works($content) {
+    // 管理画面やRSSフィードでは変換しない
+    if (is_admin() || is_feed()) return $content;
+    // 個別記事ページのみ
+    if (!is_singular('post')) return $content;
+
+    // 『...』パターンを抽出
+    if (!preg_match_all('/『([^』]+)』/', $content, $matches)) {
+        return $content;
+    }
+
+    $amazon_tag = get_theme_mod('mk_amazon_tag', '');
+    $linked = array(); // 同じ作品を2回リンクしない
+
+    foreach ($matches[1] as $i => $work_name) {
+        if (in_array($work_name, $linked)) continue;
+
+        // 作品DBからタイトル一致を検索
+        $work = get_posts(array(
+            'post_type'      => 'work',
+            'post_status'    => 'publish',
+            'title'          => $work_name,
+            'posts_per_page' => 1,
+        ));
+
+        if (empty($work)) continue;
+
+        $work = $work[0];
+        $amazon_url = get_post_meta($work->ID, 'work_amazon_url', true);
+        $affiliate_url = get_post_meta($work->ID, 'work_affiliate_url', true);
+
+        // リンク先を決定（優先: Amazon > その他アフィリエイト > 作品DB詳細ページ）
+        $link_url = '';
+        $rel = 'noopener';
+        $target = '';
+
+        if ($amazon_url) {
+            $link_url = $amazon_url;
+            if ($amazon_tag && strpos($link_url, 'tag=') === false) {
+                $separator = (strpos($link_url, '?') !== false) ? '&' : '?';
+                $link_url .= $separator . 'tag=' . urlencode($amazon_tag);
+            }
+            $rel = 'noopener sponsored';
+            $target = ' target="_blank"';
+        } elseif ($affiliate_url) {
+            $link_url = $affiliate_url;
+            $rel = 'noopener sponsored';
+            $target = ' target="_blank"';
+        } else {
+            $link_url = get_permalink($work->ID);
+        }
+
+        $link_html = '<a href="' . esc_url($link_url) . '" rel="' . $rel . '"' . $target . ' class="work-auto-link" title="' . esc_attr($work_name . ' - 作品情報') . '">『' . esc_html($work_name) . '』</a>';
+
+        // 最初の1つだけリンク化（同じ作品が複数回出現しても1回だけ）
+        $content = preg_replace(
+            '/『' . preg_quote($work_name, '/') . '』/',
+            $link_html,
+            $content,
+            1
+        );
+        $linked[] = $work_name;
+    }
+
+    return $content;
+}
+add_filter('the_content', 'contentfreaks_auto_link_works', 20);

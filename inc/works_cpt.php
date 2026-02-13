@@ -73,6 +73,8 @@ function contentfreaks_works_meta_box_html($post) {
         'work_platform'      => array('label' => '視聴プラットフォーム', 'type' => 'text'),
         'work_episodes_list' => array('label' => '関連エピソード（投稿ID、カンマ区切り）', 'type' => 'text'),
         'work_one_line'      => array('label' => 'ひとこと感想', 'type' => 'textarea'),
+        'work_amazon_url'    => array('label' => 'Amazon商品URL（アフィリエイトリンク）', 'type' => 'text'),
+        'work_affiliate_url' => array('label' => 'その他アフィリエイトURL（楽天等）', 'type' => 'text'),
     );
 
     foreach ($fields as $key => $field) {
@@ -102,7 +104,7 @@ function contentfreaks_save_work_meta($post_id) {
     if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) return;
     if (!current_user_can('edit_post', $post_id)) return;
 
-    $fields = array('work_type', 'work_rating', 'work_year', 'work_platform', 'work_episodes_list', 'work_one_line');
+    $fields = array('work_type', 'work_rating', 'work_year', 'work_platform', 'work_episodes_list', 'work_one_line', 'work_amazon_url', 'work_affiliate_url');
     foreach ($fields as $field) {
         if (isset($_POST[$field])) {
             update_post_meta($post_id, $field, sanitize_text_field($_POST[$field]));

@@ -388,6 +388,7 @@ function contentfreaks_fallback_menu($css_class = 'nav-menu') {
     // 主要ページへの直接リンク（キャッシュ付きヘルパー使用）
     echo '<li><a href="' . esc_url(contentfreaks_get_page_url('episodes')) . '">ポッドキャスト</a></li>';
     echo '<li><a href="' . esc_url(contentfreaks_get_page_url('blog')) . '">ブログ</a></li>';
+    echo '<li><a href="' . esc_url(contentfreaks_get_page_url('profile')) . '#media-kit" class="nav-business">お仕事依頼</a></li>';
     
     // その他の固定ページを動的に取得
     $episodes_page = get_page_by_path('episodes');

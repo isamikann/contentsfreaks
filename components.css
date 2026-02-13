@@ -297,3 +297,15 @@
 }
 
 /* ===== 他の共通コンポーネント ===== */
+
+/* フッタービジネスリンク */
+.footer-business-link {
+    color: var(--primary, #f7ff0b) !important;
+    font-weight: 600;
+}
+
+/* ヘッダーお仕事依頼リンク */
+.nav-business {
+    color: var(--primary, #f7ff0b) !important;
+    font-weight: 600;
+}

@@ -36,6 +36,7 @@
             <h3>お問い合わせ</h3>
             <ul class="footer-links">
                 <li><a href="<?php echo esc_url(contentfreaks_get_page_url('contact')); ?>">お問い合わせフォーム</a></li>
+                <li><a href="<?php echo esc_url(contentfreaks_get_page_url('profile')); ?>#media-kit" class="footer-business-link">📊 お仕事のご依頼 / Media Kit</a></li>
                 <li><a href="<?php echo esc_url(get_privacy_policy_url()); ?>">プライバシーポリシー</a></li>
             </ul>
         </div>

@@ -1501,3 +1501,333 @@ body {
         border: 1px solid var(--hosts-card-border) !important;
     }
 }
+
+/* =============================================
+   メディアキット セクション
+   ============================================= */
+.media-kit-section {
+    padding: 4rem 1.5rem;
+    background: var(--color-bg-primary, #ffffff);
+}
+
+.media-kit-container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.media-kit-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-badge {
+    display: inline-block;
+    background: var(--color-bg-secondary, #f7fafc);
+    color: var(--text-primary, #1a1a1a);
+    padding: 0.4rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(0,0,0,0.08);
+}
+
+.media-kit-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+}
+
+.media-kit-card {
+    background: var(--color-bg-secondary, #f7fafc);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 1px solid rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.media-kit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.mk-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--primary, #f7ff0b);
+}
+
+/* 番組概要データリスト */
+.mk-data-list {
+    margin: 0;
+}
+
+.mk-data-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.mk-data-row dt {
+    font-weight: 600;
+    color: var(--text-secondary, #666);
+    font-size: 0.9rem;
+}
+
+.mk-data-row dd {
+    margin: 0;
+    font-weight: 700;
+    color: var(--text-primary, #1a1a1a);
+}
+
+/* リーチ実績 */
+.mk-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.mk-stat {
+    text-align: center;
+    padding: 1rem 0.5rem;
+    background: var(--color-bg-primary, #fff);
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.04);
+}
+
+.mk-stat-platform {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary, #666);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mk-stat-number {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary, #1a1a1a);
+    line-height: 1.3;
+}
+
+.mk-stat-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary, #666);
+}
+
+.mk-stat-total {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--primary, #f7ff0b), var(--accent, #ff6b35));
+    color: var(--black, #1a1a1a);
+}
+
+.mk-stat-total .mk-stat-platform,
+.mk-stat-total .mk-stat-label {
+    color: rgba(26,26,26,0.7);
+}
+
+.mk-stat-total .mk-stat-number {
+    font-size: 2rem;
+}
+
+.mk-monthly {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--color-bg-primary, #fff);
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.04);
+}
+
+.mk-monthly-label {
+    font-weight: 600;
+    color: var(--text-secondary, #666);
+    font-size: 0.9rem;
+}
+
+.mk-monthly-number {
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--text-primary, #1a1a1a);
+}
+
+/* コラボ実績 */
+.mk-collab-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mk-collab-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.mk-collab-list li:last-child {
+    border-bottom: none;
+}
+
+.collab-name {
+    font-weight: 600;
+    color: var(--text-primary, #1a1a1a);
+}
+
+.collab-type {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.75rem;
+    background: rgba(6, 199, 85, 0.1);
+    color: #06c755;
+    border-radius: 50px;
+    font-weight: 600;
+}
+
+/* 提供可能メニュー */
+.mk-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.mk-menu-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.mk-menu-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-primary, #fff);
+    border-radius: 10px;
+}
+
+.mk-menu-info h4 {
+    margin: 0 0 0.3rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.mk-menu-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary, #666);
+    line-height: 1.5;
+}
+
+/* =============================================
+   CTA 2系統（リスナー / ビジネス）
+   ============================================= */
+.cta-dual-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.cta-card {
+    text-align: center;
+    padding: 2.5rem 2rem;
+    border-radius: 20px;
+    position: relative;
+}
+
+.cta-card-listener {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+}
+
+.cta-card-business {
+    background: linear-gradient(135deg, rgba(247,255,11,0.08), rgba(255,107,53,0.08));
+    border: 1px solid rgba(247,255,11,0.2);
+}
+
+.cta-card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.cta-card-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin-bottom: 0.75rem;
+    color: var(--white, #fff);
+}
+
+.cta-card-desc {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+}
+
+.cta-card-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.listener-primary {
+    background: var(--white, #fff) !important;
+    color: var(--black, #1a1a1a) !important;
+}
+
+.listener-secondary {
+    background: transparent !important;
+    color: var(--white, #fff) !important;
+    border: 1px solid rgba(255,255,255,0.3) !important;
+}
+
+.business-primary {
+    background: linear-gradient(135deg, var(--primary, #f7ff0b), var(--accent, #ff6b35)) !important;
+    color: var(--black, #1a1a1a) !important;
+    font-weight: 700 !important;
+}
+
+.business-secondary {
+    background: transparent !important;
+    color: var(--primary, #f7ff0b) !important;
+    border: 1px solid rgba(247,255,11,0.4) !important;
+}
+
+/* =============================================
+   レスポンシブ
+   ============================================= */
+@media (max-width: 768px) {
+    .media-kit-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cta-dual-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .mk-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .media-kit-section {
+        padding: 2.5rem 1rem;
+    }
+
+    .cta-card {
+        padding: 2rem 1.5rem;
+    }
+}

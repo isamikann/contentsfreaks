@@ -210,6 +210,36 @@ function contentfreaks_customize_register($wp_customize) {
         'description' => 'YouTubeアイコン用の画像を選択してください（空の場合はデフォルト絵文字 📺 を使用）',
     )));
     
+    // ===== メディアキット設定 =====
+    $wp_customize->add_section('contentfreaks_media_kit', array(
+        'title' => 'メディアキット設定',
+        'priority' => 32,
+        'description' => 'プロフィールページのMedia Kitに表示する数値を設定します',
+    ));
+
+    // 各プラットフォームフォロワー数
+    $mk_fields = array(
+        'mk_spotify_followers'    => array('label' => 'Spotify フォロワー数', 'default' => '300'),
+        'mk_apple_followers'      => array('label' => 'Apple Podcasts フォロワー数', 'default' => '150'),
+        'mk_youtube_subscribers'  => array('label' => 'YouTube 登録者数', 'default' => '900'),
+        'mk_monthly_plays'        => array('label' => '月間再生数（空欄で非表示）', 'default' => ''),
+        'mk_frequency'            => array('label' => '配信頻度', 'default' => '毎週配信'),
+        'mk_since'                => array('label' => '配信開始時期', 'default' => '2023年'),
+        'mk_amazon_tag'           => array('label' => 'Amazonアソシエイト タグ（例: contentsfreaks-22）', 'default' => ''),
+    );
+
+    foreach ($mk_fields as $key => $config) {
+        $wp_customize->add_setting($key, array(
+            'default' => $config['default'],
+            'sanitize_callback' => 'sanitize_text_field',
+        ));
+        $wp_customize->add_control($key, array(
+            'label' => $config['label'],
+            'section' => 'contentfreaks_media_kit',
+            'type' => 'text',
+        ));
+    }
+
     // ヘッダーセクションを追加
     $wp_customize->add_section('contentfreaks_header', array(
         'title' => 'ContentFreaks ヘッダー設定',
