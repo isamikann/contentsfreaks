@@ -53,7 +53,7 @@ get_header(); ?>
                         </div>
                         <div class="mk-data-row">
                             <dt>累計配信</dt>
-                            <dd><?php echo contentfreaks_get_podcast_count(); ?>+ エピソード</dd>
+                            <dd><?php echo contentfreaks_get_podcast_count(); ?> エピソード</dd>
                         </div>
                         <div class="mk-data-row">
                             <dt>プラットフォーム</dt>
@@ -64,28 +64,28 @@ get_header(); ?>
                 <div class="mk-overview-platforms">
                     <a href="<?php echo esc_url(CONTENTFREAKS_SPOTIFY_URL); ?>" target="_blank" rel="noopener" class="mk-platform-card">
                         <span class="mk-pf-name">Spotify</span>
-                        <span class="mk-pf-number"><?php echo esc_html(get_theme_mod('mk_spotify_followers', '300')); ?>+</span>
+                        <span class="mk-pf-number"><?php echo esc_html(get_theme_mod('mk_spotify_followers', '300')); ?></span>
                         <span class="mk-pf-label">フォロワー</span>
                     </a>
                     <a href="<?php echo esc_url(CONTENTFREAKS_APPLE_URL); ?>" target="_blank" rel="noopener" class="mk-platform-card">
                         <span class="mk-pf-name">Apple Podcasts</span>
-                        <span class="mk-pf-number"><?php echo esc_html(get_theme_mod('mk_apple_followers', '150')); ?>+</span>
+                        <span class="mk-pf-number"><?php echo esc_html(get_theme_mod('mk_apple_followers', '150')); ?></span>
                         <span class="mk-pf-label">フォロワー</span>
                     </a>
                     <a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" target="_blank" rel="noopener" class="mk-platform-card">
                         <span class="mk-pf-name">YouTube</span>
-                        <span class="mk-pf-number"><?php echo esc_html(get_theme_mod('mk_youtube_subscribers', '900')); ?>+</span>
+                        <span class="mk-pf-number"><?php echo esc_html(get_theme_mod('mk_youtube_subscribers', '900')); ?></span>
                         <span class="mk-pf-label">登録者</span>
                     </a>
                     <div class="mk-platform-card mk-platform-total">
                         <span class="mk-pf-name">合計</span>
-                        <span class="mk-pf-number"><?php echo esc_html(get_option('contentfreaks_listener_count', '1500')); ?>+</span>
+                        <span class="mk-pf-number"><?php echo esc_html(get_option('contentfreaks_listener_count', '1500')); ?></span>
                         <span class="mk-pf-label">総フォロワー</span>
                     </div>
                     <?php $mk_monthly = get_theme_mod('mk_monthly_plays', ''); if ($mk_monthly) : ?>
                     <div class="mk-platform-card mk-platform-monthly">
                         <span class="mk-pf-name">月間再生数</span>
-                        <span class="mk-pf-number"><?php echo esc_html($mk_monthly); ?>+</span>
+                        <span class="mk-pf-number"><?php echo esc_html($mk_monthly); ?></span>
                         <span class="mk-pf-label">回</span>
                     </div>
                     <?php endif; ?>
