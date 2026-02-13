@@ -29,10 +29,6 @@ get_header(); ?>
             <p class="podcast-hero-description">
                 <?php echo esc_html(get_theme_mod('podcast_description', '「コンテンツフリークス」は、大学時代からの友人2人で「いま気になる」注目のエンタメコンテンツを熱く語るポッドキャスト')); ?>
             </p>
-            
-            <div class="podcast-hero-platforms">
-                <?php echo do_shortcode('[podcast_platforms]'); ?>
-            </div>
         </div>
     </section>
 

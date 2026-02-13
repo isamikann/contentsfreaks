@@ -95,57 +95,6 @@
     max-width: 480px;
 }
 
-.podcast-hero-platforms {
-    margin-top: 0.25rem;
-}
-
-/* ヒーロー内プラットフォームリンク - 控えめなテキストリンク */
-.podcast-hero-platforms .platforms-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.25rem 1rem;
-    margin-top: 0;
-}
-
-.podcast-hero-platforms .platform-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.25rem 0;
-    background: none;
-    border: none;
-    border-radius: 0;
-    text-decoration: none;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.8rem;
-    font-weight: 500;
-    transition: color 0.2s ease;
-    min-height: auto;
-    flex-direction: row;
-}
-
-.podcast-hero-platforms .platform-link:hover {
-    color: #fff;
-    text-decoration: underline;
-    background: none;
-    border: none;
-    transform: none;
-}
-
-.podcast-hero-platforms .platform-separator {
-    color: rgba(255, 255, 255, 0.3);
-    font-size: 0.75rem;
-    user-select: none;
-}
-
-.podcast-hero-platforms .platform-name {
-    font-size: 0.8rem;
-    font-weight: 500;
-    color: inherit;
-    margin: 0;
-}
-
 /* ヒーローCTA */
 .podcast-hero-cta {
     margin-top: 2rem;
