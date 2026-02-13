@@ -195,7 +195,7 @@
 
     /* プラットフォームセクション */
     .podcast-platforms-section {
-        padding: 4rem 0;
+        padding: 3.5rem 0;
         background: var(--platforms-bg);
         position: relative;
     }
@@ -211,7 +211,7 @@
     }
     
     .platforms-container {
-        max-width: 960px;
+        max-width: 860px;
         margin: 0 auto;
         padding: 0 1rem;
         position: relative;
@@ -496,13 +496,13 @@
     
     /* ホストセクション - 新しい色彩フロー適用 */
     .hosts-section {
-        padding: 4rem 0;
+        padding: 3.5rem 0;
         background: var(--hosts-bg);
         color: var(--hosts-text);
     }
     
     .hosts-container {
-        max-width: 960px;
+        max-width: 860px;
         margin: 0 auto;
         padding: 0 1rem;
     }
@@ -563,55 +563,20 @@
     }
     
     @media (max-width: 768px) {
-        .podcast-platforms-section {
-            padding: 2.5rem 0;
-        }
-        
-        .platforms-header {
-            margin-bottom: 2rem;
-        }
-        
-        .latest-episode-section {
-            padding: 2.5rem 0;
-        }
-        
-        .latest-episode-header {
-            margin-bottom: 2rem;
-        }
-        
-        .hosts-section {
-            padding: 2rem 0;
-        }
-        
-        .hosts-header {
-            margin-bottom: 2rem;
-        }
-        
-        .episodes-section {
-            padding: 2.5rem 0;
-        }
-        
-        .episodes-header {
-            margin-bottom: 2rem;
-        }
-        
-        /* エピソード一覧カードの日付フォントサイズ調整 */
-        .episodes-section .episode-date {
-            font-size: 0.75rem;
-        }
-        
-        .newsletter-section {
-            padding: 2.5rem 0;
-        }
-        
-        .newsletter-header {
-            margin-bottom: 2rem;
-        }
-        
+        .podcast-platforms-section,
+        .latest-episode-section,
+        .hosts-section,
+        .episodes-section,
+        .newsletter-section,
         .testimonials-section {
             padding: 2.5rem 0;
         }
-        
+
+        .platforms-header,
+        .latest-episode-header,
+        .hosts-header,
+        .episodes-header,
+        .newsletter-header,
         .testimonials-header {
             margin-bottom: 2rem;
         }
@@ -634,7 +599,7 @@
     
     /* エピソード一覧セクション */
     .episodes-section {
-        padding: 4rem 0;
+        padding: 3.5rem 0;
         background: var(--episodes-grid-bg);
     }
     
@@ -662,13 +627,13 @@
     
     /* 最新エピソードセクション */
     .latest-episode-section {
-        padding: 4rem 0;
+        padding: 3.5rem 0;
         background: var(--latest-episode-bg);
         position: relative;
     }
     
     .latest-episode-container {
-        max-width: 960px;
+        max-width: 860px;
         margin: 0 auto;
         padding: 0 2rem;
     }
@@ -681,10 +646,7 @@
     .latest-episode-header h2 {
         font-size: var(--page-title);
         font-weight: 900;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: var(--color-text-primary, #1a202c);
         margin-bottom: 1rem;
     }
     
@@ -706,9 +668,8 @@
         top: 0;
         left: 0;
         right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
-        animation: shimmer 3s infinite ease-in-out;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent, #ff6b35), var(--primary, #f7ff0b));
     }
     
     @keyframes shimmer {
@@ -1093,7 +1054,7 @@
     
     /* テスティモニアルセクション - 新しい色彩フロー適用 */
     .testimonials-section {
-        padding: 4rem 0;
+        padding: 3.5rem 0;
         background: var(--testimonials-bg);
         color: var(--testimonials-text);
         position: relative;
@@ -1111,7 +1072,7 @@
     }
     
     .testimonials-container {
-        max-width: 960px;
+        max-width: 860px;
         margin: 0 auto;
         padding: 0 1rem;
         position: relative;
@@ -1281,8 +1242,8 @@
 
 /* ===== 今週のピックアップ ===== */
 .pickup-section {
-    padding: 4rem 2rem;
-    max-width: 960px;
+    padding: 3.5rem 2rem;
+    max-width: 860px;
     margin: 0 auto;
 }
 
@@ -1478,19 +1439,20 @@
         max-width: 860px;
     }
 
-    /* セクション間の余白 */
+    /* セクション間の余白 - 統一 */
     .latest-episode-section,
     .episodes-section,
     .hosts-section,
-    .testimonials-section {
-        padding: 4rem 0;
+    .testimonials-section,
+    .podcast-platforms-section {
+        padding: 3.5rem 0;
     }
 
     /* エピソードグリッド: 3列固定 */
     .episodes-section .episodes-grid {
         grid-template-columns: repeat(3, 1fr);
         gap: 1.5rem;
-        max-width: 960px;
+        max-width: 860px;
         margin: 2rem auto 0;
     }
 }

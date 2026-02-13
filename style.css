@@ -179,23 +179,23 @@ Version: 2.0.0
 
     /* フロントページ専用カラー - 新色彩フロー */
     /* ヒーローセクション（現状維持） */
-    --front-hero-bg: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    --front-hero-bg: linear-gradient(160deg, #0f0f1a 0%, #1a1a2e 40%, #16213e 100%);
     --front-hero-text: var(--white);
     --front-hero-title-gradient: linear-gradient(45deg, #ffffff, #f0f8ff);
-    --front-hero-artwork-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    --front-hero-artwork-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 
-    /* 最新エピソードセクション - ヒーローから自然に続く薄い紫〜白 */
-    --latest-episode-bg: linear-gradient(135deg, #f3f0ff 0%, #ffffff 100%);
+    /* 最新エピソードセクション - ニュートラルな薄いグレー〜白 */
+    --latest-episode-bg: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
     --latest-episode-card-bg: var(--white);
-    --latest-episode-card-shadow: 0 20px 60px rgba(102, 126, 234, 0.08);
-    --latest-episode-badge-bg: linear-gradient(45deg, #8b7cf8, #667eea);
-    --latest-episode-title: #4c5270;
-    --latest-episode-text: #6b7088;
-    --latest-episode-btn-primary: linear-gradient(45deg, #667eea, #764ba2);
-    --latest-episode-btn-primary-shadow: rgba(102, 126, 234, 0.25);
-    --latest-episode-btn-secondary: rgba(102, 126, 234, 0.08);
-    --latest-episode-btn-secondary-text: #667eea;
-    --latest-episode-title-gradient: linear-gradient(135deg, #667eea, #764ba2);
+    --latest-episode-card-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+    --latest-episode-badge-bg: linear-gradient(45deg, #ff6b35, #f7931e);
+    --latest-episode-title: #1a202c;
+    --latest-episode-text: #4a5568;
+    --latest-episode-btn-primary: linear-gradient(45deg, #ff6b35, #f7931e);
+    --latest-episode-btn-primary-shadow: rgba(255, 107, 53, 0.25);
+    --latest-episode-btn-secondary: rgba(255, 107, 53, 0.08);
+    --latest-episode-btn-secondary-text: #ff6b35;
+    --latest-episode-title-gradient: linear-gradient(135deg, #ff6b35, #f7931e);
 
     /* 最近のエピソードセクション - 白ベース+薄いブルーグレー */
     --recent-episodes-bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
