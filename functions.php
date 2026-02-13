@@ -90,13 +90,13 @@ function contentfreaks_re_extract_all_tags() {
 }
 
 /**
- * 統一された管理画面
+ * 統一された管理画面（タブ式）
  */
 function contentfreaks_unified_admin_page() {
-    // 処理結果メッセージ
     $messages = array();
-    
-    // 手動同期処理
+    $current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'dashboard';
+
+    // ========== POST ハンドラ: ツール ==========
     if (isset($_POST['manual_sync']) && wp_verify_nonce($_POST['sync_nonce'], 'contentfreaks_sync')) {
         $result = contentfreaks_sync_rss_to_posts();
         if (!empty($result['errors'])) {
@@ -104,40 +104,65 @@ function contentfreaks_unified_admin_page() {
         } else {
             $messages[] = array('type' => 'success', 'message' => $result['synced'] . ' 件のエピソードを同期しました！');
         }
+        $current_tab = 'tools';
     }
-    
-    // タグ再抽出処理
+
     if (isset($_POST['re_extract_tags']) && wp_verify_nonce($_POST['re_extract_tags_nonce'], 'contentfreaks_re_extract_tags')) {
         $processed = contentfreaks_re_extract_all_tags();
         $messages[] = array('type' => 'success', 'message' => $processed . ' 件の投稿からタグを再抽出しました！');
+        $current_tab = 'tools';
     }
-    
-    // キャッシュクリア処理
+
     if (isset($_POST['clear_cache']) && wp_verify_nonce($_POST['clear_cache_nonce'], 'contentfreaks_clear_cache')) {
         contentfreaks_clear_rss_cache();
         $messages[] = array('type' => 'success', 'message' => 'RSSキャッシュをクリアしました！');
+        $current_tab = 'tools';
     }
-    
-    // リライトルール更新処理
+
     if (isset($_POST['flush_rewrite_rules']) && wp_verify_nonce($_POST['flush_rewrite_rules_nonce'], 'contentfreaks_flush_rewrite_rules')) {
-        // 強制的にリライトルールを更新
         delete_option('rewrite_rules');
         contentfreaks_episodes_rewrite_rules();
         flush_rewrite_rules();
-        delete_option('contentfreaks_rewrite_rules_flushed'); // 次回の自動更新を有効化
-        $messages[] = array('type' => 'success', 'message' => 'リライトルールを強制更新しました！エピソードページが正常に表示されるはずです。');
+        delete_option('contentfreaks_rewrite_rules_flushed');
+        $messages[] = array('type' => 'success', 'message' => 'リライトルールを強制更新しました！');
+        $current_tab = 'tools';
     }
-    
-    // リスナー数更新処理
-    if (isset($_POST['update_listener_count']) && wp_verify_nonce($_POST['listener_count_nonce'], 'contentfreaks_listener_count_nonce')) {
-        $listener_count = sanitize_text_field($_POST['listener_count']);
-        update_option('contentfreaks_listener_count', $listener_count);
-        $messages[] = array('type' => 'success', 'message' => 'リスナー数を ' . $listener_count . ' に更新しました！');
+
+    // ========== POST ハンドラ: 基本設定 ==========
+    if (isset($_POST['save_basic_settings']) && wp_verify_nonce($_POST['basic_settings_nonce'], 'contentfreaks_basic_settings')) {
+        set_theme_mod('podcast_name', sanitize_text_field($_POST['podcast_name']));
+        set_theme_mod('podcast_description', sanitize_textarea_field($_POST['podcast_description']));
+        update_option('contentfreaks_pickup_episodes', sanitize_text_field($_POST['contentfreaks_pickup_episodes']));
+        $messages[] = array('type' => 'success', 'message' => '基本設定を保存しました！');
+        $current_tab = 'settings';
     }
-    
-    // 統計情報の取得
+
+    // ========== POST ハンドラ: ホスト設定 ==========
+    if (isset($_POST['save_host_settings']) && wp_verify_nonce($_POST['host_settings_nonce'], 'contentfreaks_host_settings')) {
+        foreach (array('host1', 'host2') as $host) {
+            set_theme_mod($host . '_name', sanitize_text_field($_POST[$host . '_name']));
+            set_theme_mod($host . '_role', sanitize_text_field($_POST[$host . '_role']));
+            set_theme_mod($host . '_bio', sanitize_textarea_field($_POST[$host . '_bio']));
+            set_theme_mod($host . '_twitter', esc_url_raw($_POST[$host . '_twitter']));
+            set_theme_mod($host . '_youtube', esc_url_raw($_POST[$host . '_youtube']));
+        }
+        $messages[] = array('type' => 'success', 'message' => 'ホスト設定を保存しました！');
+        $current_tab = 'hosts';
+    }
+
+    // ========== POST ハンドラ: メディアキット ==========
+    if (isset($_POST['save_mediakit_settings']) && wp_verify_nonce($_POST['mediakit_nonce'], 'contentfreaks_mediakit')) {
+        update_option('contentfreaks_listener_count', sanitize_text_field($_POST['listener_count']));
+        $mk_keys = array('mk_spotify_followers', 'mk_apple_followers', 'mk_youtube_subscribers', 'mk_monthly_plays', 'mk_frequency', 'mk_since', 'mk_amazon_tag');
+        foreach ($mk_keys as $key) {
+            set_theme_mod($key, sanitize_text_field($_POST[$key]));
+        }
+        $messages[] = array('type' => 'success', 'message' => 'メディアキット設定を保存しました！');
+        $current_tab = 'mediakit';
+    }
+
+    // ========== 統計情報 ==========
     $current_rss_count = contentfreaks_get_rss_episode_count();
-    $post_count = wp_count_posts()->publish;
     $podcast_posts = get_posts(array(
         'meta_key' => 'is_podcast_episode',
         'meta_value' => '1',
@@ -149,291 +174,364 @@ function contentfreaks_unified_admin_page() {
     $last_sync_count = get_option('contentfreaks_last_sync_count', 0);
     $last_sync_errors = get_option('contentfreaks_last_sync_errors', array());
     $total_tags = wp_count_terms('post_tag');
-    $listener_count = get_option('contentfreaks_listener_count', 1500);
-    
+    $page_url = admin_url('tools.php?page=contentfreaks-podcast-management');
+
+    $tabs = array(
+        'dashboard' => '📊 ダッシュボード',
+        'settings'  => '⚙️ 基本設定',
+        'hosts'     => '👥 ホスト設定',
+        'mediakit'  => '📈 メディアキット',
+        'tools'     => '🔧 ツール',
+    );
     ?>
     <div class="wrap">
-        <h1>ポッドキャスト管理</h1>
-        
-        <?php
-        // メッセージ表示
-        foreach ($messages as $message) {
-            echo '<div class="notice notice-' . esc_attr($message['type']) . '"><p>' . esc_html($message['message']) . '</p></div>';
-        }
-        ?>
-        
-        <p>RSSフィードからエピソードを投稿として自動同期し、タイトルの『』内テキストを自動タグ化します。</p>
-        
-        <!-- 同期状況 -->
-        <div class="postbox" style="margin-bottom: 20px;">
-            <h2 class="hndle">📊 同期状況</h2>
-            <div class="inside">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                    <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2196F3;">
-                        <h4 style="margin: 0 0 10px 0; color: #2196F3;">RSSエピソード数</h4>
-                        <p style="font-size: 24px; font-weight: bold; margin: 0; color: #333;"><?php echo $current_rss_count; ?> 件</p>
-                    </div>
-                    <div style="background: #f0fff0; padding: 15px; border-radius: 8px; border-left: 4px solid #4CAF50;">
-                        <h4 style="margin: 0 0 10px 0; color: #4CAF50;">ポッドキャスト投稿数</h4>
-                        <p style="font-size: 24px; font-weight: bold; margin: 0; color: #333;"><?php echo $podcast_post_count; ?> 件</p>
-                    </div>
-                    <div style="background: #fff8f0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
-                        <h4 style="margin: 0 0 10px 0; color: #ff9800;">登録済みタグ数</h4>
-                        <p style="font-size: 24px; font-weight: bold; margin: 0; color: #333;"><?php echo $total_tags; ?> 件</p>
-                    </div>
+        <h1>🎙️ ContentFreaks 管理</h1>
+
+        <?php foreach ($messages as $msg): ?>
+            <div class="notice notice-<?php echo esc_attr($msg['type']); ?> is-dismissible">
+                <p><?php echo esc_html($msg['message']); ?></p>
+            </div>
+        <?php endforeach; ?>
+
+        <nav class="nav-tab-wrapper">
+            <?php foreach ($tabs as $tab_key => $tab_label): ?>
+                <a href="<?php echo esc_url($page_url . '&tab=' . $tab_key); ?>"
+                   class="nav-tab <?php echo $current_tab === $tab_key ? 'nav-tab-active' : ''; ?>">
+                    <?php echo esc_html($tab_label); ?>
+                </a>
+            <?php endforeach; ?>
+        </nav>
+
+        <div style="margin-top: 20px;">
+
+        <?php if ($current_tab === 'dashboard'): ?>
+            <!-- ===== ダッシュボード ===== -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div style="background: #f0f8ff; padding: 15px; border-radius: 8px; border-left: 4px solid #2196F3;">
+                    <h4 style="margin: 0 0 10px 0; color: #2196F3;">RSSエピソード数</h4>
+                    <p style="font-size: 24px; font-weight: bold; margin: 0;"><?php echo esc_html($current_rss_count); ?> 件</p>
                 </div>
-                
-                <div style="background: #fff; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
-                    <h4 style="margin: 0 0 10px 0;">最新の同期情報</h4>
-                    <p><strong>最後の同期:</strong> <?php echo $last_sync_time ? date('Y年n月j日 H:i:s', strtotime($last_sync_time)) : '未実行'; ?></p>
-                    <p><strong>同期/更新件数:</strong> <?php echo $last_sync_count; ?>件</p>
+                <div style="background: #f0fff0; padding: 15px; border-radius: 8px; border-left: 4px solid #4CAF50;">
+                    <h4 style="margin: 0 0 10px 0; color: #4CAF50;">ポッドキャスト投稿数</h4>
+                    <p style="font-size: 24px; font-weight: bold; margin: 0;"><?php echo esc_html($podcast_post_count); ?> 件</p>
+                </div>
+                <div style="background: #fff8f0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
+                    <h4 style="margin: 0 0 10px 0; color: #ff9800;">登録済みタグ数</h4>
+                    <p style="font-size: 24px; font-weight: bold; margin: 0;"><?php echo esc_html($total_tags); ?> 件</p>
+                </div>
+            </div>
+
+            <div class="postbox" style="margin-bottom: 20px;">
+                <h2 class="hndle">最新の同期情報</h2>
+                <div class="inside">
+                    <p><strong>最後の同期:</strong> <?php echo $last_sync_time ? esc_html(date('Y年n月j日 H:i:s', strtotime($last_sync_time))) : '未実行'; ?></p>
+                    <p><strong>同期/更新件数:</strong> <?php echo esc_html($last_sync_count); ?>件</p>
                     <?php if (!empty($last_sync_errors)): ?>
-                        <p><strong>エラー:</strong> <span style="color: #d63638;"><?php echo count($last_sync_errors); ?>件</span></p>
+                        <div style="background: #ffeaa7; padding: 12px; border-left: 4px solid #fdcb6e; border-radius: 4px; margin-top: 10px;">
+                            <h4 style="margin: 0 0 8px 0; color: #d63638;">⚠️ 同期エラー (<?php echo count($last_sync_errors); ?>件)</h4>
+                            <ul style="margin: 0;">
+                                <?php foreach ($last_sync_errors as $error): ?>
+                                    <li><?php echo esc_html($error); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
                     <?php endif; ?>
                 </div>
             </div>
-        </div>
-        
-        <!-- 操作ボタン -->
-        <div class="postbox" style="margin-bottom: 20px;">
-            <h2 class="hndle">🔧 操作メニュー</h2>
-            <div class="inside">
-                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <!-- 手動同期ボタン -->
-                    <form method="post" style="display: inline;">
-                        <?php wp_nonce_field('contentfreaks_sync', 'sync_nonce'); ?>
-                        <input type="submit" name="manual_sync" class="button-primary" value="📥 手動同期実行" />
-                    </form>
-                    
-                    <!-- タグ再抽出ボタン -->
-                    <form method="post" style="display: inline;">
-                        <?php wp_nonce_field('contentfreaks_re_extract_tags', 're_extract_tags_nonce'); ?>
-                        <input type="submit" name="re_extract_tags" class="button-secondary" value="🏷️ タグ再抽出" />
-                    </form>
-                    
-                    <!-- キャッシュクリアボタン -->
-                    <form method="post" style="display: inline;">
-                        <?php wp_nonce_field('contentfreaks_clear_cache', 'clear_cache_nonce'); ?>
-                        <input type="submit" name="clear_cache" class="button-secondary" value="🗑️ キャッシュクリア" />
-                    </form>
-                    
-                    <!-- リライトルール更新ボタン -->
-                    <form method="post" style="display: inline;">
-                        <?php wp_nonce_field('contentfreaks_flush_rewrite_rules', 'flush_rewrite_rules_nonce'); ?>
-                        <input type="submit" name="flush_rewrite_rules" class="button-secondary" value="🔄 リライトルール更新" />
-                    </form>
-                    
-                    <!-- RSSテストボタン -->
-                    <form method="post" style="display: inline;">
-                        <?php wp_nonce_field('contentfreaks_test_rss', 'test_rss_nonce'); ?>
-                        <input type="submit" name="test_rss" class="button-secondary" value="🔍 RSS接続テスト" />
-                    </form>
-                    
-                    <!-- URLテストボタン -->
-                    <form method="post" style="display: inline;">
-                        <?php wp_nonce_field('contentfreaks_test_url', 'test_url_nonce'); ?>
-                        <input type="submit" name="test_url" class="button-secondary" value="🌐 URL構造テスト" />
+
+            <div class="postbox" style="margin-bottom: 20px;">
+                <h2 class="hndle">📝 最近の更新記録</h2>
+                <div class="inside">
+                    <?php contentfreaks_display_recent_updates(); ?>
+                </div>
+            </div>
+
+            <div class="postbox">
+                <h2 class="hndle">📋 更新ログ</h2>
+                <div class="inside">
+                    <?php contentfreaks_display_update_logs(); ?>
+                </div>
+            </div>
+
+        <?php elseif ($current_tab === 'settings'): ?>
+            <!-- ===== 基本設定 ===== -->
+            <div class="postbox">
+                <h2 class="hndle">ポッドキャスト基本情報</h2>
+                <div class="inside">
+                    <form method="post">
+                        <?php wp_nonce_field('contentfreaks_basic_settings', 'basic_settings_nonce'); ?>
+                        <table class="form-table">
+                            <tr>
+                                <th scope="row"><label for="podcast_name">ポッドキャスト名</label></th>
+                                <td>
+                                    <input type="text" id="podcast_name" name="podcast_name" class="regular-text"
+                                           value="<?php echo esc_attr(get_theme_mod('podcast_name', 'コンテンツフリークス')); ?>" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="podcast_description">ポッドキャスト説明</label></th>
+                                <td>
+                                    <textarea id="podcast_description" name="podcast_description" rows="4" class="large-text"><?php echo esc_textarea(get_theme_mod('podcast_description', '')); ?></textarea>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="contentfreaks_pickup_episodes">ピックアップ投稿ID</label></th>
+                                <td>
+                                    <input type="text" id="contentfreaks_pickup_episodes" name="contentfreaks_pickup_episodes" class="regular-text"
+                                           value="<?php echo esc_attr(get_option('contentfreaks_pickup_episodes', '')); ?>" />
+                                    <p class="description">表示したい投稿IDをカンマ区切りで入力（例: 123,456,789）。空にするとセクション非表示。</p>
+                                </td>
+                            </tr>
+                        </table>
+                        <p class="description" style="margin-top: 10px;">
+                            💡 アートワーク画像・プラットフォームアイコン・ヘッダーアイコンは
+                            <a href="<?php echo esc_url(admin_url('customize.php?autofocus[section]=contentfreaks_podcast_settings')); ?>">外観 → カスタマイズ</a>で設定できます。
+                        </p>
+                        <?php submit_button('設定を保存', 'primary', 'save_basic_settings'); ?>
                     </form>
                 </div>
             </div>
-        </div>
-        
-        <!-- リスナー数設定 -->
-        <div class="postbox" style="margin-bottom: 20px;">
-            <h2 class="hndle">👥 リスナー数設定</h2>
-            <div class="inside">
-                <form method="post">
-                    <?php wp_nonce_field('contentfreaks_listener_count_nonce', 'listener_count_nonce'); ?>
-                    <table class="form-table">
-                        <tr>
-                            <th scope="row"><label for="listener_count">現在のリスナー数</label></th>
-                            <td>
-                                <input type="number" id="listener_count" name="listener_count" 
-                                       value="<?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>" 
-                                       min="0" step="1" style="width: 150px;" />
-                                <p class="description">フロントページとプロフィールページに表示されるリスナー数を設定します。</p>
-                            </td>
-                        </tr>
-                    </table>
-                    <p class="submit">
-                        <input type="submit" name="update_listener_count" class="button-primary" value="リスナー数を更新" />
-                    </p>
-                </form>
+
+        <?php elseif ($current_tab === 'hosts'): ?>
+            <!-- ===== ホスト設定 ===== -->
+            <form method="post">
+                <?php wp_nonce_field('contentfreaks_host_settings', 'host_settings_nonce'); ?>
+                <?php
+                $host_configs = array(
+                    'host1' => array('title' => 'ホスト 1', 'default_role' => 'メインホスト'),
+                    'host2' => array('title' => 'ホスト 2', 'default_role' => 'コホスト'),
+                );
+                foreach ($host_configs as $host_key => $host_config): ?>
+                    <div class="postbox" style="margin-bottom: 20px;">
+                        <h2 class="hndle"><?php echo esc_html($host_config['title']); ?></h2>
+                        <div class="inside">
+                            <table class="form-table">
+                                <tr>
+                                    <th scope="row"><label for="<?php echo esc_attr($host_key); ?>_name">名前</label></th>
+                                    <td><input type="text" id="<?php echo esc_attr($host_key); ?>_name" name="<?php echo esc_attr($host_key); ?>_name" class="regular-text" value="<?php echo esc_attr(get_theme_mod($host_key . '_name', '')); ?>" /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label for="<?php echo esc_attr($host_key); ?>_role">役職</label></th>
+                                    <td><input type="text" id="<?php echo esc_attr($host_key); ?>_role" name="<?php echo esc_attr($host_key); ?>_role" class="regular-text" value="<?php echo esc_attr(get_theme_mod($host_key . '_role', $host_config['default_role'])); ?>" /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label for="<?php echo esc_attr($host_key); ?>_bio">紹介文</label></th>
+                                    <td><textarea id="<?php echo esc_attr($host_key); ?>_bio" name="<?php echo esc_attr($host_key); ?>_bio" rows="3" class="large-text"><?php echo esc_textarea(get_theme_mod($host_key . '_bio', '')); ?></textarea></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label for="<?php echo esc_attr($host_key); ?>_twitter">Twitter URL</label></th>
+                                    <td><input type="url" id="<?php echo esc_attr($host_key); ?>_twitter" name="<?php echo esc_attr($host_key); ?>_twitter" class="regular-text" value="<?php echo esc_url(get_theme_mod($host_key . '_twitter', '')); ?>" /></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><label for="<?php echo esc_attr($host_key); ?>_youtube">YouTube URL</label></th>
+                                    <td><input type="url" id="<?php echo esc_attr($host_key); ?>_youtube" name="<?php echo esc_attr($host_key); ?>_youtube" class="regular-text" value="<?php echo esc_url(get_theme_mod($host_key . '_youtube', '')); ?>" /></td>
+                                </tr>
+                            </table>
+                            <p class="description">💡 プロフィール画像は<a href="<?php echo esc_url(admin_url('customize.php?autofocus[section]=contentfreaks_podcast_settings')); ?>">外観 → カスタマイズ</a>で設定できます。</p>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+                <?php submit_button('ホスト設定を保存', 'primary', 'save_host_settings'); ?>
+            </form>
+
+        <?php elseif ($current_tab === 'mediakit'): ?>
+            <!-- ===== メディアキット ===== -->
+            <div class="postbox">
+                <h2 class="hndle">数値・実績設定</h2>
+                <div class="inside">
+                    <form method="post">
+                        <?php wp_nonce_field('contentfreaks_mediakit', 'mediakit_nonce'); ?>
+                        <table class="form-table">
+                            <tr>
+                                <th scope="row"><label for="listener_count">リスナー数</label></th>
+                                <td>
+                                    <input type="number" id="listener_count" name="listener_count" min="0"
+                                           value="<?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>" style="width: 150px;" />
+                                    <p class="description">フロントページとプロフィールページに表示されます。</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="mk_spotify_followers">Spotify フォロワー数</label></th>
+                                <td><input type="text" id="mk_spotify_followers" name="mk_spotify_followers" class="regular-text" value="<?php echo esc_attr(get_theme_mod('mk_spotify_followers', '300')); ?>" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="mk_apple_followers">Apple Podcasts フォロワー数</label></th>
+                                <td><input type="text" id="mk_apple_followers" name="mk_apple_followers" class="regular-text" value="<?php echo esc_attr(get_theme_mod('mk_apple_followers', '150')); ?>" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="mk_youtube_subscribers">YouTube 登録者数</label></th>
+                                <td><input type="text" id="mk_youtube_subscribers" name="mk_youtube_subscribers" class="regular-text" value="<?php echo esc_attr(get_theme_mod('mk_youtube_subscribers', '900')); ?>" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="mk_monthly_plays">月間再生数</label></th>
+                                <td>
+                                    <input type="text" id="mk_monthly_plays" name="mk_monthly_plays" class="regular-text" value="<?php echo esc_attr(get_theme_mod('mk_monthly_plays', '')); ?>" />
+                                    <p class="description">空欄で非表示。</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="mk_frequency">配信頻度</label></th>
+                                <td><input type="text" id="mk_frequency" name="mk_frequency" class="regular-text" value="<?php echo esc_attr(get_theme_mod('mk_frequency', '毎週配信')); ?>" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="mk_since">配信開始時期</label></th>
+                                <td><input type="text" id="mk_since" name="mk_since" class="regular-text" value="<?php echo esc_attr(get_theme_mod('mk_since', '2023年')); ?>" /></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="mk_amazon_tag">Amazon アソシエイトタグ</label></th>
+                                <td>
+                                    <input type="text" id="mk_amazon_tag" name="mk_amazon_tag" class="regular-text" value="<?php echo esc_attr(get_theme_mod('mk_amazon_tag', '')); ?>" />
+                                    <p class="description">例: contentsfreaks-22</p>
+                                </td>
+                            </tr>
+                        </table>
+                        <?php submit_button('メディアキット設定を保存', 'primary', 'save_mediakit_settings'); ?>
+                    </form>
+                </div>
             </div>
-        </div>
-        
-        <?php
-        // URLテスト処理
-        if (isset($_POST['test_url']) && wp_verify_nonce($_POST['test_url_nonce'], 'contentfreaks_test_url')) {
-            echo '<div class="postbox" style="margin-bottom: 20px;">';
-            echo '<h2 class="hndle">🌐 URL構造テスト結果</h2>';
-            echo '<div class="inside">';
-            
-            echo '<h4>現在のURL設定</h4>';
-            echo '<ul>';
-            echo '<li><strong>サイトURL:</strong> ' . home_url() . '</li>';
-            echo '<li><strong>エピソードURL:</strong> ' . home_url('/episodes/') . '</li>';
-            echo '<li><strong>パーマリンク構造:</strong> ' . (get_option('permalink_structure') ?: 'デフォルト') . '</li>';
-            echo '</ul>';
-            
-            echo '<h4>リライトルール状態</h4>';
-            $rewrite_rules = get_option('rewrite_rules', array());
-            $episodes_rules = array();
-            foreach ($rewrite_rules as $pattern => $rewrite) {
-                if (strpos($pattern, 'episodes') !== false) {
-                    $episodes_rules[$pattern] = $rewrite;
-                }
-            }
-            
-            if (!empty($episodes_rules)) {
-                echo '<p style="color: green;">✅ エピソード関連のリライトルールが見つかりました:</p>';
+
+        <?php elseif ($current_tab === 'tools'): ?>
+            <!-- ===== ツール ===== -->
+            <div class="postbox" style="margin-bottom: 20px;">
+                <h2 class="hndle">操作メニュー</h2>
+                <div class="inside">
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <form method="post" style="display: inline;">
+                            <?php wp_nonce_field('contentfreaks_sync', 'sync_nonce'); ?>
+                            <input type="submit" name="manual_sync" class="button-primary" value="📥 手動同期実行" />
+                        </form>
+                        <form method="post" style="display: inline;">
+                            <?php wp_nonce_field('contentfreaks_re_extract_tags', 're_extract_tags_nonce'); ?>
+                            <input type="submit" name="re_extract_tags" class="button-secondary" value="🏷️ タグ再抽出" />
+                        </form>
+                        <form method="post" style="display: inline;">
+                            <?php wp_nonce_field('contentfreaks_clear_cache', 'clear_cache_nonce'); ?>
+                            <input type="submit" name="clear_cache" class="button-secondary" value="🗑️ キャッシュクリア" />
+                        </form>
+                        <form method="post" style="display: inline;">
+                            <?php wp_nonce_field('contentfreaks_flush_rewrite_rules', 'flush_rewrite_rules_nonce'); ?>
+                            <input type="submit" name="flush_rewrite_rules" class="button-secondary" value="🔄 リライトルール更新" />
+                        </form>
+                        <form method="post" style="display: inline;">
+                            <?php wp_nonce_field('contentfreaks_test_rss', 'test_rss_nonce'); ?>
+                            <input type="submit" name="test_rss" class="button-secondary" value="🔍 RSS接続テスト" />
+                        </form>
+                        <form method="post" style="display: inline;">
+                            <?php wp_nonce_field('contentfreaks_test_url', 'test_url_nonce'); ?>
+                            <input type="submit" name="test_url" class="button-secondary" value="🌐 URL構造テスト" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <?php
+            // URL構造テスト結果
+            if (isset($_POST['test_url']) && wp_verify_nonce($_POST['test_url_nonce'], 'contentfreaks_test_url')) {
+                echo '<div class="postbox" style="margin-bottom: 20px;">';
+                echo '<h2 class="hndle">🌐 URL構造テスト結果</h2>';
+                echo '<div class="inside">';
+                echo '<h4>現在のURL設定</h4>';
                 echo '<ul>';
-                foreach ($episodes_rules as $pattern => $rewrite) {
-                    echo '<li><code>' . esc_html($pattern) . '</code> → <code>' . esc_html($rewrite) . '</code></li>';
-                }
+                echo '<li><strong>サイトURL:</strong> ' . esc_html(home_url()) . '</li>';
+                echo '<li><strong>エピソードURL:</strong> ' . esc_html(home_url('/episodes/')) . '</li>';
+                echo '<li><strong>パーマリンク構造:</strong> ' . esc_html(get_option('permalink_structure') ?: 'デフォルト') . '</li>';
                 echo '</ul>';
-            } else {
-                echo '<p style="color: red;">❌ エピソード関連のリライトルールが見つかりません。</p>';
-            }
-            
-            echo '<h4>ファイル・ページ存在チェック</h4>';
-            echo '<ul>';
-            echo '<li><strong>page-episodes.php:</strong> ' . (file_exists(get_stylesheet_directory() . '/page-episodes.php') ? '✅ 存在' : '❌ 不存在') . '</li>';
-            echo '<li><strong>episodes固定ページ:</strong> ' . (get_page_by_path('episodes') ? '✅ 存在' : '❌ 不存在') . '</li>';
-            echo '</ul>';
-            
-            echo '</div>';
-            echo '</div>';
-        }
-        ?>
-        
-        <?php
-        // RSSテスト処理
-        if (isset($_POST['test_rss']) && wp_verify_nonce($_POST['test_rss_nonce'], 'contentfreaks_test_rss')) {
-            echo '<div class="postbox" style="margin-bottom: 20px;">';
-            echo '<h2 class="hndle">🔍 RSSフィードテスト結果</h2>';
-            echo '<div class="inside">';
-            
-            // キャッシュをクリアしてから新規取得
-            contentfreaks_clear_rss_cache();
-            $episodes = contentfreaks_get_rss_episodes(5);
-            
-            if (!empty($episodes)) {
-                echo '<p style="color: green;">✅ RSS取得成功！ ' . count($episodes) . ' 件のエピソードを取得</p>';
-                echo '<div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f9f9f9;">';
-                
-                foreach ($episodes as $episode) {
-                    echo '<div style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; border-left: 4px solid #2196F3;">';
-                    echo '<h4 style="margin: 0 0 10px 0;">' . esc_html($episode['title']) . '</h4>';
-                    
-                    // サムネイル情報
-                    if (!empty($episode['thumbnail'])) {
-                        echo '<p>🖼️ サムネイル: <a href="' . esc_url($episode['thumbnail']) . '" target="_blank">画像を確認</a></p>';
-                    } else {
-                        echo '<p>❌ サムネイル: 見つかりません</p>';
+                echo '<h4>リライトルール状態</h4>';
+                $rewrite_rules = get_option('rewrite_rules', array());
+                $episodes_rules = array();
+                if (is_array($rewrite_rules)) {
+                    foreach ($rewrite_rules as $pattern => $rewrite) {
+                        if (strpos($pattern, 'episodes') !== false) {
+                            $episodes_rules[$pattern] = $rewrite;
+                        }
                     }
-                    
-                    // タグプレビュー
-                    preg_match_all('/『([^』]+)』/', $episode['title'], $tag_matches);
-                    if (!empty($tag_matches[1])) {
-                        echo '<p>🏷️ タグ候補: <span style="color: #0073aa;">' . implode(', ', $tag_matches[1]) . '</span></p>';
-                    }
-                    
-                    echo '<p>📅 日付: ' . esc_html($episode['formatted_date']) . '</p>';
-                    echo '<p>🎵 音声URL: ' . ($episode['audio_url'] ? '✅ あり' : '❌ なし') . '</p>';
-                    echo '<p>⏱️ 再生時間: ' . ($episode['duration'] ? esc_html($episode['duration']) : '不明') . '</p>';
-                    
-                    if (!empty($episode['guid'])) {
-                        echo '<p>🔗 GUID: <code>' . esc_html($episode['guid']) . '</code></p>';
-                    }
-                    
-                    echo '</div>';
                 }
-                
-                echo '</div>';
-            } else {
-                echo '<p style="color: red;">❌ エラー: エピソードを取得できませんでした</p>';
+                if (!empty($episodes_rules)) {
+                    echo '<p style="color: green;">✅ エピソード関連のリライトルールが見つかりました:</p><ul>';
+                    foreach ($episodes_rules as $pattern => $rewrite) {
+                        echo '<li><code>' . esc_html($pattern) . '</code> → <code>' . esc_html($rewrite) . '</code></li>';
+                    }
+                    echo '</ul>';
+                } else {
+                    echo '<p style="color: red;">❌ エピソード関連のリライトルールが見つかりません。</p>';
+                }
+                echo '<h4>ファイル・ページ存在チェック</h4><ul>';
+                echo '<li><strong>page-episodes.php:</strong> ' . (file_exists(get_stylesheet_directory() . '/page-episodes.php') ? '✅ 存在' : '❌ 不存在') . '</li>';
+                echo '<li><strong>episodes固定ページ:</strong> ' . (get_page_by_path('episodes') ? '✅ 存在' : '❌ 不存在') . '</li>';
+                echo '</ul></div></div>';
             }
-            
-            echo '</div>';
-            echo '</div>';
-        }
-        ?>
-        
-        <?php if (!empty($last_sync_errors)): ?>
-        <!-- エラー情報 -->
-        <div class="postbox" style="margin-bottom: 20px;">
-            <h2 class="hndle">⚠️ 同期エラー</h2>
-            <div class="inside">
-                <div style="background: #ffeaa7; padding: 15px; border-left: 4px solid #fdcb6e; border-radius: 4px;">
-                    <h4 style="margin: 0 0 10px 0; color: #d63638;">最新の同期エラー一覧</h4>
-                    <ul>
-                        <?php foreach ($last_sync_errors as $error): ?>
-                            <li><?php echo esc_html($error); ?></li>
-                        <?php endforeach; ?>
-                    </ul>
+
+            // RSSフィードテスト結果
+            if (isset($_POST['test_rss']) && wp_verify_nonce($_POST['test_rss_nonce'], 'contentfreaks_test_rss')) {
+                echo '<div class="postbox" style="margin-bottom: 20px;">';
+                echo '<h2 class="hndle">🔍 RSSフィードテスト結果</h2>';
+                echo '<div class="inside">';
+                contentfreaks_clear_rss_cache();
+                $episodes = contentfreaks_get_rss_episodes(5);
+                if (!empty($episodes)) {
+                    echo '<p style="color: green;">✅ RSS取得成功！ ' . count($episodes) . ' 件のエピソードを取得</p>';
+                    echo '<div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f9f9f9;">';
+                    foreach ($episodes as $episode) {
+                        echo '<div style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; border-left: 4px solid #2196F3;">';
+                        echo '<h4 style="margin: 0 0 10px 0;">' . esc_html($episode['title']) . '</h4>';
+                        if (!empty($episode['thumbnail'])) {
+                            echo '<p>🖼️ サムネイル: <a href="' . esc_url($episode['thumbnail']) . '" target="_blank">画像を確認</a></p>';
+                        } else {
+                            echo '<p>❌ サムネイル: 見つかりません</p>';
+                        }
+                        preg_match_all('/『([^』]+)』/', $episode['title'], $tag_matches);
+                        if (!empty($tag_matches[1])) {
+                            echo '<p>🏷️ タグ候補: <span style="color: #0073aa;">' . esc_html(implode(', ', $tag_matches[1])) . '</span></p>';
+                        }
+                        echo '<p>📅 日付: ' . esc_html($episode['formatted_date']) . '</p>';
+                        echo '<p>🎵 音声URL: ' . ($episode['audio_url'] ? '✅ あり' : '❌ なし') . '</p>';
+                        echo '<p>⏱️ 再生時間: ' . ($episode['duration'] ? esc_html($episode['duration']) : '不明') . '</p>';
+                        if (!empty($episode['guid'])) {
+                            echo '<p>🔗 GUID: <code>' . esc_html($episode['guid']) . '</code></p>';
+                        }
+                        echo '</div>';
+                    }
+                    echo '</div>';
+                } else {
+                    echo '<p style="color: red;">❌ エラー: エピソードを取得できませんでした</p>';
+                }
+                echo '</div></div>';
+            }
+            ?>
+
+            <!-- ヘルプ情報 -->
+            <div class="postbox">
+                <h2 class="hndle">ℹ️ 情報・ヘルプ</h2>
+                <div class="inside">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
+                        <div style="background: #f0f8ff; padding: 15px; border-left: 4px solid #2196F3;">
+                            <h4>🏷️ 自動タグ機能</h4>
+                            <p><strong>機能:</strong> タイトルの『』内テキストを自動でタグ追加</p>
+                            <p><strong>例:</strong> 「第1回『YouTube』について語る」 → 「YouTube」タグを自動作成</p>
+                        </div>
+                        <div style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107;">
+                            <h4>🔧 コンテンツ分類</h4>
+                            <p><strong>方針:</strong> 手動分類のみ。自動分類は行いません</p>
+                            <p><strong>RSS同期:</strong> RSSから取得した投稿は自動でポッドキャストエピソードに設定</p>
+                        </div>
+                        <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #0073aa;">
+                            <h4>📡 RSS同期情報</h4>
+                            <p><strong>RSS URL:</strong> https://anchor.fm/s/d8cfdc48/podcast/rss</p>
+                            <p><strong>スケジュール:</strong> 1時間毎の自動同期</p>
+                            <p><a href="<?php echo esc_url(home_url('/episodes/')); ?>" target="_blank">エピソード一覧ページ →</a></p>
+                        </div>
+                        <div style="background: #fffbf0; padding: 15px; border-left: 4px solid #ff9800;">
+                            <h4>🔧 トラブルシューティング</h4>
+                            <p><strong>404エラー:</strong> 「リライトルール更新」をクリック</p>
+                            <p><strong>キャッシュ:</strong> 「キャッシュクリア」でRSSキャッシュをリセット</p>
+                            <p><strong>その他:</strong> 設定 → パーマリンクで「変更を保存」</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
+
         <?php endif; ?>
-        
-        <!-- 最近の更新記録 -->
-        <div class="postbox" style="margin-bottom: 20px;">
-            <h2 class="hndle">📝 最近の更新記録</h2>
-            <div class="inside">
-                <?php contentfreaks_display_recent_updates(); ?>
-            </div>
-        </div>
-        
-        <!-- 更新ログ -->
-        <div class="postbox" style="margin-bottom: 20px;">
-            <h2 class="hndle">📋 更新ログ</h2>
-            <div class="inside">
-                <?php contentfreaks_display_update_logs(); ?>
-            </div>
-        </div>
-        
-        <!-- 情報・ヘルプ -->
-        <div class="postbox">
-            <h2 class="hndle">ℹ️ 情報・ヘルプ</h2>
-            <div class="inside">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
-                    <div style="background: #f0f8ff; padding: 15px; border-left: 4px solid #2196F3;">
-                        <h4>🏷️ 自動タグ機能</h4>
-                        <p><strong>機能:</strong> エピソードタイトルの『』内テキストを自動でタグとして追加</p>
-                        <p><strong>例:</strong> 「第1回『YouTube』について語る」 → 「YouTube」タグを自動作成・追加</p>
-                        <p><strong>複数対応:</strong> 「『YouTube』と『TikTok』の違い」 → 「YouTube」「TikTok」両方のタグを追加</p>
-                    </div>
-                    
-                    <div style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107;">
-                        <h4>🔧 コンテンツ分類システム</h4>
-                        <p><strong>方針:</strong> 手動分類のみ。自動分類は行いません</p>
-                        <p><strong>RSS同期:</strong> RSSから取得した投稿のみ自動でポッドキャストエピソードに設定</p>
-                        <p><strong>通常投稿:</strong> 管理画面またはクイック編集で手動分類</p>
-                    </div>
-                    
-                    <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #0073aa;">
-                        <h4>📡 RSS同期情報</h4>
-                        <p><strong>RSS URL:</strong> https://anchor.fm/s/d8cfdc48/podcast/rss</p>
-                        <p><strong>同期スケジュール:</strong> 1時間毎の自動同期</p>
-                        <p><strong>更新検知:</strong> GUID、音声URL、ハッシュ値で既存投稿を特定・更新</p>
-                        <p><strong>エピソード一覧:</strong> <a href="<?php echo home_url('/episodes/'); ?>" target="_blank">エピソード一覧ページ</a></p>
-                    </div>
-                    
-                    <div style="background: #fffbf0; padding: 15px; border-left: 4px solid #ff9800;">
-                        <h4>🔧 トラブルシューティング</h4>
-                        <p><strong>エピソードページが404エラーの場合:</strong> 「🔄 リライトルール更新」ボタンをクリックしてください。</p>
-                        <p><strong>その他のURL問題:</strong> WordPressの「設定」→「パーマリンク設定」で「変更を保存」を押してください。</p>
-                        <p><strong>キャッシュ問題:</strong> 「🗑️ キャッシュクリア」ボタンでRSSキャッシュをクリアできます。</p>
-                        <p><strong>デバッグ情報:</strong></p>
-                        <ul>
-                            <li>エピソードページファイル: <?php echo file_exists(get_stylesheet_directory() . '/page-episodes.php') ? '✅ 存在' : '❌ 不存在'; ?></li>
-                            <li>現在のパーマリンク構造: <?php echo get_option('permalink_structure') ?: 'デフォルト'; ?></li>
-                            <li>episodes固定ページ: <?php echo get_page_by_path('episodes') ? '✅ 存在' : '❌ 不存在'; ?></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
+
         </div>
     </div>
     <?php
