@@ -1424,90 +1424,25 @@
 }
 
 /* ===== 購読CTAセクション ===== */
-.subscribe-cta-section {
-    padding: var(--space-16, 64px) var(--space-4, 16px);
-    text-align: center;
-    background: var(--color-bg-secondary, #f7fafc);
-}
-
-.subscribe-cta-inner {
-    max-width: 640px;
-    margin: 0 auto;
-}
-
-.subscribe-cta-title {
-    font-size: var(--font-size-2xl, 1.5rem);
-    font-weight: 800;
-    color: var(--color-text-primary, #1a202c);
-    margin-bottom: var(--space-3, 12px);
-}
-
-.subscribe-cta-desc {
-    font-size: var(--font-size-md, 1.125rem);
-    color: var(--color-text-secondary, #4a5568);
-    line-height: 1.7;
-    margin-bottom: var(--space-8, 32px);
-}
-
-.subscribe-cta-buttons {
+/* ヒーロー内プラットフォームリンク - フッター風テキストリンク */
+.hero-listen-links {
     display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3, 12px);
+    gap: 1.5rem;
     justify-content: center;
+    margin-top: 0.5rem;
 }
 
-.subscribe-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 12px 24px;
-    border-radius: 999px;
-    font-size: 0.9375rem;
-    font-weight: 700;
+.hero-listen-links a {
+    color: rgba(255, 255, 255, 0.55);
     text-decoration: none;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
 }
 
-.subscribe-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.subscribe-btn--spotify {
-    background: #1db954;
+.hero-listen-links a:hover {
     color: #fff;
-}
-
-.subscribe-btn--apple {
-    background: #fc3c44;
-    color: #fff;
-}
-
-.subscribe-btn--youtube {
-    background: #ff0000;
-    color: #fff;
-}
-
-.subscribe-btn--rss {
-    background: #f26522;
-    color: #fff;
-}
-
-@media (max-width: 767px) {
-    .subscribe-cta-section {
-        padding: var(--space-12, 48px) var(--space-4, 16px);
-    }
-
-    .subscribe-cta-buttons {
-        flex-wrap: nowrap;
-        gap: var(--space-2, 8px);
-    }
-
-    .subscribe-btn {
-        padding: 10px 16px;
-        font-size: 0.8125rem;
-        white-space: nowrap;
-    }
+    text-decoration: underline;
 }
 
 /* ===== PC デスクトップ見やすさ改善 (1025px+) ===== */

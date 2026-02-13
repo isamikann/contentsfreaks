@@ -29,6 +29,12 @@ get_header(); ?>
             <p class="podcast-hero-description">
                 <?php echo esc_html(get_theme_mod('podcast_description', '「コンテンツフリークス」は、大学時代からの友人2人で「いま気になる」注目のエンタメコンテンツを熱く語るポッドキャスト')); ?>
             </p>
+
+            <nav class="hero-listen-links" aria-label="ポッドキャストプラットフォーム">
+                <a href="<?php echo esc_url(CONTENTFREAKS_SPOTIFY_URL); ?>" target="_blank" rel="noopener">Spotify</a>
+                <a href="<?php echo esc_url(CONTENTFREAKS_APPLE_URL); ?>" target="_blank" rel="noopener">Apple Podcasts</a>
+                <a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" target="_blank" rel="noopener">YouTube</a>
+            </nav>
         </div>
     </section>
 
@@ -337,19 +343,6 @@ get_header(); ?>
                 <a href="<?php echo esc_url(contentfreaks_get_page_url('media-kit')); ?>" class="achievements-business-link">
                     お仕事のご依頼・Media Kit →
                 </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- 購読CTAセクション（プラットフォーム紹介を統合） -->
-    <section id="platforms" class="subscribe-cta-section">
-        <div class="subscribe-cta-inner">
-            <h2 class="subscribe-cta-title">番組を聴いてみませんか？</h2>
-            <p class="subscribe-cta-desc">お好きなプラットフォームでコンテンツフリークスを購読して、最新エピソードを見逃さずチェックしましょう。</p>
-            <div class="subscribe-cta-buttons">
-                <a href="<?php echo esc_url(CONTENTFREAKS_SPOTIFY_URL); ?>" class="subscribe-btn subscribe-btn--spotify" target="_blank" rel="noopener">Spotify</a>
-                <a href="<?php echo esc_url(CONTENTFREAKS_APPLE_URL); ?>" class="subscribe-btn subscribe-btn--apple" target="_blank" rel="noopener">Apple Podcasts</a>
-                <a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" class="subscribe-btn subscribe-btn--youtube" target="_blank" rel="noopener">YouTube</a>
             </div>
         </div>
     </section>
