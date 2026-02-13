@@ -381,60 +381,17 @@
 /**
  * フォールバックメニュー（メニューが設定されていない場合）
  */
-function contentfreaks_fallback_menu() {
-    echo '<ul class="nav-menu">';
+function contentfreaks_fallback_menu($css_class = 'nav-menu') {
+    echo '<ul class="' . esc_attr($css_class) . '">';
     echo '<li><a href="' . esc_url(home_url('/')) . '" class="current-menu-item">ホーム</a></li>';
     
-    // 主要ページへの直接リンク
-    $episodes_page = get_page_by_path('episodes');
-    if ($episodes_page) {
-        echo '<li><a href="' . esc_url(get_permalink($episodes_page->ID)) . '">ポッドキャスト</a></li>';
-    }
-    
-    $blog_page = get_page_by_path('blog');
-    if ($blog_page) {
-        echo '<li><a href="' . esc_url(get_permalink($blog_page->ID)) . '">ブログ</a></li>';
-    }
+    // 主要ページへの直接リンク（キャッシュ付きヘルパー使用）
+    echo '<li><a href="' . esc_url(contentfreaks_get_page_url('episodes')) . '">ポッドキャスト</a></li>';
+    echo '<li><a href="' . esc_url(contentfreaks_get_page_url('blog')) . '">ブログ</a></li>';
     
     // その他の固定ページを動的に取得
-    $pages = get_pages(array(
-        'post_status' => 'publish',
-        'number' => 5,
-        'sort_column' => 'menu_order',
-        'exclude' => array(
-            $episodes_page ? $episodes_page->ID : 0,
-            $blog_page ? $blog_page->ID : 0
-        )
-    ));
-    
-    foreach ($pages as $page) {
-        if ($page->post_name !== 'home') { // ホームページは除外
-            echo '<li><a href="' . esc_url(get_permalink($page->ID)) . '">' . esc_html($page->post_title) . '</a></li>';
-        }
-    }
-    
-    echo '</ul>';
-}
-
-/**
- * モバイル用フォールバックメニュー
- */
-function contentfreaks_mobile_fallback_menu() {
-    echo '<ul class="mobile-nav-list">';
-    echo '<li><a href="' . esc_url(home_url('/')) . '" class="current-menu-item">ホーム</a></li>';
-    
-    // 主要ページへの直接リンク
     $episodes_page = get_page_by_path('episodes');
-    if ($episodes_page) {
-        echo '<li><a href="' . esc_url(get_permalink($episodes_page->ID)) . '">ポッドキャスト</a></li>';
-    }
-    
     $blog_page = get_page_by_path('blog');
-    if ($blog_page) {
-        echo '<li><a href="' . esc_url(get_permalink($blog_page->ID)) . '">ブログ</a></li>';
-    }
-    
-    // その他の固定ページを動的に取得
     $pages = get_pages(array(
         'post_status' => 'publish',
         'number' => 5,
@@ -452,6 +409,13 @@ function contentfreaks_mobile_fallback_menu() {
     }
     
     echo '</ul>';
+}
+
+/**
+ * モバイル用フォールバックメニュー
+ */
+function contentfreaks_mobile_fallback_menu() {
+    contentfreaks_fallback_menu('mobile-nav-list');
 }
 ?>
 

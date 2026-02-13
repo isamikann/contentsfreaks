@@ -8,7 +8,9 @@ function contentfreaks_sync_rss_to_posts() {
     error_log('RSS自動同期開始');
     
     // RSS同期フラグを設定（ポッドキャストエピソード自動設定のため）
-    define('CONTENTFREAKS_RSS_SYNC', true);
+    if (!defined('CONTENTFREAKS_RSS_SYNC')) {
+        define('CONTENTFREAKS_RSS_SYNC', true);
+    }
     
     $episodes = contentfreaks_get_rss_episodes(0); // 全エピソード取得
     error_log('RSS取得完了: ' . count($episodes) . '件のエピソード');

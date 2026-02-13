@@ -8,6 +8,30 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * canonical URL を出力
+ */
+function contentfreaks_output_canonical_url() {
+    // Cocoonや他のプラグインが既にcanonicalを出力している場合はスキップ
+    if (has_action('wp_head', 'rel_canonical')) {
+        return;
+    }
+
+    if (is_front_page()) {
+        echo '<link rel="canonical" href="' . esc_url(home_url('/')) . '">' . "\n";
+    } elseif (is_singular()) {
+        echo '<link rel="canonical" href="' . esc_url(get_permalink()) . '">' . "\n";
+    } elseif (is_tag() || is_category() || is_archive()) {
+        $paged = get_query_var('paged', 1);
+        if ($paged > 1) {
+            echo '<link rel="canonical" href="' . esc_url(get_pagenum_link($paged)) . '">' . "\n";
+        } else {
+            echo '<link rel="canonical" href="' . esc_url(get_pagenum_link(1)) . '">' . "\n";
+        }
+    }
+}
+add_action('wp_head', 'contentfreaks_output_canonical_url', 4);
+
+/**
  * OGP (Open Graph Protocol) メタタグを出力
  */
 function contentfreaks_output_ogp_tags() {
@@ -136,10 +160,18 @@ function contentfreaks_output_structured_data() {
                 'description' => has_excerpt() ? get_the_excerpt() : wp_trim_words(get_the_content(), 55),
                 'url' => get_permalink(),
                 'datePublished' => get_the_date('c'),
+                'dateModified' => get_the_modified_date('c'),
+                'inLanguage' => 'ja',
+                'author' => array(
+                    '@type' => 'Organization',
+                    'name' => 'ContentFreaks',
+                    'url' => home_url('/')
+                ),
                 'partOfSeries' => array(
                     '@type' => 'PodcastSeries',
                     'name' => get_bloginfo('name'),
-                    'url' => home_url('/')
+                    'url' => home_url('/'),
+                    'webFeed' => CONTENTFREAKS_RSS_URL
                 )
             );
             

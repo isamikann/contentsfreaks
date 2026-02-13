@@ -75,48 +75,6 @@ get_header(); ?>
         </div>
     </section>
 
-    <script>
-    // カウントアップアニメーション - 最適化版
-    document.addEventListener('DOMContentLoaded', function() {
-        const statNumbers = document.querySelectorAll('.podcast-stat-number[data-count]');
-        
-        const animateCount = (element) => {
-            const target = parseFloat(element.dataset.count);
-            const isDecimal = element.dataset.decimal === 'true';
-            const duration = 1500; // 2000ms → 1500ms に短縮
-            const step = target / (duration / 16);
-            let current = 0;
-            
-            const update = () => {
-                current = Math.min(current + step, target);
-                
-                if (isDecimal) {
-                    element.textContent = current.toFixed(1);
-                } else {
-                    const suffix = element.dataset.suffix || '';
-                    element.textContent = Math.floor(current) + suffix;
-                }
-                
-                if (current < target) requestAnimationFrame(update);
-            };
-            
-            update();
-        };
-        
-        // Intersection Observer で画面に表示されたときのみアニメーション
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
-                    entry.target.classList.add('animated');
-                    animateCount(entry.target);
-                }
-            });
-        }, { threshold: 0.5 });
-        
-        statNumbers.forEach(num => observer.observe(num));
-    });
-    </script>
-
 
 
     <!-- 最新エピソードセクション -->
@@ -377,6 +335,11 @@ get_header(); ?>
                     </div>
                     <div class="form-row">
                         <textarea name="message" placeholder="番組への感想を書いてください（500文字以内）" required maxlength="500" rows="4" class="form-input form-textarea"></textarea>
+                    </div>
+                    <!-- ハニーポット（スパム対策） -->
+                    <div class="form-row" style="position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden;" aria-hidden="true">
+                        <label for="website_url">ウェブサイト</label>
+                        <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off">
                     </div>
                     <button type="submit" class="form-submit-btn">送信する</button>
                     <div id="form-message" class="form-message" style="display:none;"></div>

@@ -71,12 +71,14 @@ function contentfreaks_generate_webp($metadata, $attachment_id) {
         case 'png':
             $image = @imagecreatefrompng($file);
             // PNG透過対応
-            imagealphablending($image, false);
-            imagesavealpha($image, true);
+            if ($image) {
+                imagealphablending($image, false);
+                imagesavealpha($image, true);
+            }
             break;
     }
     
-    if ($image) {
+    if ($image && $image !== false) {
         // WebPに変換（品質90%）
         imagewebp($image, $webp_file, 90);
         imagedestroy($image);
@@ -99,12 +101,14 @@ function contentfreaks_generate_webp($metadata, $attachment_id) {
                             break;
                         case 'png':
                             $size_image = @imagecreatefrompng($size_file);
-                            imagealphablending($size_image, false);
-                            imagesavealpha($size_image, true);
+                            if ($size_image) {
+                                imagealphablending($size_image, false);
+                                imagesavealpha($size_image, true);
+                            }
                             break;
                     }
                     
-                    if ($size_image) {
+                    if ($size_image && $size_image !== false) {
                         imagewebp($size_image, $size_webp, 90);
                         imagedestroy($size_image);
                     }

@@ -151,25 +151,25 @@ get_header(); ?>
             <?php if ($is_podcast_episode) : ?>
             <div class="episode-reactions" id="episode-reactions" data-post-id="<?php echo esc_attr($post_id); ?>">
                 <h3 class="reactions-title">このエピソードの感想は？</h3>
-                <div class="reactions-buttons">
-                    <button type="button" class="reaction-btn" data-reaction="fire" title="熱い！">
-                        <span class="reaction-emoji">🔥</span>
+                <div class="reactions-buttons" role="group" aria-label="エピソードリアクション">
+                    <button type="button" class="reaction-btn" data-reaction="fire" title="熱い！" aria-pressed="false" aria-label="熱い！ リアクション">
+                        <span class="reaction-emoji" aria-hidden="true">🔥</span>
                         <span class="reaction-count" data-count="fire">0</span>
                     </button>
-                    <button type="button" class="reaction-btn" data-reaction="laugh" title="笑った！">
-                        <span class="reaction-emoji">🤣</span>
+                    <button type="button" class="reaction-btn" data-reaction="laugh" title="笑った！" aria-pressed="false" aria-label="笑った！ リアクション">
+                        <span class="reaction-emoji" aria-hidden="true">🤣</span>
                         <span class="reaction-count" data-count="laugh">0</span>
                     </button>
-                    <button type="button" class="reaction-btn" data-reaction="idea" title="なるほど！">
-                        <span class="reaction-emoji">💡</span>
+                    <button type="button" class="reaction-btn" data-reaction="idea" title="なるほど！" aria-pressed="false" aria-label="なるほど！ リアクション">
+                        <span class="reaction-emoji" aria-hidden="true">💡</span>
                         <span class="reaction-count" data-count="idea">0</span>
                     </button>
-                    <button type="button" class="reaction-btn" data-reaction="cry" title="泣ける…">
-                        <span class="reaction-emoji">😢</span>
+                    <button type="button" class="reaction-btn" data-reaction="cry" title="泣ける…" aria-pressed="false" aria-label="泣ける… リアクション">
+                        <span class="reaction-emoji" aria-hidden="true">😢</span>
                         <span class="reaction-count" data-count="cry">0</span>
                     </button>
-                    <button type="button" class="reaction-btn" data-reaction="heart" title="好き！">
-                        <span class="reaction-emoji">❤️</span>
+                    <button type="button" class="reaction-btn" data-reaction="heart" title="好き！" aria-pressed="false" aria-label="好き！ リアクション">
+                        <span class="reaction-emoji" aria-hidden="true">❤️</span>
                         <span class="reaction-count" data-count="heart">0</span>
                     </button>
                 </div>

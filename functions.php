@@ -22,6 +22,7 @@ require_once get_stylesheet_directory() . '/inc/performance_optimization.php'; /
 require_once get_stylesheet_directory() . '/inc/structured_data.php'; // 構造化データ・OGP
 require_once get_stylesheet_directory() . '/inc/works_cpt.php'; // 作品データベース
 require_once get_stylesheet_directory() . '/inc/testimonials.php'; // リスナーの声
+require_once get_stylesheet_directory() . '/inc/pwa.php'; // PWAサポート
 
 // RSS自動投稿関連の読み込み
 require_once get_stylesheet_directory() . '/rss-auto-post.php';
@@ -157,7 +158,7 @@ function contentfreaks_unified_admin_page() {
         <?php
         // メッセージ表示
         foreach ($messages as $message) {
-            echo '<div class="notice notice-' . $message['type'] . '"><p>' . $message['message'] . '</p></div>';
+            echo '<div class="notice notice-' . esc_attr($message['type']) . '"><p>' . esc_html($message['message']) . '</p></div>';
         }
         ?>
         

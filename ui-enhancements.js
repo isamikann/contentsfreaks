@@ -337,10 +337,12 @@
             submitBtn.textContent = '送信中...';
 
             var formData = new URLSearchParams();
+            var honeypot = form.querySelector('input[name="website_url"]');
             formData.append('action', 'submit_testimonial');
             formData.append('nonce', contentfreaks_ajax.nonce);
             formData.append('name', nameInput.value.trim());
             formData.append('message', msgInput.value.trim());
+            formData.append('website_url', honeypot ? honeypot.value : '');
 
             fetch(contentfreaks_ajax.ajax_url, {
                 method: 'POST',
@@ -635,12 +637,14 @@
             var reaction = btn.dataset.reaction;
             if (reacted[postId] && reacted[postId].indexOf(reaction) > -1) {
                 btn.classList.add('reacted');
+                btn.setAttribute('aria-pressed', 'true');
             }
 
             btn.addEventListener('click', function () {
                 if (btn.classList.contains('reacted')) return; // 既に押下済み
 
                 btn.classList.add('reacted');
+                btn.setAttribute('aria-pressed', 'true');
                 btn.disabled = true;
 
                 // アニメーション

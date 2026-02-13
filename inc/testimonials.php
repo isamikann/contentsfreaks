@@ -73,6 +73,26 @@ function contentfreaks_save_testimonial_meta($post_id) {
 add_action('save_post_testimonial', 'contentfreaks_save_testimonial_meta');
 
 /**
+ * クライアントIPを安全に取得（プロキシ/CDN対応）
+ */
+function contentfreaks_get_client_ip() {
+    $headers = array('HTTP_CF_CONNECTING_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR');
+    foreach ($headers as $header) {
+        if (!empty($_SERVER[$header])) {
+            $ip = $_SERVER[$header];
+            // X-Forwarded-For は複数IP含む場合がある（最初が本来のクライアント）
+            if (strpos($ip, ',') !== false) {
+                $ip = trim(explode(',', $ip)[0]);
+            }
+            if (filter_var($ip, FILTER_VALIDATE_IP)) {
+                return sanitize_text_field($ip);
+            }
+        }
+    }
+    return sanitize_text_field($_SERVER['REMOTE_ADDR']);
+}
+
+/**
  * AJAX: リスナーの声フォーム送信（下書きとして保存）
  */
 function contentfreaks_submit_testimonial() {
@@ -82,6 +102,13 @@ function contentfreaks_submit_testimonial() {
     // nonce 検証（失敗時はJSON形式でエラーを返す）
     if (!check_ajax_referer('contentfreaks_load_more', 'nonce', false)) {
         wp_send_json_error(array('message' => 'セキュリティ検証に失敗しました。ページを再読み込みしてください。'));
+        wp_die();
+    }
+
+    // ハニーポットスパム対策（botが自動入力するhiddenフィールドをチェック）
+    if (!empty($_POST['website_url'])) {
+        // botの場合は成功レスポンスを返す（botに検知を悟らせない）
+        wp_send_json_success(array('message' => 'ありがとうございます！承認後にサイトに掲載されます。'));
         wp_die();
     }
 
@@ -97,7 +124,7 @@ function contentfreaks_submit_testimonial() {
     }
 
     // レート制限（同一IPから1時間に1回のみ）
-    $ip = sanitize_text_field($_SERVER['REMOTE_ADDR']);
+    $ip = contentfreaks_get_client_ip();
     $rate_key = 'cf_testimonial_' . md5($ip);
     if (get_transient($rate_key)) {
         wp_send_json_error(array('message' => '送信は1時間に1回までです。しばらくお待ちください。'));
