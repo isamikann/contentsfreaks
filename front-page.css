@@ -211,7 +211,7 @@
     }
     
     .platforms-container {
-        max-width: 1200px;
+        max-width: 960px;
         margin: 0 auto;
         padding: 0 1rem;
         position: relative;
@@ -502,7 +502,7 @@
     }
     
     .hosts-container {
-        max-width: 1200px;
+        max-width: 960px;
         margin: 0 auto;
         padding: 0 1rem;
     }
@@ -668,7 +668,7 @@
     }
     
     .latest-episode-container {
-        max-width: 1200px;
+        max-width: 960px;
         margin: 0 auto;
         padding: 0 2rem;
     }
@@ -1111,7 +1111,7 @@
     }
     
     .testimonials-container {
-        max-width: 1200px;
+        max-width: 960px;
         margin: 0 auto;
         padding: 0 1rem;
         position: relative;
@@ -1282,7 +1282,7 @@
 /* ===== 今週のピックアップ ===== */
 .pickup-section {
     padding: 4rem 2rem;
-    max-width: 1200px;
+    max-width: 960px;
     margin: 0 auto;
 }
 
@@ -1447,31 +1447,13 @@
 
 /* ===== PC デスクトップ見やすさ改善 (1025px+) ===== */
 @media (min-width: 1025px) {
-    /* ヒーロー:2カラムのギャップを詰めてコンパクトに */
+    /* ヒーロー: 1カラム中央寄せのまま適度な幅に */
     .podcast-hero-content {
-        gap: 3rem;
-        max-width: 1100px;
+        gap: 1rem;
+        max-width: 640px;
     }
 
-    /* メインコンテンツ側を読みやすく */
-    .podcast-hero-main {
-        max-width: 540px;
-    }
-
-    .hero-subtitle {
-        max-width: 480px;
-    }
-
-    .podcast-hero-description {
-        max-width: 480px;
-    }
-
-    /* サイドバーを適度なサイズに */
-    .podcast-hero-sidebar {
-        max-width: 420px;
-    }
-
-    /* 最新エピソード:画像とテキストのバランス改善 */
+    /* 最新エピソード: 画像とテキストのバランス改善 */
     .featured-episode-content {
         grid-template-columns: 280px 1fr;
         gap: 2.5rem;
@@ -1479,41 +1461,36 @@
     }
 
     .featured-episode {
-        max-width: 960px;
+        max-width: 860px;
         margin: 0 auto;
     }
 
-    /* テスティモニアル:PCでは2列固定、カード幅を制限 */
+    /* テスティモニアル: PCでは2列固定 */
     .testimonials-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 2.5rem;
-        max-width: 960px;
+        gap: 2rem;
+        max-width: 860px;
         margin: 0 auto;
     }
 
-    .testimonial-card {
-        padding: 2.5rem;
-    }
-
-    /* ホスト:コンテナ幅を制限して視線移動を減らす */
+    /* ホスト: コンテナ幅を制限 */
     .hosts-container {
-        max-width: 960px;
+        max-width: 860px;
     }
 
-    /* セクションタイトルの余白を増やしてセクション間の明確化 */
+    /* セクション間の余白 */
     .latest-episode-section,
     .episodes-section,
     .hosts-section,
-    .testimonials-section,
-    .podcast-platforms-section {
-        padding: 5rem 0;
+    .testimonials-section {
+        padding: 4rem 0;
     }
 
-    /* エピソードグリッド:3列固定 */
+    /* エピソードグリッド: 3列固定 */
     .episodes-section .episodes-grid {
         grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
-        max-width: 1060px;
+        gap: 1.5rem;
+        max-width: 960px;
         margin: 2rem auto 0;
     }
 }
