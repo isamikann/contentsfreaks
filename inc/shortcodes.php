@@ -27,12 +27,15 @@ function contentfreaks_podcast_platforms_shortcode() {
     ob_start();
     echo '<div class="platforms-grid">';
     
+    $count = 0;
     foreach ($platforms as $key => $platform) {
+        if ($count > 0) {
+            echo '<span class="platform-separator">/</span>';
+        }
         echo '<a href="' . esc_url($platform['url']) . '" class="platform-link platform-' . esc_attr($key) . '" target="_blank" rel="noopener">';
-        echo '<div class="platform-icon">' . $platform['icon'] . '</div>';
-        echo '<div class="platform-name">' . esc_html($platform['name']) . '</div>';
-        echo '<div class="platform-action">今すぐ聴く</div>';
+        echo '<span class="platform-name">' . esc_html($platform['name']) . '</span>';
         echo '</a>';
+        $count++;
     }
     
     echo '</div>';

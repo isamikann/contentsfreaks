@@ -96,96 +96,54 @@
 }
 
 .podcast-hero-platforms {
-    margin-top: 0.5rem;
+    margin-top: 0.25rem;
 }
 
-/* ヒーロー内プラットフォームリンク - コンパクトなインラインスタイル */
+/* ヒーロー内プラットフォームリンク - 控えめなテキストリンク */
 .podcast-hero-platforms .platforms-grid {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.75rem;
+    gap: 0.25rem 1rem;
     margin-top: 0;
 }
 
 .podcast-hero-platforms .platform-link {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.6rem 1.2rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 50px;
+    gap: 0.35rem;
+    padding: 0.25rem 0;
+    background: none;
+    border: none;
+    border-radius: 0;
     text-decoration: none;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.875rem;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
     min-height: auto;
     flex-direction: row;
 }
 
 .podcast-hero-platforms .platform-link:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: translateY(-2px);
     color: #fff;
-    text-decoration: none;
-}
-
-.podcast-hero-platforms .platform-spotify:hover {
-    border-color: #1DB954;
-    background: rgba(29, 185, 84, 0.2);
-}
-
-.podcast-hero-platforms .platform-apple:hover {
-    border-color: #A855F7;
-    background: rgba(168, 85, 247, 0.2);
-}
-
-.podcast-hero-platforms .platform-youtube:hover {
-    border-color: #FF0000;
-    background: rgba(255, 0, 0, 0.2);
-}
-
-.podcast-hero-platforms .platform-icon {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    margin: 0;
+    text-decoration: underline;
     background: none;
-    border-radius: 0;
+    border: none;
+    transform: none;
 }
 
-.podcast-hero-platforms .platform-icon img {
-    width: 20px;
-    height: 20px;
+.podcast-hero-platforms .platform-separator {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.75rem;
+    user-select: none;
 }
 
 .podcast-hero-platforms .platform-name {
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 500;
     color: inherit;
     margin: 0;
-}
-
-.podcast-hero-platforms .platform-action {
-    display: none;
-}
-
-@media (max-width: 480px) {
-    .podcast-hero-platforms .platforms-grid {
-        gap: 0.5rem;
-    }
-    
-    .podcast-hero-platforms .platform-link {
-        padding: 0.5rem 1rem;
-        font-size: 0.8rem;
-    }
 }
 
 /* ヒーローCTA */
