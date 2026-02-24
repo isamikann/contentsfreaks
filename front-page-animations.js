@@ -44,9 +44,32 @@
         statNumbers.forEach(function (num) { observer.observe(num); });
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
+    /* ===== トップへ戻るボタン ===== */
+    function initBackToTop() {
+        var btn = document.getElementById('backToTop');
+        if (!btn) return;
+
+        window.addEventListener('scroll', function () {
+            if (window.scrollY > 300) {
+                btn.classList.add('visible');
+            } else {
+                btn.classList.remove('visible');
+            }
+        }, { passive: true });
+
+        btn.addEventListener('click', function () {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+
+    function initAll() {
         init();
+        initBackToTop();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAll);
+    } else {
+        initAll();
     }
 })();
