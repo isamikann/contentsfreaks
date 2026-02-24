@@ -48,6 +48,17 @@ get_header(); ?>
 
     <!-- タイムライン -->
     <section class="timeline-section">
+        <!-- スティッキー年ナビゲーション -->
+        <nav class="year-nav" aria-label="年別ナビゲーション">
+            <div class="year-nav-inner">
+                <a href="#year-2023" class="year-nav-item" data-year="2023">2023</a>
+                <span class="year-nav-sep">→</span>
+                <a href="#year-2024" class="year-nav-item" data-year="2024">2024</a>
+                <span class="year-nav-sep">→</span>
+                <a href="#year-2025" class="year-nav-item" data-year="2025">2025</a>
+            </div>
+        </nav>
+
         <div class="timeline-container">
             <div class="timeline-intro">
                 <h2 class="timeline-title">The Story Unfolds</h2>
@@ -55,7 +66,7 @@ get_header(); ?>
             </div>
             
             <!-- 2023年 -->
-            <div class="year-section" data-year="2023">
+            <div class="year-section" id="year-2023" data-year="2023">
                 <div class="year-header">
                     <div class="year-badge">
                         <span class="year-number">2023</span>
@@ -256,7 +267,7 @@ get_header(); ?>
             </div>
 
             <!-- 2024年 -->
-            <div class="year-section" data-year="2024">
+            <div class="year-section" id="year-2024" data-year="2024">
                 <div class="year-header">
                     <div class="year-badge">
                         <span class="year-number">2024</span>
@@ -559,7 +570,7 @@ get_header(); ?>
             </div>
 
             <!-- 2025年 -->
-            <div class="year-section" data-year="2025">
+            <div class="year-section" id="year-2025" data-year="2025">
                 <div class="year-header">
                     <div class="year-badge">
                         <span class="year-number">2025</span>
@@ -938,4 +949,38 @@ get_header(); ?>
     </section>
 </main>
 
-<?php get_footer(); ?>
+<script>
+(function() {
+    // 年ナビ: スクロール位置にあわせてアクティブ状態を更新
+    var sections = document.querySelectorAll('.year-section[id]');
+    var navItems = document.querySelectorAll('.year-nav-item');
+    if (!sections.length || !navItems.length) return;
+
+    function updateNav() {
+        var scrollY = window.scrollY + 120;
+        var current = '';
+        sections.forEach(function(s) {
+            if (s.offsetTop <= scrollY) current = s.id;
+        });
+        navItems.forEach(function(a) {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+        });
+    }
+
+    // スムーズスクロール
+    navItems.forEach(function(a) {
+        a.addEventListener('click', function(e) {
+            var target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                e.preventDefault();
+                var offset = target.getBoundingClientRect().top + window.scrollY - 60;
+                window.scrollTo({ top: offset, behavior: 'smooth' });
+            }
+        });
+    });
+
+    window.addEventListener('scroll', updateNav, { passive: true });
+    updateNav();
+})();
+</script>
+
