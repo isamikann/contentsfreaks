@@ -878,45 +878,6 @@ get_header(); ?>
         </div>
     </section>
 
-    <!-- メディア掲載 -->
-    <section class="media-section">
-        <div class="media-container">
-            <div class="section-header">
-                <h2 class="section-title">Media Coverage</h2>
-                <p class="section-subtitle">メディア掲載・外部露出</p>
-            </div>
-            
-            <div class="media-grid">
-                <div class="media-card" data-aos="fade-up">
-                    <div class="media-icon">📰</div>
-                    <div class="media-content">
-                        <h4 class="media-title">ポッドキャストランキング</h4>
-                        <p class="media-date">2024年8月</p>
-                        <p class="media-desc">「WEEKLY PICKUP!!」に選出</p>
-                    </div>
-                </div>
-                
-                <div class="media-card" data-aos="fade-up" data-aos-delay="100">
-                    <div class="media-icon">🌐</div>
-                    <div class="media-content">
-                        <h4 class="media-title">公式ウェブサイト開設</h4>
-                        <p class="media-date">2024年6月</p>
-                        <p class="media-desc">デジタルプレゼンスを強化</p>
-                    </div>
-                </div>
-                
-                <div class="media-card" data-aos="fade-up" data-aos-delay="200">
-                    <div class="media-icon">📝</div>
-                    <div class="media-content">
-                        <h4 class="media-title">ブログ記事公開</h4>
-                        <p class="media-date">2024年7月〜</p>
-                        <p class="media-desc">ポッドキャスト運営の知見を共有</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- 今後の展望 -->
     <section class="future-section">
         <div class="future-bg">
