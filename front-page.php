@@ -202,6 +202,7 @@ get_header(); ?>
         <div class="hosts-container">
             <div class="hosts-header fade-in">
                 <h2>ABOUT US</h2>
+                <p class="section-subtitle">番組を支える2人のパーソナリティ</p>
             </div>
             
             <div class="slide-up delay-100">
@@ -344,6 +345,7 @@ get_header(); ?>
         <div class="achievements-badge-container">
             <div class="achievements-header">
                 <h2>Media Kit</h2>
+                <p class="section-subtitle">コラボ・タイアップ・お仕事のご依頼はこちら</p>
             </div>
             <div class="achievements-badges">
                 <div class="achievement-badge fade-in">
