@@ -4,6 +4,7 @@
 <!-- ContentFreaks専用フッター -->
 <footer id="contentfreaks-footer" role="contentinfo" aria-label="サイトフッター">
     <div class="footer-content">
+        <!-- ナビゲーション -->
         <div class="footer-section">
             <h3><?php bloginfo('name'); ?></h3>
             <ul class="footer-links">
@@ -14,34 +15,29 @@
                 <li><a href="<?php echo esc_url(contentfreaks_get_page_url('history')); ?>">コンフリの歩み</a></li>
             </ul>
         </div>
-        
+
+        <!-- プラットフォーム＋RSS（旧「コンテンツ」セクションを統合） -->
         <div class="footer-section">
-            <h3>コンテンツ</h3>
-            <ul class="footer-links">
-                <li><a href="<?php echo esc_url(contentfreaks_get_page_url('episodes')); ?>">最新エピソード</a></li>
-                <li><a href="<?php echo esc_url(get_feed_link()); ?>">RSS</a></li>
-            </ul>
-        </div>
-        
-        <div class="footer-section">
-            <h3>プラットフォーム</h3>
+            <h3>聴く</h3>
             <ul class="footer-links">
                 <li><a href="<?php echo esc_url(CONTENTFREAKS_SPOTIFY_URL); ?>" target="_blank" rel="noopener">Spotify</a></li>
                 <li><a href="<?php echo esc_url(CONTENTFREAKS_APPLE_URL); ?>" target="_blank" rel="noopener">Apple Podcasts</a></li>
                 <li><a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" target="_blank" rel="noopener">YouTube</a></li>
+                <li><a href="<?php echo esc_url(get_feed_link()); ?>">RSS</a></li>
             </ul>
         </div>
-        
+
+        <!-- サポート -->
         <div class="footer-section">
-            <h3>お問い合わせ</h3>
+            <h3>サポート</h3>
             <ul class="footer-links">
-                <li><a href="<?php echo esc_url(contentfreaks_get_page_url('contact')); ?>">お問い合わせフォーム</a></li>
+                <li><a href="<?php echo esc_url(contentfreaks_get_page_url('contact')); ?>">お問い合わせ</a></li>
                 <li><a href="<?php echo esc_url(contentfreaks_get_page_url('media-kit')); ?>" class="footer-business-link">お仕事のご依頼 / Media Kit</a></li>
                 <li><a href="<?php echo esc_url(get_privacy_policy_url()); ?>">プライバシーポリシー</a></li>
             </ul>
         </div>
     </div>
-    
+
     <div class="footer-bottom">
         <p>&copy; <?php echo wp_date('Y'); ?> <?php bloginfo('name'); ?>. All rights reserved.</p>
     </div>
@@ -71,67 +67,6 @@
 </nav>
 
 <?php wp_footer(); ?>
-
-<!-- ContentFreaks専用JavaScript -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 不要なmobile-menu-toggleがあれば除去
-    const oldMobileToggle = document.querySelector('.mobile-menu-toggle');
-    if (oldMobileToggle) {
-        oldMobileToggle.style.display = 'none';
-        oldMobileToggle.remove();
-    }
-
-    // ※ ハンバーガーメニューの制御は header.php のインラインJSに統合済み
-    
-    // 検索モーダルの制御
-    const searchToggle = document.querySelector('.search-toggle');
-    const searchModal = document.querySelector('.search-modal');
-    const searchClose = document.querySelector('.search-close');
-    
-    if (searchToggle && searchModal && searchClose) {
-        searchToggle.addEventListener('click', function() {
-            searchModal.classList.add('active');
-            const searchInput = searchModal.querySelector('.search-input');
-            if (searchInput) {
-                setTimeout(() => searchInput.focus(), 300);
-            }
-        });
-        
-        searchClose.addEventListener('click', function() {
-            searchModal.classList.remove('active');
-        });
-        
-        searchModal.addEventListener('click', function(e) {
-            if (e.target === this) {
-                this.classList.remove('active');
-            }
-        });
-
-        // ESCキーで検索モーダルを閉じる
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && searchModal.classList.contains('active')) {
-                searchModal.classList.remove('active');
-                searchToggle.focus();
-            }
-        });
-    }
-    
-    // 外部リンクの処理（アクセシビリティ対応）
-    const externalLinks = document.querySelectorAll('a[href^="http"]:not([href*="' + window.location.hostname + '"])');
-    externalLinks.forEach(function(link) {
-        link.setAttribute('target', '_blank');
-        link.setAttribute('rel', 'noopener noreferrer');
-        // スクリーンリーダー向け「新しいタブで開く」通知
-        if (!link.getAttribute('aria-label')) {
-            var linkText = link.textContent.trim() || link.getAttribute('title') || '';
-            if (linkText) {
-                link.setAttribute('aria-label', linkText + '（新しいタブで開きます）');
-            }
-        }
-    });
-});
-</script>
 
 </body>
 </html>
