@@ -359,11 +359,6 @@ get_header(); ?>
                     <span class="badge-label">総フォロワー</span>
                 </div>
                 <div class="achievement-badge fade-in">
-                    <span class="badge-icon">🤝</span>
-                    <span class="badge-value">3組</span>
-                    <span class="badge-label">コラボ実績</span>
-                </div>
-                <div class="achievement-badge fade-in">
                     <span class="badge-icon">⭐</span>
                     <span class="badge-value">4.7</span>
                     <span class="badge-label">平均評価</span>
