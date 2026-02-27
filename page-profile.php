@@ -314,8 +314,25 @@ get_header(); ?>
             <div class="cta-pattern"></div>
         </div>
         <div class="contact-cta-container">
-            <!-- リスナー向けCTA -->
-            <div class="cta-dual-grid">
+            <!-- CTA 3カラム（リスナー・歴史・ビジネス） -->
+            <div class="cta-dual-grid cta-triple-grid">
+                <!-- コンフリの歩み -->
+                <div class="cta-card cta-card-history">
+                    <div class="cta-card-icon">📖</div>
+                    <h3 class="cta-card-title">コンフリの歩み</h3>
+                    <p class="cta-card-desc">
+                        「カラビナFM」から始まった2人の軌跡。<br>
+                        番組の誕生と進化の歴史を振り返る。
+                    </p>
+                    <div class="cta-card-buttons">
+                        <a href="<?php echo esc_url(contentfreaks_get_page_url('history')); ?>" class="contact-cta-button listener-primary">
+                            <span class="btn-icon">📖</span>
+                            歩みを見る
+                        </a>
+                    </div>
+                </div>
+
+                <!-- リスナー向けCTA -->
                 <div class="cta-card cta-card-listener">
                     <div class="cta-card-icon">🎧</div>
                     <h3 class="cta-card-title">リスナーの方へ</h3>

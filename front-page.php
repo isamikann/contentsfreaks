@@ -217,6 +217,36 @@ get_header(); ?>
         </div>
     </section>
 
+    <!-- コンフリの歩みバナー -->
+    <section class="history-banner-section fade-in">
+        <div class="history-banner-container">
+            <div class="history-banner-inner">
+                <div class="history-banner-text">
+                    <p class="history-banner-label">Our Journey</p>
+                    <h2 class="history-banner-title">「カラビナFM」から「コンテンツフリークス」へ</h2>
+                    <p class="history-banner-desc">2023年の立ち上げからいまに至るまでの、2人の歩みと番組の歴史を振り返る。</p>
+                </div>
+                <div class="history-banner-stats">
+                    <div class="hb-stat">
+                        <span class="hb-stat-value"><?php echo contentfreaks_get_podcast_count(); ?></span>
+                        <span class="hb-stat-label">エピソード</span>
+                    </div>
+                    <div class="hb-stat">
+                        <span class="hb-stat-value"><?php
+                            $start = new DateTime('2023-06-01');
+                            $now   = new DateTime();
+                            echo $start->diff($now)->days;
+                        ?></span>
+                        <span class="hb-stat-label">継続日数</span>
+                    </div>
+                </div>
+                <a href="<?php echo esc_url(contentfreaks_get_page_url('history')); ?>" class="history-banner-btn">
+                    📖 歩みを振り返る
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- 社会的証明・レビュー -->
     <section class="testimonials-section">
         <div class="testimonials-container">

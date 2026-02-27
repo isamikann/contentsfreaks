@@ -55,7 +55,7 @@
         if ($apple_cta_icon) {
             echo '<img src="' . esc_url($apple_cta_icon) . '" alt="Apple Podcasts" width="18" height="18" style="border-radius:3px;">';
         } else {
-            echo '🎧';
+            echo '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 4.5a7.5 7.5 0 110 15 7.5 7.5 0 010-15zm0 2.25A5.25 5.25 0 1012 17.25 5.25 5.25 0 0012 6.75zm0 2.25a3 3 0 100 6 3 3 0 000-6zm0 1.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3z"/></svg>';
         }
         ?>
         Apple
