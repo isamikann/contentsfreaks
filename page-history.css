@@ -382,50 +382,15 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 /* コンテンツヘッダー */
 .timeline-content { background: transparent; padding: 0; }
 .content-header {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
     margin-bottom: 0.875rem;
-    flex-wrap: wrap;
 }
 .timeline-title {
     font-size: clamp(1rem, 2vw, 1.25rem);
     font-weight: 700;
     color: var(--history-dark);
     margin: 0;
-    flex: 1;
-    min-width: 180px;
     line-height: 1.4;
 }
-/* badges */
-.timeline-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.2rem 0.7rem;
-    border-radius: 20px;
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    white-space: nowrap;
-    flex-shrink: 0;
-    align-self: flex-start;
-    margin-top: 0.15rem;
-}
-.launch-badge      { background: rgba(5,150,105,0.1);  color: #059669; border: 1px solid rgba(5,150,105,0.25); }
-.milestone-badge   { background: rgba(37,99,235,0.1);  color: #2563eb; border: 1px solid rgba(37,99,235,0.25); }
-.innovation-badge  { background: rgba(124,58,237,0.1); color: #7c3aed; border: 1px solid rgba(124,58,237,0.25); }
-.breakthrough-badge{ background: rgba(217,119,6,0.1);  color: #d97706; border: 1px solid rgba(217,119,6,0.25); }
-.community-badge   { background: rgba(219,39,119,0.1); color: #db2777; border: 1px solid rgba(219,39,119,0.25); }
-.awards-badge      { background: rgba(202,138,4,0.1);  color: #b45309; border: 1px solid rgba(202,138,4,0.25); }
-.collaboration-badge{ background: rgba(6,148,162,0.1); color: #0891b2; border: 1px solid rgba(6,148,162,0.25); }
-.upgrade-badge     { background: rgba(79,70,229,0.1);  color: #4f46e5; border: 1px solid rgba(79,70,229,0.25); }
-.celebration-badge { background: rgba(124,58,237,0.1); color: #7c3aed; border: 1px solid rgba(124,58,237,0.25); animation: badgeShine 2.5s ease-in-out infinite; }
-@keyframes badgeShine { 0%, 100% { box-shadow: none; } 50% { box-shadow: 0 0 10px rgba(124,58,237,0.25); } }
-.growth-badge      { background: rgba(5,150,105,0.1);  color: #059669; border: 1px solid rgba(5,150,105,0.25); }
-.viral-badge       { background: rgba(220,38,38,0.1);  color: #dc2626; border: 1px solid rgba(220,38,38,0.25); }
-.award-badge       { background: rgba(202,138,4,0.1);  color: #b45309; border: 1px solid rgba(202,138,4,0.25); }
-
 /* 本文 */
 .timeline-description {
     font-size: 0.9rem;
@@ -433,17 +398,6 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     color: var(--history-text-secondary);
     margin: 0;
 }
-
-/* Impact */
-.timeline-impact {
-    margin-top: 1.25rem;
-    padding: 0.75rem 1rem;
-    background: rgba(102,126,234,0.05);
-    border-left: 3px solid rgba(102,126,234,0.35);
-    border-radius: 0 8px 8px 0;
-}
-.impact-label { font-weight: 700; color: var(--history-primary); font-size: 0.8rem; margin-right: 0.5rem; }
-.impact-text  { color: var(--history-text-secondary); font-size: 0.85rem; }
 
 /* アクション */
 .timeline-actions { margin-top: 1.25rem; }

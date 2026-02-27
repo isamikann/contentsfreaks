@@ -91,15 +91,10 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">ポッドキャスト番組スタート！</h4>
-                                <span class="timeline-badge launch-badge">Launch</span>
                             </div>
                             <p class="timeline-description">
                                 みっくんが大学時代の友人・あっきーを誘い、ポッドキャスト番組「カラビナFM」をスタート！当初は「お互いが気になる話題を持ち寄る雑談番組」として始動。
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">番組の原点となる記念すべき第一歩</span>
-                            </div>
 							<div class="artwork-showcase">
 								<img src="https://content-freaks.jp/wp-content/uploads/2024/05/1000017105.jpg" alt="カラビナFM初期アートワーク" class="artwork-image">
 								<div class="artwork-caption">
@@ -122,7 +117,6 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">初のコンテンツ回を配信</h4>
-                                <span class="timeline-badge milestone-badge">Milestone</span>
                             </div>
                             <p class="timeline-description">
                                 初のコンテンツ回となる #4「アニメ『推しの子』は何が凄かったのか？」を配信。コンテンツについて語る楽しさに気付き、番組の方向性が少しずつ固まり始める。
@@ -148,7 +142,6 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">初の分析回で新たな構想が誕生</h4>
-                                <span class="timeline-badge innovation-badge">Innovation</span>
                             </div>
                             <p class="timeline-description">
                                 初の分析回 #10「配信をした感想とデータ分析から見る今後のカラビナFMの進む道」を配信。コンテンツ回の再生数の伸びを受け、みっくんの頭の中に「コンテンツフリークス構想」が生まれる。
@@ -174,7 +167,6 @@ get_header(); ?>
                         <div class="timeline-content featured-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">人気エピソード誕生＆リニューアル発表</h4>
-                                <span class="timeline-badge breakthrough-badge">Breakthrough</span>
                             </div>
                             <p class="timeline-description">
                                 アニメ「葬送のフリーレン」回（#20）を配信。当時No1の人気エピソードに！<br><br>
@@ -210,7 +202,6 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">科学系ポッドキャストの日に初参加</h4>
-                                <span class="timeline-badge community-badge">Community</span>
                             </div>
                             <p class="timeline-description">
                                 「科学系ポッドキャストの日」に初参加。#25 映画『私は確信する』回を配信。科学系ポッドキャスト「サイエントーク」の大ファンであるみっくん＆あっきー、大歓喜！
@@ -236,7 +227,6 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">2023年コンテンツフリークス大賞を発表</h4>
-                                <span class="timeline-badge awards-badge">Awards</span>
                             </div>
                             <p class="timeline-description">
                                 「2023年コンテンツフリークス大賞」を発表！
@@ -292,7 +282,6 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">番組クオリティ向上プロジェクト</h4>
-                                <span class="timeline-badge upgrade-badge">Upgrade</span>
                             </div>
                             <p class="timeline-description">
                                 番組のクオリティ向上を目指し、さまざまな試みをスタート！
@@ -326,7 +315,6 @@ get_header(); ?>
                         <div class="timeline-content featured-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">50回配信達成＆アートワークリニューアル</h4>
-                                <span class="timeline-badge celebration-badge">Celebration</span>
                             </div>
                             <p class="timeline-description">
                                 50回配信を達成！記念としてアートワークをリニューアル！
@@ -355,7 +343,6 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">初のコラボ回を配信</h4>
-                                <span class="timeline-badge collaboration-badge">Collaboration</span>
                             </div>
                             <p class="timeline-description">
                                 初のコラボ回を配信！ゲストに「平成男女のイドバタラジオ」の"みな"さんを迎え、熱いトークを展開！<br><br>
@@ -383,7 +370,6 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">コラボ回第2弾</h4>
-                                <span class="timeline-badge collaboration-badge">Collaboration</span>
                             </div>
                             <p class="timeline-description">
                                 コラボ回を再び配信！ゲストに「ひよっこ研究者のさばいばる日記」の"はち"さんを迎える。<br>
@@ -410,15 +396,10 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">公式ホームページ開設</h4>
-                                <span class="timeline-badge launch-badge">Launch</span>
                             </div>
                             <p class="timeline-description">
                                 コンテンツフリークスの公式ホームページを開設！初期コンテンツとして「トップページ」「プロフィール」「コンテンツフリークスの歩み」を準備。
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">デジタルプレゼンスの大幅向上</span>
-                            </div>
                         </div>
                     </div>
                     
@@ -434,16 +415,11 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">🎉 Spotify 100フォロワー突破</h4>
-                                <span class="timeline-badge milestone-badge">Milestone</span>
                             </div>
                             <p class="timeline-description">
                                 Spotifyのフォロワー数が100人を突破！ひとつの大台にのった瞬間で、番組開始当初からは考えられない成長に驚きと喜びを感じました。<br><br>
                                 ブログページに新たに2記事を追加し、ポッドキャスト運営の知見を共有：「ポッドキャスターを喜ばせる方法」「ポッドキャスト1年の振り返り」
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">番組の継続と成長の確信を得られた記念すべき瞬間</span>
-                            </div>
                         </div>
                     </div>
                     
@@ -459,16 +435,11 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">📺 YouTube 100登録者突破＆初メディア掲載</h4>
-                                <span class="timeline-badge breakthrough-badge">Breakthrough</span>
                             </div>
                             <p class="timeline-description">
                                 YouTubeの登録者数が100人を突破！まだ戦略なく運営していた中での予想外の成長に驚きました。<br><br>
                                 「ポッドキャストランキング」様の「WEEKLY PICKUP!!」に選出！突然選ばれていてびっくりした、初めてメディアに載った記念すべき瞬間でした。
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">メディア掲載の影響かフォロワー数が大幅増加</span>
-                            </div>
                         </div>
                     </div>
                     
@@ -484,16 +455,11 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">📈 フォロワー成長＆YouTube ショート動画革命</h4>
-                                <span class="timeline-badge innovation-badge">Innovation</span>
                             </div>
                             <p class="timeline-description">
                                 Spotifyのフォロワー数が150人突破！YouTubeの登録者数が300人突破！<br><br>
                                 YouTube登録者が増え、ショート動画を出してみたらどうなるか試してみたくて、初のショート動画を投稿開始！5分で作成可能なショート動画のフォーマットを確立。
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">ショート動画は番組が広がるきっかけになると実感</span>
-                            </div>
                         </div>
                     </div>
                     
@@ -509,17 +475,12 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">📈 YouTube爆発的成長期</h4>
-                                <span class="timeline-badge viral-badge">Viral</span>
                             </div>
                             <p class="timeline-description">
                                 10月に400人突破、11月に600人突破！<br><br>
                                 目黒蓮主演の「海のはじまり」の感想動画がバズりまくって、ドラマ感想回を出す度に登録者が増えていく現象が発生！最終回動画は1.5万回以上再生。<br><br>
                                 11月にポッドキャストシンポジウム、ポッドキャストウィークエンドなどのリアルイベントに参加！
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">ドラマ感想回が番組成長の大きな要因となることを確信</span>
-                            </div>
                         </div>
                     </div>
                     
@@ -535,7 +496,6 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">🏆 2024年コンテンツフリークス大賞</h4>
-                                <span class="timeline-badge awards-badge">Awards</span>
                             </div>
                             <p class="timeline-description">
                                 2024年を締めくくる特別企画「2024年コンテンツフリークス大賞」を発表！
@@ -595,17 +555,12 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">🎉 総フォロワー数1000人突破！</h4>
-                                <span class="timeline-badge breakthrough-badge">Breakthrough</span>
                             </div>
                             <p class="timeline-description">
                                 Spotifyのフォロワー数が200人を突破！<br>
                                 YouTubeの登録者数が700人を突破！<br><br>
                                 そして、Spotify、ApplePodcast、YouTubeの総フォロワー数が1000人を突破！番組開始時には想像もしていなかった数字です！
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">番組開始時には想像もしていなかった数字に到達</span>
-                            </div>
                         </div>
                     </div>
                     
@@ -621,7 +576,6 @@ get_header(); ?>
                         <div class="timeline-content featured-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">🎨 150回配信記念アートワークリニューアル</h4>
-                                <span class="timeline-badge celebration-badge">Celebration</span>
                             </div>
                             <p class="timeline-description">
                                 ApplePodcastのフォロワー数が150人を突破！<br>
@@ -653,16 +607,11 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">📈 さらなる成長継続</h4>
-                                <span class="timeline-badge growth-badge">Growth</span>
                             </div>
                             <p class="timeline-description">
                                 4月：Spotifyのフォロワー数が300人を突破！<br>
                                 5月：YouTubeの登録者数が800人を突破！
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">継続的な成長により、番組の安定した人気を確立</span>
-                            </div>
                         </div>
                     </div>
                     
@@ -678,15 +627,10 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">🎯 Apple Podcast 200フォロワー突破</h4>
-                                <span class="timeline-badge milestone-badge">Milestone</span>
                             </div>
                             <p class="timeline-description">
                                 Apple Podcastのフォロワー数が200人を突破！主要プラットフォームでの着実な成長を実現。
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">マルチプラットフォームでの認知度向上</span>
-                            </div>
                         </div>
                     </div>
                     
@@ -702,17 +646,12 @@ get_header(); ?>
                         <div class="timeline-content featured-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">🎤 名古屋「ポッドキャストミキサー」に登壇！</h4>
-                                <span class="timeline-badge community-badge">Community</span>
                             </div>
                             <p class="timeline-description">
                                 名古屋で開催された「ポッドキャストミキサー」に登壇！「ドタバタグッドボタン」のけーちゃんと一緒に、対談形式で名古屋にまつわるコンテンツクイズを実施。<br><br>
                                 会場は満席でワイワイ賑やかな雰囲気！クイズ中は真剣に考えたり、珍回答に大笑いしたり、メリハリがあって楽しい空間に。<br><br>
                                 さらに、イベントを機にポッドキャスト用のオリジナル名刺も制作！コンフリブランドカラーで統一し、新規のコンフリキャラクターもデザインに採用。
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">初の本格的なイベント登壇でリスナーとの交流を実現</span>
-                            </div>
                             <div class="timeline-actions">
                                 <a href="https://content-freaks.jp/2025-2q-growth-podcast/" class="timeline-link featured-link" target="_blank">
                                     <span class="link-icon">📝</span>
@@ -734,7 +673,6 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">🎨 サムネイルデザイン刷新</h4>
-                                <span class="timeline-badge innovation-badge">Innovation</span>
                             </div>
                             <p class="timeline-description">
                                 ポッドキャスト用とYouTube用の2種類のサムネイルフォーマットを新たに作成！<br><br>
@@ -744,10 +682,6 @@ get_header(); ?>
                                 ▶ サムネイル作成がスムーズに<br>
                                 ▶ ポッドキャストではコンフリマーク、YouTubeではPodcastマークを追加
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">YouTubeのクリック率が2〜4％から7〜10％に大幅アップ！</span>
-                            </div>
                         </div>
                     </div>
                     
@@ -763,16 +697,11 @@ get_header(); ?>
                         <div class="timeline-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">🎉 YouTube 900人突破＆コラボ配信</h4>
-                                <span class="timeline-badge breakthrough-badge">Breakthrough</span>
                             </div>
                             <p class="timeline-description">
                                 YouTubeの登録者数が900人を突破！サムネイル改善の効果が着実に数字に表れる。<br><br>
                                 さらに、「推し活2次元LIFEラジオ」とコラボ配信を実施！番組間の交流がさらに活発に。
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">YouTube 1000人突破まであと少し！</span>
-                            </div>
                         </div>
                     </div>
                     
@@ -788,16 +717,11 @@ get_header(); ?>
                         <div class="timeline-content featured-content">
                             <div class="content-header">
                                 <h4 class="timeline-title">🏆 YouTube登録者1000人突破！！！</h4>
-                                <span class="timeline-badge celebration-badge">Celebration</span>
                             </div>
                             <p class="timeline-description">
                                 ついに目標であったYouTube登録者数1000人を突破！！！<br><br>
                                 番組開始から約2年、サムネイル改善やコンテンツの充実により、ついに大台達成。これまで応援してくださったすべてのリスナーの皆様に心から感謝！
                             </p>
-                            <div class="timeline-impact">
-                                <span class="impact-label">Impact:</span>
-                                <span class="impact-text">番組史上最大のマイルストーン達成！</span>
-                            </div>
                         </div>
                     </div>
                 </div>
