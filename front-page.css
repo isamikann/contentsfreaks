@@ -1584,20 +1584,6 @@
     gap: 2.5rem;
 }
 
-.history-journey-eyebrow {
-    display: inline-block;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #4338ca;
-    margin: 0 0 0.75rem;
-    padding: 0.3rem 0.9rem;
-    border: 1px solid rgba(67,56,202,0.3);
-    border-radius: 50px;
-    background: rgba(67,56,202,0.06);
-}
-
 .history-journey-header {
     display: flex;
     flex-direction: column;

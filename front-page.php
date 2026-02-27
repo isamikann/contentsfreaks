@@ -221,7 +221,6 @@ get_header(); ?>
     <section class="history-journey-section fade-in">
         <div class="history-journey-container">
             <div class="history-journey-header">
-                <p class="history-journey-eyebrow">Our Journey</p>
                 <h2 class="history-journey-title">コンフリの歩み</h2>
                 <p class="history-journey-desc">「カラビナFM」から「コンテンツフリークス」へ——<br>2023年の立ち上げからいまに至るまでの軌跡。</p>
             </div>
