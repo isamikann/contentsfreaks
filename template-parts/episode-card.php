@@ -56,6 +56,10 @@ $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
             <?php if ($duration) : ?>
                 <span class="episode-duration-badge">⏱ <?php echo esc_html($duration); ?></span>
             <?php endif; ?>
+            <?php $yt_views = get_post_meta(get_the_ID(), 'episode_youtube_views', true); ?>
+            <?php if ($yt_views) : ?>
+                <span class="episode-yt-views">▶ <?php echo esc_html(contentfreaks_format_yt_number((int) $yt_views)); ?></span>
+            <?php endif; ?>
         </div>
 
         <?php

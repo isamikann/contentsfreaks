@@ -272,6 +272,17 @@ body {
     white-space: nowrap;
 }
 
+/* YouTube再生数バッジ */
+.episode-yt-views {
+    font-size: var(--font-size-xs, 0.75rem);
+    color: #fff;
+    background: #ff0000;
+    border-radius: 3px;
+    padding: 1px 6px;
+    white-space: nowrap;
+    font-weight: 600;
+}
+
 /* デフォルトサムネイルのインラインCSS排除 */
 .default-thumbnail-inner {
     background: linear-gradient(135deg, var(--color-primary-400, #f7ff0b), var(--color-accent-400, #ff6b35));

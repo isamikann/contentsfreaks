@@ -129,6 +129,17 @@ function contentfreaks_unified_admin_page() {
         $current_tab = 'tools';
     }
 
+    // ========== POST ハンドラ: YouTube動画紐付け ==========
+    if (isset($_POST['sync_youtube_videos']) && wp_verify_nonce($_POST['sync_youtube_videos_nonce'], 'contentfreaks_sync_youtube_videos')) {
+        $result = contentfreaks_sync_youtube_video_ids();
+        if (!empty($result['errors'])) {
+            $messages[] = array('type' => 'error', 'message' => 'YouTube動画紐付け失敗: ' . implode(' / ', $result['errors']));
+        } else {
+            $messages[] = array('type' => 'success', 'message' => 'YouTube動画紐付け完了! 紐付け: ' . $result['synced'] . '件, 未マッチ: ' . $result['skipped'] . '件');
+        }
+        $current_tab = 'tools';
+    }
+
     // ========== POST ハンドラ: YouTube API設定 ==========
     if (isset($_POST['save_youtube_settings']) && wp_verify_nonce($_POST['youtube_settings_nonce'], 'contentfreaks_youtube_settings')) {
         $api_key    = sanitize_text_field($_POST['youtube_api_key']);
@@ -469,6 +480,10 @@ function contentfreaks_unified_admin_page() {
                         <form method="post" style="display: inline;">
                             <?php wp_nonce_field('contentfreaks_flush_rewrite_rules', 'flush_rewrite_rules_nonce'); ?>
                             <input type="submit" name="flush_rewrite_rules" class="button-secondary" value="🔄 リライトルール更新" />
+                        </form>
+                        <form method="post" style="display: inline;">
+                            <?php wp_nonce_field('contentfreaks_sync_youtube_videos', 'sync_youtube_videos_nonce'); ?>
+                            <input type="submit" name="sync_youtube_videos" class="button-secondary" value="🎬 YouTube動画紐付け" />
                         </form>
                         <form method="post" style="display: inline;">
                             <?php wp_nonce_field('contentfreaks_test_rss', 'test_rss_nonce'); ?>

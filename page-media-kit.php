@@ -74,7 +74,12 @@ get_header(); ?>
                     </a>
                     <a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" target="_blank" rel="noopener" class="mk-platform-card">
                         <span class="mk-pf-name">YouTube</span>
-                        <span class="mk-pf-number"><?php echo esc_html(get_theme_mod('mk_youtube_subscribers', '900')); ?></span>
+                        <span class="mk-pf-number"><?php
+                            $yt_stats = contentfreaks_get_youtube_channel_stats();
+                            echo $yt_stats
+                                ? esc_html(contentfreaks_format_yt_number($yt_stats['subscriber_count']))
+                                : esc_html(get_theme_mod('mk_youtube_subscribers', '900'));
+                        ?></span>
                         <span class="mk-pf-label">登録者</span>
                     </a>
                     <div class="mk-platform-card mk-platform-total">
