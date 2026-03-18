@@ -29,5 +29,10 @@ define('CONTENTFREAKS_YOUTUBE_URL', 'https://youtube.com/@contentfreaks');
 define('CONTENTFREAKS_RSS_URL', 'https://anchor.fm/s/d8cfdc48/podcast/rss');
 
 // YouTube Data API v3
-define('CONTENTFREAKS_YOUTUBE_API_KEY',    'AIzaSyCvbeSQmRkhQv6kcBS_mzabzW_rSswaeLc');  // Google Cloud ConsoleのAPIキーを入力
-define('CONTENTFREAKS_YOUTUBE_CHANNEL_ID', 'UCPugoGNOeN7mtvrH0UHMpjg');  // チャンネルID（UCxxxxxxxx形式）
+// 実際の値は wp-config.php で define すること（gitに含めないため）
+if (!defined('CONTENTFREAKS_YOUTUBE_API_KEY')) {
+    define('CONTENTFREAKS_YOUTUBE_API_KEY', '');
+}
+if (!defined('CONTENTFREAKS_YOUTUBE_CHANNEL_ID')) {
+    define('CONTENTFREAKS_YOUTUBE_CHANNEL_ID', '');
+}
