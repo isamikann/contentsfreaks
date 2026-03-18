@@ -20,8 +20,13 @@ function contentfreaks_get_youtube_channel_stats() {
         return $cached;
     }
 
-    $api_key    = defined('CONTENTFREAKS_YOUTUBE_API_KEY')    ? CONTENTFREAKS_YOUTUBE_API_KEY    : '';
-    $channel_id = defined('CONTENTFREAKS_YOUTUBE_CHANNEL_ID') ? CONTENTFREAKS_YOUTUBE_CHANNEL_ID : '';
+    // 定数優先、未設定の場合はDBのオプションを使用
+    $api_key    = (defined('CONTENTFREAKS_YOUTUBE_API_KEY')    && CONTENTFREAKS_YOUTUBE_API_KEY    !== '')
+                    ? CONTENTFREAKS_YOUTUBE_API_KEY
+                    : get_option('contentfreaks_youtube_api_key', '');
+    $channel_id = (defined('CONTENTFREAKS_YOUTUBE_CHANNEL_ID') && CONTENTFREAKS_YOUTUBE_CHANNEL_ID !== '')
+                    ? CONTENTFREAKS_YOUTUBE_CHANNEL_ID
+                    : get_option('contentfreaks_youtube_channel_id', '');
 
     if (empty($api_key) || empty($channel_id)) {
         return false;

@@ -129,6 +129,18 @@ function contentfreaks_unified_admin_page() {
         $current_tab = 'tools';
     }
 
+    // ========== POST ハンドラ: YouTube API設定 ==========
+    if (isset($_POST['save_youtube_settings']) && wp_verify_nonce($_POST['youtube_settings_nonce'], 'contentfreaks_youtube_settings')) {
+        $api_key    = sanitize_text_field($_POST['youtube_api_key']);
+        $channel_id = sanitize_text_field($_POST['youtube_channel_id']);
+        update_option('contentfreaks_youtube_api_key',    $api_key);
+        update_option('contentfreaks_youtube_channel_id', $channel_id);
+        // キーが変わったのでキャッシュをクリア
+        contentfreaks_clear_youtube_stats_cache();
+        $messages[] = array('type' => 'success', 'message' => 'YouTube API設定を保存しました！');
+        $current_tab = 'settings';
+    }
+
     // ========== POST ハンドラ: 基本設定 ==========
     if (isset($_POST['save_basic_settings']) && wp_verify_nonce($_POST['basic_settings_nonce'], 'contentfreaks_basic_settings')) {
         set_theme_mod('podcast_name', sanitize_text_field($_POST['podcast_name']));
@@ -289,6 +301,51 @@ function contentfreaks_unified_admin_page() {
                             <a href="<?php echo esc_url(admin_url('customize.php?autofocus[section]=contentfreaks_podcast_settings')); ?>">外観 → カスタマイズ</a>で設定できます。
                         </p>
                         <?php submit_button('設定を保存', 'primary', 'save_basic_settings'); ?>
+                    </form>
+                </div>
+            </div>
+
+            <div class="postbox">
+                <h2 class="hndle">🎬 YouTube API 設定</h2>
+                <div class="inside">
+                    <form method="post">
+                        <?php wp_nonce_field('contentfreaks_youtube_settings', 'youtube_settings_nonce'); ?>
+                        <table class="form-table">
+                            <tr>
+                                <th scope="row"><label for="youtube_api_key">API キー</label></th>
+                                <td>
+                                    <input type="password" id="youtube_api_key" name="youtube_api_key" class="regular-text"
+                                           value="<?php echo esc_attr(get_option('contentfreaks_youtube_api_key', '')); ?>" autocomplete="off" />
+                                    <p class="description">Google Cloud Console で発行した YouTube Data API v3 のキー</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="youtube_channel_id">チャンネル ID</label></th>
+                                <td>
+                                    <input type="text" id="youtube_channel_id" name="youtube_channel_id" class="regular-text"
+                                           value="<?php echo esc_attr(get_option('contentfreaks_youtube_channel_id', '')); ?>" />
+                                    <p class="description">UCxxxxxxxx 形式。YouTube Studio → 設定 → チャンネル → 高度な設定 で確認できます。</p>
+                                </td>
+                            </tr>
+                        </table>
+                        <?php
+                        $yt_stats = contentfreaks_get_youtube_channel_stats();
+                        if ($yt_stats): ?>
+                        <div style="background:#f0fff0;padding:10px 15px;border-left:4px solid #4CAF50;border-radius:4px;margin-bottom:15px;">
+                            ✅ API接続OK &nbsp;|&nbsp;
+                            登録者数: <strong><?php echo contentfreaks_format_yt_number($yt_stats['subscriber_count']); ?></strong> &nbsp;|&nbsp;
+                            総再生数: <strong><?php echo contentfreaks_format_yt_number($yt_stats['view_count']); ?></strong>
+                        </div>
+                        <?php elseif (get_option('contentfreaks_youtube_api_key')): ?>
+                        <div style="background:#fff8f0;padding:10px 15px;border-left:4px solid #ff9800;border-radius:4px;margin-bottom:15px;">
+                            ⚠️ API接続に失敗しました。キーまたはチャンネルIDを確認してください。
+                        </div>
+                        <?php else: ?>
+                        <div style="background:#f0f8ff;padding:10px 15px;border-left:4px solid #2196F3;border-radius:4px;margin-bottom:15px;">
+                            ℹ️ APIキーを入力するとエピソードページのヒーローに登録者数・再生数が表示されます。
+                        </div>
+                        <?php endif; ?>
+                        <?php submit_button('YouTube設定を保存', 'primary', 'save_youtube_settings'); ?>
                     </form>
                 </div>
             </div>
