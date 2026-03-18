@@ -27,3 +27,7 @@ define('CONTENTFREAKS_SPOTIFY_URL', 'https://open.spotify.com/show/20otj7CiCZ0hc
 define('CONTENTFREAKS_APPLE_URL', 'https://podcasts.apple.com/jp/podcast/%E3%82%B3%E3%83%B3%E3%83%86%E3%83%B3%E3%83%84%E3%83%95%E3%83%AA%E3%83%BC%E3%82%AF%E3%82%B9/id1692185758');
 define('CONTENTFREAKS_YOUTUBE_URL', 'https://youtube.com/@contentfreaks');
 define('CONTENTFREAKS_RSS_URL', 'https://anchor.fm/s/d8cfdc48/podcast/rss');
+
+// YouTube Data API v3
+define('CONTENTFREAKS_YOUTUBE_API_KEY',    'AIzaSyCvbeSQmRkhQv6kcBS_mzabzW_rSswaeLc');  // Google Cloud ConsoleのAPIキーを入力
+define('CONTENTFREAKS_YOUTUBE_CHANNEL_ID', 'UCPugoGNOeN7mtvrH0UHMpjg');  // チャンネルID（UCxxxxxxxx形式）

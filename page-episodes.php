@@ -29,6 +29,17 @@ get_header(); ?>
                     <span class="episodes-stat-number"><?php echo contentfreaks_get_podcast_count(); ?></span>
                     <span class="episodes-stat-label">エピソード</span>
                 </div>
+                <?php $yt_stats = contentfreaks_get_youtube_channel_stats(); ?>
+                <?php if ($yt_stats) : ?>
+                <div class="episodes-stat">
+                    <span class="episodes-stat-number"><?php echo contentfreaks_format_yt_number($yt_stats['subscriber_count']); ?></span>
+                    <span class="episodes-stat-label"><span class="yt-badge">YouTube</span>登録者数</span>
+                </div>
+                <div class="episodes-stat">
+                    <span class="episodes-stat-number"><?php echo contentfreaks_format_yt_number($yt_stats['view_count']); ?></span>
+                    <span class="episodes-stat-label"><span class="yt-badge">YouTube</span>総再生回数</span>
+                </div>
+                <?php else : ?>
                 <div class="episodes-stat">
                     <span class="episodes-stat-number">🔥</span>
                     <span class="episodes-stat-label">熱い語り</span>
@@ -37,6 +48,7 @@ get_header(); ?>
                     <span class="episodes-stat-number">🔍</span>
                     <span class="episodes-stat-label">深掘り分析</span>
                 </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>
