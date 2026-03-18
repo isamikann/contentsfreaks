@@ -209,7 +209,7 @@ function contentfreaks_sync_youtube_video_ids() {
 
 /**
  * YouTubeタイトルからエピソード番号を抽出
- * 対応形式: EP.12 / Ep12 / #12 / 第12回 / 【12】
+ * 対応形式: EP.12 / Ep12 / #12 / 第12回 / 第12話 / 12話 / 【12】/ [12]
  *
  * @param  string   $title
  * @return int|null
@@ -218,7 +218,8 @@ function contentfreaks_extract_episode_number_from_yt_title($title) {
     $patterns = array(
         '/\bep\.?\s*(\d+)/i',   // EP.12, ep12
         '/#(\d+)/',              // #12
-        '/第(\d+)回/',           // 第12回
+        '/第(\d+)[回話]/u',      // 第12回, 第12話
+        '/(\d+)話/u',            // 12話（「第」なし）
         '/【(\d+)】/',           // 【12】
         '/\[(\d+)\]/',           // [12]
     );
