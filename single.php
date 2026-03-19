@@ -31,18 +31,18 @@ get_header(); ?>
             <header class="episode-header">
                 <div class="episode-header-content">
                     <div class="episode-featured-image">
-                        <?php if ($youtube_id) : ?>
+                        <?php if (has_post_thumbnail()) : ?>
+                            <?php the_post_thumbnail('large', array(
+                                'alt' => get_the_title(),
+                                'loading' => 'eager'
+                            )); ?>
+                        <?php elseif ($youtube_id) : ?>
                             <img
                                 src="https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/maxresdefault.jpg"
                                 alt="<?php echo esc_attr(get_the_title()); ?>"
                                 loading="eager"
                                 onerror="this.src='https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/hqdefault.jpg'"
                             >
-                        <?php elseif (has_post_thumbnail()) : ?>
-                            <?php the_post_thumbnail('large', array(
-                                'alt' => get_the_title(),
-                                'loading' => 'eager'
-                            )); ?>
                         <?php else : ?>
                             <div class="default-episode-image">
                                 <div class="default-episode-image-inner">🎙️</div>
@@ -295,7 +295,14 @@ get_header(); ?>
                     ?>
                         <article class="related-episode-card">
                             <div class="related-episode-thumbnail">
-                                <?php if ($related_youtube_id) : ?>
+                                <?php if (has_post_thumbnail()) : ?>
+                                    <a href="<?php the_permalink(); ?>">
+                                        <?php the_post_thumbnail('medium', array(
+                                            'alt' => get_the_title(),
+                                            'loading' => 'lazy'
+                                        )); ?>
+                                    </a>
+                                <?php elseif ($related_youtube_id) : ?>
                                     <a href="<?php the_permalink(); ?>">
                                         <img
                                             src="https://i.ytimg.com/vi/<?php echo esc_attr($related_youtube_id); ?>/maxresdefault.jpg"
@@ -303,13 +310,6 @@ get_header(); ?>
                                             loading="lazy"
                                             onerror="this.src='https://i.ytimg.com/vi/<?php echo esc_attr($related_youtube_id); ?>/hqdefault.jpg'"
                                         >
-                                    </a>
-                                <?php elseif (has_post_thumbnail()) : ?>
-                                    <a href="<?php the_permalink(); ?>">
-                                        <?php the_post_thumbnail('medium', array(
-                                            'alt' => get_the_title(),
-                                            'loading' => 'lazy'
-                                        )); ?>
                                     </a>
                                 <?php else :
                                     $related_image_url = get_post_meta(get_the_ID(), 'episode_image_url', true);

@@ -20,7 +20,14 @@ $youtube_id = get_post_meta(get_the_ID(), 'episode_youtube_id', true);
 <article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
     <div class="episode-card-header">
         <div class="episode-thumbnail">
-            <?php if ($youtube_id) : ?>
+            <?php if (has_post_thumbnail()) : ?>
+                <a href="<?php the_permalink(); ?>">
+                    <?php the_post_thumbnail('medium', array(
+                        'alt' => get_the_title(),
+                        'loading' => 'lazy'
+                    )); ?>
+                </a>
+            <?php elseif ($youtube_id) : ?>
                 <a href="<?php the_permalink(); ?>">
                     <img
                         src="https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/maxresdefault.jpg"
@@ -28,13 +35,6 @@ $youtube_id = get_post_meta(get_the_ID(), 'episode_youtube_id', true);
                         loading="lazy"
                         onerror="this.src='https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/hqdefault.jpg'"
                     >
-                </a>
-            <?php elseif (has_post_thumbnail()) : ?>
-                <a href="<?php the_permalink(); ?>">
-                    <?php the_post_thumbnail('medium', array(
-                        'alt' => get_the_title(),
-                        'loading' => 'lazy'
-                    )); ?>
                 </a>
             <?php else :
                 $episode_image_url = get_post_meta(get_the_ID(), 'episode_image_url', true);
