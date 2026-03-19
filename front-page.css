@@ -1129,8 +1129,25 @@
     transition: color 0.2s ease;
 }
 
+.hero-listen-links a.platform-spotify {
+    color: #1DB954;
+}
+
+.hero-listen-links a.platform-apple {
+    color: #A855F7;
+}
+
+.hero-listen-links a.platform-youtube {
+    color: #FF0000;
+}
+
+.hero-listen-links a.platform-spotify:hover,
+.hero-listen-links a.platform-apple:hover,
+.hero-listen-links a.platform-youtube:hover {
+    color: inherit;
+}
+
 .hero-listen-links a:hover {
-    color: #fff;
     text-decoration: underline;
 }
 

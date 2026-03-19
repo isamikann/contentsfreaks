@@ -31,9 +31,9 @@ get_header(); ?>
             </p>
 
             <nav class="hero-listen-links" aria-label="ポッドキャストプラットフォーム">
-                <a href="<?php echo esc_url(CONTENTFREAKS_SPOTIFY_URL); ?>" target="_blank" rel="noopener">Spotify</a>
-                <a href="<?php echo esc_url(CONTENTFREAKS_APPLE_URL); ?>" target="_blank" rel="noopener">Apple Podcasts</a>
-                <a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" target="_blank" rel="noopener">YouTube</a>
+                <a href="<?php echo esc_url(CONTENTFREAKS_SPOTIFY_URL); ?>" target="_blank" rel="noopener" class="platform-spotify">Spotify</a>
+                <a href="<?php echo esc_url(CONTENTFREAKS_APPLE_URL); ?>" target="_blank" rel="noopener" class="platform-apple">Apple Podcasts</a>
+                <a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" target="_blank" rel="noopener" class="platform-youtube">YouTube</a>
             </nav>
         </div>
     </section>
