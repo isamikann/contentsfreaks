@@ -106,14 +106,14 @@ html {
 
 .blog-stat-number {
     display: block;
-    font-size: 2.5rem;
+    font-size: var(--stat-number);
     font-weight: 800;
     line-height: 1;
     text-shadow: var(--blog-hero-stats-shadow);
 }
 
 .blog-stat-label {
-    font-size: 0.9rem;
+    font-size: var(--stat-label);
     opacity: 0.8;
     margin-top: 0.5rem;
     text-transform: uppercase;
@@ -365,7 +365,7 @@ html {
 
 .blog-title {
     margin: 1rem 0 1rem 0;
-    font-size: 1.3rem;
+    font-size: var(--card-title-large);
     line-height: 1.4;
     font-weight: 700;
 }
@@ -384,7 +384,7 @@ html {
     color: var(--blog-card-excerpt);
     line-height: 1.6;
     margin-bottom: 1.5rem;
-    font-size: 0.95rem;
+    font-size: var(--description);
 }
 
 .blog-actions {

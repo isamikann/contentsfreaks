@@ -386,6 +386,11 @@ Version: 2.0.0
     --description: clamp(0.9rem, 0.88rem + 0.12vw, 0.95rem);
     --caption: clamp(0.82rem, 0.8rem + 0.08vw, 0.875rem);
 
+    /* 共通表示用 */
+    --section-title: var(--page-title);
+    --stat-number: clamp(1.75rem, 1.45rem + 0.9vw, 2.5rem);
+    --stat-label: var(--font-size-sm);
+
     /* メタ情報 */
     --meta-primary: clamp(0.8rem, 0.77rem + 0.1vw, 0.85rem);
     --meta-secondary: clamp(0.76rem, 0.74rem + 0.08vw, 0.8rem);
@@ -400,6 +405,7 @@ Version: 2.0.0
     --mobile-card-title: 0.98rem;
     --mobile-body-text: 0.93rem;
     --mobile-meta: 0.78rem;
+    --mobile-stat-number: clamp(1.4rem, 5vw, 1.9rem);
 }
 
 /* ===== ベーススタイル ===== */

@@ -113,14 +113,14 @@ body {
 
 .episodes-stat-number {
     display: block;
-    font-size: 2.5rem;
+    font-size: var(--stat-number);
     font-weight: 800;
     line-height: 1;
     text-shadow: var(--episodes-hero-stats-shadow);
 }
 
 .episodes-stat-label {
-    font-size: 0.9rem;
+    font-size: var(--stat-label);
     opacity: 0.8;
     margin-top: 0.5rem;
     text-transform: uppercase;
@@ -165,7 +165,7 @@ body {
 }
 
 .filters-title {
-    font-size: 2rem;
+    font-size: var(--section-title);
     margin-bottom: 2rem;
     color: var(--episodes-filters-title);
     font-weight: 700;
