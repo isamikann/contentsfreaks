@@ -32,10 +32,6 @@ get_header(); ?>
                 <?php $yt_stats = contentfreaks_get_youtube_channel_stats(); ?>
                 <?php if ($yt_stats) : ?>
                 <div class="episodes-stat">
-                    <span class="episodes-stat-number"><?php echo contentfreaks_format_yt_number($yt_stats['subscriber_count']); ?></span>
-                    <span class="episodes-stat-label"><span class="yt-badge">YouTube</span>登録者数</span>
-                </div>
-                <div class="episodes-stat">
                     <span class="episodes-stat-number"><?php echo contentfreaks_format_yt_number($yt_stats['view_count']); ?></span>
                     <span class="episodes-stat-label"><span class="yt-badge">YouTube</span>総再生回数</span>
                 </div>
