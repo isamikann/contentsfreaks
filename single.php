@@ -98,7 +98,6 @@ get_header(); ?>
                 </div>
                 <?php endif; ?>
                 <div class="episode-platform-links">
-                    <h3 class="platform-links-title">聴く</h3>
                     <?php echo do_shortcode('[podcast_platforms]'); ?>
                 </div>
                 <?php if ($youtube_id) : ?>

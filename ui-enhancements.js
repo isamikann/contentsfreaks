@@ -42,8 +42,8 @@
     // ===== 2. SNSシェアボタン（エピソード詳細ページ） =====
 
     function initShareButtons() {
-        const episodeHeader = document.querySelector('.episode-platform-links');
-        if (!episodeHeader) return;
+        const platformPanel = document.querySelector('.episode-platform-links');
+        if (!platformPanel) return;
 
         const url = encodeURIComponent(window.location.href);
         const title = encodeURIComponent(document.title);
@@ -51,12 +51,12 @@
         const rawTitle = document.title;
 
         const container = document.createElement('div');
-        container.className = 'share-buttons';
+        container.className = 'share-buttons episode-share-buttons';
 
         // Web Share API 対応チェック
         if (navigator.share) {
             container.innerHTML = `
-                <span class="share-buttons-title">📤 シェア</span>
+            <span class="share-buttons-title">シェア</span>
                 <button class="share-btn share-btn-native">📤 シェアする</button>
                 <a href="https://twitter.com/intent/tweet?url=${url}&text=${title}" 
                    target="_blank" rel="noopener" class="share-btn share-btn-x">
@@ -69,7 +69,7 @@
             });
         } else {
             container.innerHTML = `
-                <span class="share-buttons-title">📤 シェア</span>
+                <span class="share-buttons-title">シェア</span>
                 <a href="https://twitter.com/intent/tweet?url=${url}&text=${title}" 
                    target="_blank" rel="noopener" class="share-btn share-btn-x">
                     𝕏 ポスト
@@ -84,7 +84,7 @@
             `;
         }
 
-        episodeHeader.parentNode.insertBefore(container, episodeHeader.nextSibling);
+        platformPanel.appendChild(container);
 
         // コピーボタン（navigator.share 対応時は存在しない）
         const copyBtn = container.querySelector('.share-btn-copy');

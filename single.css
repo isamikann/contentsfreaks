@@ -707,6 +707,12 @@ html {
     border: 1px solid rgba(0,0,0,0.06);
 }
 
+.episode-platform-links .episode-share-buttons {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0,0,0,0.06);
+}
+
 /* YouTube埋め込みプレイヤー */
 .episode-youtube-player {
     margin: 2rem 0;
@@ -766,6 +772,19 @@ html {
     margin-bottom: 1.2rem;
     color: #495057;
     text-align: center;
+}
+
+.episode-platform-links .platform-links-title,
+.share-buttons-title {
+    font-size: var(--small-label);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.share-buttons-title {
+    margin-right: 0.25rem;
 }
 
 .episode-platform-links .platforms-grid {
@@ -842,6 +861,17 @@ html {
 .episode-platform-links .platform-link:hover .platform-name,
 .episode-platform-links .platform-link:hover .platform-action {
     color: #333;
+}
+
+.episode-platform-links .share-buttons {
+    margin-top: 0;
+    gap: 0.5rem;
+}
+
+.episode-platform-links .share-btn {
+    padding: 0.45rem 0.85rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
 }
 
 /* プラットフォーム別の色 */
