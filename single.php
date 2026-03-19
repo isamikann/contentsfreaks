@@ -291,19 +291,35 @@ get_header(); ?>
                         while ($related_query->have_posts()) : $related_query->the_post();
                             $related_episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
                             $related_duration = get_post_meta(get_the_ID(), 'episode_duration', true);
+                            $related_youtube_id = get_post_meta(get_the_ID(), 'episode_youtube_id', true);
                     ?>
                         <article class="related-episode-card">
                             <div class="related-episode-thumbnail">
-                                <?php if (has_post_thumbnail()) : ?>
+                                <?php if ($related_youtube_id) : ?>
+                                    <a href="<?php the_permalink(); ?>">
+                                        <img
+                                            src="https://i.ytimg.com/vi/<?php echo esc_attr($related_youtube_id); ?>/maxresdefault.jpg"
+                                            alt="<?php echo esc_attr(get_the_title()); ?>"
+                                            loading="lazy"
+                                            onerror="this.src='https://i.ytimg.com/vi/<?php echo esc_attr($related_youtube_id); ?>/hqdefault.jpg'"
+                                        >
+                                    </a>
+                                <?php elseif (has_post_thumbnail()) : ?>
                                     <a href="<?php the_permalink(); ?>">
                                         <?php the_post_thumbnail('medium', array(
                                             'alt' => get_the_title(),
-                                            'loading' => 'lazy' // 関連記事は遅延読み込み
+                                            'loading' => 'lazy'
                                         )); ?>
                                     </a>
-                                <?php else : ?>
+                                <?php else :
+                                    $related_image_url = get_post_meta(get_the_ID(), 'episode_image_url', true);
+                                ?>
                                     <a href="<?php the_permalink(); ?>">
-                                        <div style="background: linear-gradient(135deg, #f7ff0b, #ff6b35); width: 100%; height: 150px; display: flex; align-items: center; justify-content: center; font-size: 2rem; border-radius: 10px;">🎙️</div>
+                                        <?php if ($related_image_url) : ?>
+                                            <img src="<?php echo esc_url($related_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="lazy">
+                                        <?php else : ?>
+                                            <div class="related-episode-default-thumb">🎙️</div>
+                                        <?php endif; ?>
                                     </a>
                                 <?php endif; ?>
                                 
