@@ -31,10 +31,17 @@ get_header(); ?>
             <header class="episode-header">
                 <div class="episode-header-content">
                     <div class="episode-featured-image">
-                        <?php if (has_post_thumbnail()) : ?>
+                        <?php if ($youtube_id) : ?>
+                            <img
+                                src="https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/maxresdefault.jpg"
+                                alt="<?php echo esc_attr(get_the_title()); ?>"
+                                loading="eager"
+                                onerror="this.src='https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/hqdefault.jpg'"
+                            >
+                        <?php elseif (has_post_thumbnail()) : ?>
                             <?php the_post_thumbnail('large', array(
                                 'alt' => get_the_title(),
-                                'loading' => 'eager' // メイン画像は即座に読み込み
+                                'loading' => 'eager'
                             )); ?>
                         <?php else : ?>
                             <div class="default-episode-image">

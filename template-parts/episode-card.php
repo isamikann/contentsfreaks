@@ -15,11 +15,21 @@ if (!defined('ABSPATH')) {
 $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
 $episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
 $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
+$youtube_id = get_post_meta(get_the_ID(), 'episode_youtube_id', true);
 ?>
 <article class="episode-card" data-category="<?php echo esc_attr($episode_category); ?>">
     <div class="episode-card-header">
         <div class="episode-thumbnail">
-            <?php if (has_post_thumbnail()) : ?>
+            <?php if ($youtube_id) : ?>
+                <a href="<?php the_permalink(); ?>">
+                    <img
+                        src="https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/maxresdefault.jpg"
+                        alt="<?php echo esc_attr(get_the_title()); ?>"
+                        loading="lazy"
+                        onerror="this.src='https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/hqdefault.jpg'"
+                    >
+                </a>
+            <?php elseif (has_post_thumbnail()) : ?>
                 <a href="<?php the_permalink(); ?>">
                     <?php the_post_thumbnail('medium', array(
                         'alt' => get_the_title(),

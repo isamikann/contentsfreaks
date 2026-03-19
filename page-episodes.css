@@ -298,11 +298,17 @@ body {
 .episode-card-header,
 .episode-thumbnail {
     position: relative;
-    height: 180px;
     overflow: hidden;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    aspect-ratio: 1 / 1; /* 正方形のアスペクト比を強制 */
-    flex-shrink: 0; /* サムネイルのサイズを固定 */
+    aspect-ratio: 16 / 9;
+    flex-shrink: 0;
+}
+
+.episode-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 /* カードホバー時のCTAオーバーレイ（詳細ページへのリンクであることを明示） */
