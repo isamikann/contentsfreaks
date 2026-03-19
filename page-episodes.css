@@ -857,14 +857,14 @@ body {
     
     .episode-card {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         height: auto;
         overflow: hidden;
     }
     
     .episode-card-header,
     .episode-thumbnail {
-        width: 160px;
+        width: 100%;
         aspect-ratio: 16 / 9;
         height: auto;
         flex-shrink: 0;
@@ -1032,14 +1032,14 @@ body {
     
     .episode-card {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         height: auto;
         overflow: hidden;
     }
     
     .episode-card-header,
     .episode-thumbnail {
-        width: 130px;
+        width: 100%;
         aspect-ratio: 16 / 9;
         height: auto;
         flex-shrink: 0;
