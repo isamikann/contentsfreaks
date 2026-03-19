@@ -102,6 +102,56 @@
         }
     }
 
+    function copyTextToClipboard(text) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        }
+
+        return new Promise(function (resolve, reject) {
+            var textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.setAttribute('readonly', 'readonly');
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+
+            try {
+                var copied = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                if (copied) {
+                    resolve();
+                } else {
+                    reject(new Error('copy failed'));
+                }
+            } catch (error) {
+                document.body.removeChild(textarea);
+                reject(error);
+            }
+        });
+    }
+
+    function initFooterRssCopy() {
+        const copyBtn = document.querySelector('.footer-rss-copy');
+        if (!copyBtn) return;
+
+        copyBtn.addEventListener('click', function () {
+            const url = this.dataset.url;
+            const originalText = this.textContent;
+
+            copyTextToClipboard(url).then(function () {
+                copyBtn.classList.add('is-copied');
+                copyBtn.textContent = 'コピーしました';
+                setTimeout(function () {
+                    copyBtn.classList.remove('is-copied');
+                    copyBtn.textContent = originalText;
+                }, 2000);
+            }).catch(function () {
+                window.prompt('RSSフィードURLをコピーしてください', url);
+            });
+        });
+    }
+
     // ===== 4. お気に入りエピソード（無効化済み） =====
 
     function initFavorites() {
@@ -615,6 +665,7 @@
     function init() {
         initScrollToTop();
         initShareButtons();
+        initFooterRssCopy();
         initFavorites();
         initAjaxSearch();
         initTestimonialForm();

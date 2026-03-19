@@ -23,7 +23,7 @@
                 <li><a href="<?php echo esc_url(CONTENTFREAKS_SPOTIFY_URL); ?>" target="_blank" rel="noopener">Spotify</a></li>
                 <li><a href="<?php echo esc_url(CONTENTFREAKS_APPLE_URL); ?>" target="_blank" rel="noopener">Apple Podcasts</a></li>
                 <li><a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" target="_blank" rel="noopener">YouTube</a></li>
-                <li><a href="<?php echo esc_url(CONTENTFREAKS_RSS_URL); ?>" target="_blank" rel="noopener"><?php echo esc_html(CONTENTFREAKS_RSS_URL); ?></a></li>
+                <li><button type="button" class="footer-link-button footer-rss-copy" data-url="<?php echo esc_attr(CONTENTFREAKS_RSS_URL); ?>" aria-label="ポッドキャストRSSフィードURLをコピー">RSS</button></li>
             </ul>
         </div>
 

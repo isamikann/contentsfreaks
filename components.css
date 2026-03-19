@@ -74,7 +74,24 @@
     transition: color var(--transition-base);
 }
 
+.footer-link-button {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    font: inherit;
+    padding: 0;
+    text-align: left;
+    transition: color var(--transition-base);
+}
+
 .footer-links a:hover {
+    color: var(--color-primary-400);
+}
+
+.footer-link-button:hover,
+.footer-link-button.is-copied {
     color: var(--color-primary-400);
 }
 
