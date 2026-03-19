@@ -237,9 +237,13 @@ function contentfreaks_update_existing_episode($post_id, $episode) {
 }
 
 // アイキャッチ画像をURLから設定
-function contentfreaks_set_featured_image_from_url($post_id, $image_url) {
-    if (has_post_thumbnail($post_id)) {
+function contentfreaks_set_featured_image_from_url($post_id, $image_url, $force_replace = false) {
+    if (has_post_thumbnail($post_id) && !$force_replace) {
         return true;
+    }
+
+    if ($force_replace && has_post_thumbnail($post_id)) {
+        delete_post_thumbnail($post_id);
     }
     
     // 画像URLの有効性チェック

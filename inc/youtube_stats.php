@@ -289,6 +289,13 @@ function contentfreaks_sync_youtube_video_ids() {
         $vid = $yt_index[$key];
         update_post_meta($post_id, 'episode_youtube_id',    $vid);
         update_post_meta($post_id, 'episode_youtube_views', $video_stats[$vid] ?? 0);
+
+        $youtube_thumbnail = 'https://i.ytimg.com/vi/' . $vid . '/hqdefault.jpg';
+        update_post_meta($post_id, 'episode_image_url', $youtube_thumbnail);
+
+        if (function_exists('contentfreaks_set_featured_image_from_url')) {
+            contentfreaks_set_featured_image_from_url($post_id, $youtube_thumbnail, true);
+        }
         $synced++;
     }
 
