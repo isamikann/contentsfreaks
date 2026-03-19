@@ -311,6 +311,12 @@ body {
     display: block;
 }
 
+.episode-thumbnail a {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
 /* カードホバー時のCTAオーバーレイ（詳細ページへのリンクであることを明示） */
 .episode-thumbnail::after {
     content: '詳しく見る →';
