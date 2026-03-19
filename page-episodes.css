@@ -345,7 +345,7 @@ body {
 .default-thumbnail {
     width: 100%;
     height: 100%;
-    aspect-ratio: 1 / 1; /* 正方形のアスペクト比を強制 */
+    aspect-ratio: 16 / 9;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -858,18 +858,18 @@ body {
     .episode-card {
         display: flex;
         flex-direction: row;
-        height: 145px; /* 高さを調整 */
+        height: auto;
         overflow: hidden;
     }
     
     .episode-card-header,
     .episode-thumbnail {
-        width: 145px;
-        height: 145px;
-        aspect-ratio: 1 / 1; /* 正方形のアスペクト比を維持 */
+        width: 160px;
+        aspect-ratio: 16 / 9;
+        height: auto;
         flex-shrink: 0;
         display: flex;
-        align-items: stretch; /* 画像を親要素の高さに合わせる */
+        align-items: stretch;
     }
     
     .episode-thumbnail img {
@@ -1033,15 +1033,15 @@ body {
     .episode-card {
         display: flex;
         flex-direction: row;
-        height: 130px; /* 小さい画面では少し低く */
+        height: auto;
         overflow: hidden;
     }
     
     .episode-card-header,
     .episode-thumbnail {
         width: 130px;
-        height: 130px;
-        aspect-ratio: 1 / 1; /* 正方形のアスペクト比を維持 */
+        aspect-ratio: 16 / 9;
+        height: auto;
         flex-shrink: 0;
         display: flex;
         align-items: stretch;
