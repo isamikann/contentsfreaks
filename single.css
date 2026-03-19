@@ -17,14 +17,15 @@ body {
 
 .episode-header-content {
     display: grid;
-    grid-template-columns: 300px 1fr;
-    gap: 2rem;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
     align-items: start;
 }
 
 .episode-featured-image {
     position: relative;
-    max-width: 300px;
+    width: 100%;
+    max-width: 100%;
 }
 
 .episode-featured-image img {
@@ -32,16 +33,15 @@ body {
     height: auto;
     border-radius: 15px;
     box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-    aspect-ratio: 1;
+    aspect-ratio: 16 / 9;
     object-fit: cover;
 }
 
 .default-episode-image {
     width: 100%;
-    height: 300px;
     border-radius: 15px;
     overflow: hidden;
-    aspect-ratio: 1;
+    aspect-ratio: 16 / 9;
 }
 
 .episode-number-large {
@@ -794,19 +794,19 @@ html {
     
     .episode-header-content {
         grid-template-columns: 1fr;
-        gap: 2rem;
+        gap: 1.5rem;
         text-align: center;
     }
     
     .episode-featured-image {
-        max-width: 240px;
+        max-width: 100%;
         margin: 0 auto;
     }
     
     .episode-featured-image img {
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        aspect-ratio: 1;
+        aspect-ratio: 16 / 9;
         object-fit: cover;
     }
     
