@@ -542,15 +542,21 @@ function contentfreaks_unified_admin_page() {
                     if (!is_wp_error($resp) && wp_remote_retrieve_response_code($resp) === 200) {
                         $data = json_decode(wp_remote_retrieve_body($resp), true);
                         echo '<table style="border-collapse:collapse;width:100%;font-size:13px;">';
-                        echo '<tr style="background:#f0f0f0;"><th style="padding:6px;border:1px solid #ccc;text-align:left;">YouTubeタイトル</th><th style="padding:6px;border:1px solid #ccc;width:80px;">抽出番号</th><th style="padding:6px;border:1px solid #ccc;width:80px;">WP紐付け</th></tr>';
+                        echo '<tr style="background:#f0f0f0;"><th style="padding:6px;border:1px solid #ccc;text-align:left;">YouTubeタイトル</th><th style="padding:6px;border:1px solid #ccc;width:140px;">抽出キー(作品::話数)</th><th style="padding:6px;border:1px solid #ccc;width:80px;">WP紐付け</th></tr>';
+                        // WPキーのリスト
+                        $wp_keys = array();
+                        foreach ($wp_episodes as $pid) {
+                            $k = contentfreaks_make_title_episode_key(get_the_title($pid));
+                            if ($k) $wp_keys[] = $k;
+                        }
                         foreach ($data['items'] as $item) {
                             $yt_title = $item['snippet']['title'] ?? '';
-                            $yt_ep    = contentfreaks_extract_episode_number_from_yt_title($yt_title);
-                            $matched  = ($yt_ep && in_array($yt_ep, array_values($wp_ep_numbers)));
+                            $yt_key   = contentfreaks_make_title_episode_key($yt_title);
+                            $matched  = ($yt_key && in_array($yt_key, $wp_keys));
                             echo '<tr>';
                             echo '<td style="padding:5px;border:1px solid #ddd;">' . esc_html($yt_title) . '</td>';
-                            echo '<td style="padding:5px;border:1px solid #ddd;text-align:center;">' . ($yt_ep !== null ? esc_html($yt_ep) : '<span style="color:#aaa">なし</span>') . '</td>';
-                            echo '<td style="padding:5px;border:1px solid #ddd;text-align:center;">' . ($matched ? '✅' : ($yt_ep ? '❌番号不一致' : '—')) . '</td>';
+                            echo '<td style="padding:5px;border:1px solid #ddd;font-family:monospace;">' . ($yt_key ? esc_html($yt_key) : '<span style="color:#aaa">抽出不可</span>') . '</td>';
+                            echo '<td style="padding:5px;border:1px solid #ddd;text-align:center;">' . ($matched ? '✅' : ($yt_key ? '❌不一致' : '—')) . '</td>';
                             echo '</tr>';
                         }
                         echo '</table><p style="margin-top:8px;color:#666;">✅=WP投稿と一致 / ❌=番号は取れたがWPにない / —=番号抽出できず</p>';

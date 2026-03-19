@@ -172,7 +172,7 @@ function contentfreaks_sync_youtube_video_ids() {
         }
     }
 
-    // ---- 3. WP投稿とエピソード番号でマッチング ----
+    // ---- 3. WP投稿タイトルとYouTubeタイトルを「作品名::話数」キーでマッチング ----
     $episodes = get_posts(array(
         'post_type'      => 'post',
         'posts_per_page' => -1,
@@ -181,30 +181,72 @@ function contentfreaks_sync_youtube_video_ids() {
         'fields'         => 'ids',
     ));
 
-    // YouTube動画タイトルからエピソード番号を抽出してインデックス作成
-    $yt_ep_index = array(); // ep_number(int) => video_id
+    // YouTube: 「作品名::話数」インデックスを作成
+    $yt_index = array(); // "作品名::話数" => video_id
     foreach ($video_items as $vid => $title) {
-        $ep = contentfreaks_extract_episode_number_from_yt_title($title);
-        if ($ep !== null && !isset($yt_ep_index[$ep])) {
-            $yt_ep_index[$ep] = $vid;
+        $key = contentfreaks_make_title_episode_key($title);
+        if ($key && !isset($yt_index[$key])) {
+            $yt_index[$key] = $vid;
         }
     }
 
     $synced  = 0;
     $skipped = 0;
     foreach ($episodes as $post_id) {
-        $ep_number = (int) get_post_meta($post_id, 'episode_number', true);
-        if (!$ep_number || !isset($yt_ep_index[$ep_number])) {
+        $post_title = get_the_title($post_id);
+        $key        = contentfreaks_make_title_episode_key($post_title);
+        if (!$key || !isset($yt_index[$key])) {
             $skipped++;
             continue;
         }
-        $vid = $yt_ep_index[$ep_number];
+        $vid = $yt_index[$key];
         update_post_meta($post_id, 'episode_youtube_id',    $vid);
         update_post_meta($post_id, 'episode_youtube_views', $video_stats[$vid] ?? 0);
         $synced++;
     }
 
     return array('synced' => $synced, 'skipped' => $skipped, 'errors' => array());
+}
+
+/**
+ * タイトルから「作品名::話数」のマッチングキーを生成
+ * 例: 「『リブート』8話感想考察」→ "リブート::8"
+ * 例: 「『再会』第7話」→ "再会::7"
+ *
+ * @param  string      $title
+ * @return string|null
+ */
+function contentfreaks_make_title_episode_key($title) {
+    // 作品名を抽出: 『』「」【】 の順に試す
+    $work = '';
+    if (preg_match('/[『「【]([^』」】\s]{1,30})[』」】]/u', $title, $m)) {
+        $work = trim($m[1]);
+    }
+    if (empty($work)) {
+        return null;
+    }
+
+    // 話数を抽出
+    $ep = null;
+    $patterns = array(
+        '/第(\d+)[回話]/u',   // 第7話, 第7回
+        '/(\d+)話/u',         // 7話, 8話
+        '/\bep\.?\s*(\d+)/i', // EP.12
+        '/#(\d+)/',           // #12
+        '/【(\d+)】/',         // 【12】
+        '/\[(\d+)\]/',        // [12]
+    );
+    foreach ($patterns as $pattern) {
+        if (preg_match($pattern, $title, $m)) {
+            $ep = (int) $m[1];
+            break;
+        }
+    }
+    if ($ep === null) {
+        return null;
+    }
+
+    return $work . '::' . $ep;
 }
 
 /**
