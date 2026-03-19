@@ -35,10 +35,20 @@ function contentfreaks_schedule_sync() {
     if (!wp_next_scheduled('contentfreaks_hourly_sync')) {
         wp_schedule_event(time(), 'hourly', 'contentfreaks_hourly_sync');
     }
+    // 再生数は1日1回更新（APIクォータ節約）
+    if (!wp_next_scheduled('contentfreaks_daily_youtube_sync')) {
+        wp_schedule_event(time(), 'daily', 'contentfreaks_daily_youtube_sync');
+    }
 }
 add_action('wp', 'contentfreaks_schedule_sync');
 
 add_action('contentfreaks_hourly_sync', 'contentfreaks_sync_rss_to_posts');
+
+// RSS同期後に新エピソードをYouTubeと自動紐付け
+add_action('contentfreaks_hourly_sync', 'contentfreaks_auto_link_new_episodes');
+
+// 1日1回: 既存紐付け済み投稿の再生数を更新
+add_action('contentfreaks_daily_youtube_sync', 'contentfreaks_refresh_youtube_views');
 
 /**
  * 管理画面メニュー（統一された管理画面）

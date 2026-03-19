@@ -9,6 +9,93 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * RSS同期後に呼ばれる: YouTube未紐付けの投稿だけを対象に紐付けを試みる
+ * contentfreaks_hourly_sync フックから実行
+ */
+function contentfreaks_auto_link_new_episodes() {
+    // 未紐付けのエピソードのみ対象
+    $unlinked = get_posts(array(
+        'post_type'      => 'post',
+        'posts_per_page' => -1,
+        'meta_query'     => array(
+            array('key' => 'is_podcast_episode', 'value' => '1'),
+            array('key' => 'episode_youtube_id',  'compare' => 'NOT EXISTS'),
+        ),
+        'fields' => 'ids',
+    ));
+    if (empty($unlinked)) {
+        return;
+    }
+    // 未紐付けがあれば全体同期を実行
+    $result = contentfreaks_sync_youtube_video_ids();
+    if (!empty($result['synced'])) {
+        error_log('YouTube自動紐付け: ' . $result['synced'] . '件紐付け完了');
+    }
+}
+
+/**
+ * 紐付け済み投稿の再生数を一括更新（1日1回スケジュール実行）
+ * APIコスト: 紐付け件数÷50 ユニット（147件なら3ユニット）
+ */
+function contentfreaks_refresh_youtube_views() {
+    $linked = get_posts(array(
+        'post_type'      => 'post',
+        'posts_per_page' => -1,
+        'meta_key'       => 'episode_youtube_id',
+        'fields'         => 'ids',
+    ));
+    if (empty($linked)) {
+        return;
+    }
+
+    $api_key = (defined('CONTENTFREAKS_YOUTUBE_API_KEY') && CONTENTFREAKS_YOUTUBE_API_KEY !== '')
+                ? CONTENTFREAKS_YOUTUBE_API_KEY
+                : get_option('contentfreaks_youtube_api_key', '');
+    if (empty($api_key)) {
+        return;
+    }
+
+    // post_id => video_id のマップを作成
+    $id_map = array();
+    foreach ($linked as $post_id) {
+        $vid = get_post_meta($post_id, 'episode_youtube_id', true);
+        if ($vid) {
+            $id_map[$post_id] = $vid;
+        }
+    }
+
+    // 50件ずつAPIを叩いて再生数を取得・更新
+    $chunks = array_chunk($id_map, 50, true);
+    $updated = 0;
+    foreach ($chunks as $chunk) {
+        $resp = wp_remote_get(
+            add_query_arg(array(
+                'part' => 'statistics',
+                'id'   => implode(',', array_values($chunk)),
+                'key'  => $api_key,
+            ), 'https://www.googleapis.com/youtube/v3/videos'),
+            array('timeout' => 15)
+        );
+        if (is_wp_error($resp) || wp_remote_retrieve_response_code($resp) !== 200) {
+            continue;
+        }
+        $data = json_decode(wp_remote_retrieve_body($resp), true);
+        // video_id => view_count のマップ
+        $stats = array();
+        foreach ($data['items'] as $item) {
+            $stats[$item['id']] = (int) ($item['statistics']['viewCount'] ?? 0);
+        }
+        foreach ($chunk as $post_id => $vid) {
+            if (isset($stats[$vid])) {
+                update_post_meta($post_id, 'episode_youtube_views', $stats[$vid]);
+                $updated++;
+            }
+        }
+    }
+    error_log('YouTube再生数更新: ' . $updated . '件完了');
+}
+
+/**
  * チャンネル統計をAPIから取得（24時間トランジェントキャッシュ）
  *
  * @return array|false { subscriber_count, view_count, video_count } or false on failure
