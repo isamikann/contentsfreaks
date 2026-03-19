@@ -98,13 +98,13 @@ get_header(); ?>
                 </div>
                 <?php endif; ?>
                 <div class="episode-platform-links">
-                    <h3 class="platform-links-title">🎧 お好みのアプリで聴く</h3>
+                    <h3 class="platform-links-title">聴く</h3>
                     <?php echo do_shortcode('[podcast_platforms]'); ?>
                 </div>
                 <?php if ($youtube_id) : ?>
                 <div class="episode-youtube-player">
                     <h3 class="youtube-player-title">
-                        <span class="yt-badge-large">YouTube</span> 動画でも見る
+                        <span class="yt-badge-large">YouTube</span> 見る
                         <?php if ($youtube_views) : ?>
                             <span class="yt-views-inline">▶ <?php echo esc_html(contentfreaks_format_yt_number((int) $youtube_views)); ?> 回視聴</span>
                         <?php endif; ?>
@@ -156,7 +156,7 @@ get_header(); ?>
                 if (!empty($chapters)) :
                 ?>
                 <div class="episode-chapters">
-                    <h3 class="chapters-title">📋 話題チャプター</h3>
+                    <h3 class="chapters-title">チャプター</h3>
                     <ol class="chapters-list">
                         <?php foreach ($chapters as $ch) : ?>
                         <li class="chapter-item">
@@ -179,7 +179,7 @@ get_header(); ?>
             <!-- エピソードリアクション -->
             <?php if ($is_podcast_episode) : ?>
             <div class="episode-reactions" id="episode-reactions" data-post-id="<?php echo esc_attr($post_id); ?>">
-                <h3 class="reactions-title">このエピソードの感想は？</h3>
+                <h3 class="reactions-title">感想</h3>
                 <div class="reactions-buttons" role="group" aria-label="エピソードリアクション">
                     <button type="button" class="reaction-btn" data-reaction="fire" title="熱い！" aria-pressed="false" aria-label="熱い！ リアクション">
                         <span class="reaction-emoji" aria-hidden="true">🔥</span>
@@ -213,7 +213,7 @@ get_header(); ?>
                 if (!empty($featured_works)) :
             ?>
             <div class="episode-featured-works">
-                <h3 class="featured-works-title">📚 今回紹介した作品</h3>
+                <h3 class="featured-works-title">紹介した作品</h3>
                 <div class="featured-works-grid">
                     <?php foreach ($featured_works as $work) : ?>
                     <div class="featured-work-card">
@@ -262,7 +262,7 @@ get_header(); ?>
             <!-- 関連エピソード -->
             <?php if ($is_podcast_episode) : ?>
             <div class="related-episodes">
-                <h3 class="related-episodes-title">🎵 関連エピソード</h3>
+                <h3 class="related-episodes-title">関連エピソード</h3>
                 <div class="related-episodes-grid">
                     <?php
                     // 関連エピソードを取得（タグベースで関連性の高いものを優先）
@@ -363,7 +363,7 @@ get_header(); ?>
                     
                     <div class="nav-center">
                         <a href="<?php echo esc_url(get_permalink(get_page_by_path('episodes'))); ?>" class="episode-nav-link episodes-list">
-                            🎧 エピソード一覧
+                            エピソード一覧
                         </a>
                     </div>
                     
@@ -386,7 +386,7 @@ get_header(); ?>
     <!-- コメント欄 -->
     <?php if (comments_open() || get_comments_number()) : ?>
         <div class="episode-comments">
-            <h3 class="comments-title">💬 コメント</h3>
+            <h3 class="comments-title">コメント</h3>
             <?php comments_template(); ?>
         </div>
     <?php endif; ?>
