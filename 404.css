@@ -18,7 +18,7 @@
 }
 
 .error-404-icon {
-    font-size: 4rem;
+    font-size: var(--hero-icon-size);
     margin-bottom: 1rem;
     animation: float-icon 3s ease-in-out infinite;
 }
@@ -29,7 +29,7 @@
 }
 
 .error-404-title {
-    font-size: 6rem;
+    font-size: var(--hero-title);
     font-weight: 800;
     background: linear-gradient(135deg, var(--color-primary-400, #f7ff0b), var(--color-accent-400, #ff6b35));
     -webkit-background-clip: text;
@@ -40,13 +40,14 @@
 }
 
 .error-404-subtitle {
-    font-size: 1.5rem;
+    font-size: var(--section-title);
     font-weight: 600;
     color: var(--color-text-primary, #1a202c);
     margin-bottom: 0.75rem;
 }
 
 .error-404-desc {
+    font-size: var(--body-text);
     color: var(--color-text-secondary, #4a5568);
     line-height: 1.7;
     margin-bottom: 2rem;
@@ -100,7 +101,7 @@
 }
 
 .error-404-suggestions-title {
-    font-size: 1.1rem;
+    font-size: var(--font-size-lg);
     font-weight: 600;
     margin-bottom: 1rem;
     color: var(--color-text-primary, #1a202c);
@@ -131,7 +132,7 @@
 
 .error-404-episode-date {
     flex-shrink: 0;
-    font-size: 0.8rem;
+    font-size: var(--stat-label);
     font-weight: 600;
     color: var(--color-text-secondary, #4a5568);
     min-width: 3rem;
@@ -140,14 +141,14 @@
 .error-404-episode-title {
     font-weight: 500;
     color: var(--color-text-primary, #1a202c);
-    font-size: 0.9rem;
+    font-size: var(--font-size-sm);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 
 @media (max-width: 768px) {
-    .error-404-title { font-size: 4rem; }
+    .error-404-title { font-size: var(--hero-title); }
     .error-404-actions { flex-direction: column; align-items: center; }
 }
 

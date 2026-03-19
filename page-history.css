@@ -88,7 +88,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 @keyframes heroIconFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
 .history-hero-title {
-    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-size: var(--hero-title);
     font-weight: 900;
     color: var(--history-dark);
     margin: 0 0 1.25rem;
@@ -101,7 +101,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 }
 
 .history-hero-subtitle {
-    font-size: clamp(0.95rem, 2vw, 1.2rem);
+    font-size: var(--body-text);
     color: var(--history-text-secondary);
     margin: 0 0 3.5rem;
     line-height: 1.8;
@@ -132,7 +132,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 
 .stat-value {
     display: block;
-    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-size: var(--stat-number);
     font-weight: 900;
     background: var(--history-grad);
     -webkit-background-clip: text;
@@ -143,7 +143,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 }
 .stat-unit {
     display: block;
-    font-size: 0.8rem;
+    font-size: var(--stat-label);
     color: var(--history-text-secondary);
     font-weight: 600;
     letter-spacing: 0.05em;
@@ -169,7 +169,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     gap: 1rem;
 }
 .year-nav-item {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     font-weight: 800;
     color: var(--history-text-secondary);
     text-decoration: none;
@@ -189,7 +189,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 }
 .year-nav-sep {
     color: var(--history-text-muted);
-    font-size: 0.875rem;
+    font-size: var(--font-size-sm);
 }
 
 /* ===== TIMELINE SECTION ===== */
@@ -203,14 +203,14 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     padding: 5rem 1rem 4rem;
 }
 .timeline-title {
-    font-size: clamp(2rem, 4vw, 3.25rem);
+    font-size: var(--page-title);
     font-weight: 900;
     color: var(--history-dark);
     margin: 0 0 1rem;
     letter-spacing: -0.02em;
 }
 .timeline-subtitle {
-    font-size: 1.1rem;
+    font-size: var(--body-text);
     color: var(--history-text-secondary);
     margin: 0;
     line-height: 1.7;
@@ -374,7 +374,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     letter-spacing: 0.03em;
 }
 .date-year {
-    font-size: 0.75rem;
+    font-size: var(--small-label);
     color: var(--history-text-muted);
     font-weight: 600;
 }
@@ -385,7 +385,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     margin-bottom: 0.875rem;
 }
 .timeline-title {
-    font-size: clamp(1rem, 2vw, 1.25rem);
+    font-size: var(--section-title);
     font-weight: 700;
     color: var(--history-dark);
     margin: 0;
@@ -393,7 +393,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
 }
 /* 本文 */
 .timeline-description {
-    font-size: 0.9rem;
+    font-size: var(--body-text);
     line-height: 1.8;
     color: var(--history-text-secondary);
     margin: 0;
@@ -411,7 +411,7 @@ body { padding-top: 0 !important; margin-top: 0 !important; }
     color: var(--history-primary);
     text-decoration: none;
     border-radius: 30px;
-    font-size: 0.85rem;
+    font-size: var(--font-size-sm);
     font-weight: 600;
     transition: all 0.3s;
     min-height: 40px;

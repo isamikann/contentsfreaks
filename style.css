@@ -388,8 +388,11 @@ Version: 2.0.0
 
     /* 共通表示用 */
     --section-title: var(--page-title);
+    --subsection-title: var(--font-size-2xl);
+    --small-label: var(--font-size-xs);
     --stat-number: clamp(1.75rem, 1.45rem + 0.9vw, 2.5rem);
     --stat-label: var(--font-size-sm);
+    --hero-icon-size: clamp(2.5rem, 4vw, 3.5rem);
 
     /* メタ情報 */
     --meta-primary: clamp(0.8rem, 0.77rem + 0.1vw, 0.85rem);
@@ -759,6 +762,7 @@ button:focus-visible {
         --description: var(--mobile-body-text);
         --meta-primary: var(--mobile-meta);
         --meta-secondary: calc(var(--mobile-meta) - 0.05rem);
+        --stat-number: var(--mobile-stat-number);
     }
 }
 
@@ -769,6 +773,7 @@ button:focus-visible {
         --body-text: 0.9rem;
         --meta-primary: 0.75rem;
         --meta-secondary: 0.7rem;
+        --stat-number: var(--mobile-stat-number);
     }
 }
 
