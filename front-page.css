@@ -845,7 +845,7 @@
         position: absolute;
         top: -10px;
         left: 20px;
-        font-size: 6rem;
+        font-size: var(--testimonial-badge-size);
         color: var(--testimonials-card-border);
         font-family: serif;
         line-height: 1;
@@ -858,7 +858,7 @@
     }
     
     .testimonial-quote {
-        font-size: 1.15rem;
+        font-size: var(--testimonial-quote);
         line-height: 1.75;
         margin-bottom: 2rem;
         color: var(--color-text-primary, #1a202c);
@@ -884,20 +884,20 @@
         align-items: center;
         justify-content: center;
         font-weight: 700;
-        font-size: 1.2rem;
+        font-size: var(--font-size-lg);
         box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
     }
     
     .author-info h4 {
         color: var(--color-text-primary, #1a202c);
-        font-size: 1.1rem;
+        font-size: var(--testimonial-author);
         font-weight: 700;
         margin-bottom: 0.2rem;
     }
     
     .author-role {
         color: var(--color-text-secondary, #4a5568);
-        font-size: 0.9rem;
+        font-size: var(--testimonial-role);
     }
     
     @media (max-width: 768px) {
@@ -929,7 +929,7 @@
         }
         
         .testimonials-header h2 {
-            font-size: 2rem;
+            font-size: var(--page-title);
             margin-bottom: 0.8rem;
         }
         
@@ -942,13 +942,13 @@
         }
         
         .testimonial-card::before {
-            font-size: 4rem;
+            font-size: calc(var(--testimonial-badge-size) * 0.7);
             top: -5px;
             left: 15px;
         }
         
         .testimonial-quote {
-            font-size: 1rem;
+            font-size: var(--testimonial-quote);
             line-height: 1.5;
             margin-bottom: 1.5rem;
         }
@@ -956,15 +956,15 @@
         .author-avatar {
             width: 40px;
             height: 40px;
-            font-size: 1rem;
+            font-size: var(--font-size-base);
         }
         
         .author-info h4 {
-            font-size: 1rem;
+            font-size: var(--testimonial-author);
         }
         
         .author-role {
-            font-size: 0.8rem;
+            font-size: var(--testimonial-role);
         }
     }
 

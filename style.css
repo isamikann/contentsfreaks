@@ -394,6 +394,29 @@ Version: 2.0.0
     --stat-label: var(--font-size-sm);
     --hero-icon-size: clamp(2.5rem, 4vw, 3.5rem);
 
+    /* プロフィール・カード系 */
+    --profile-hero-subtitle: var(--body-text);
+    --profile-stat-number: var(--stat-number);
+    --profile-stat-label: var(--stat-label);
+    --profile-name: var(--page-title);
+    --profile-role: var(--font-size-lg);
+    --profile-tag: var(--small-label);
+    --profile-body: var(--body-text);
+    --profile-detail-title: var(--font-size-base);
+    --profile-detail-body: var(--body-text);
+    --profile-section-subtitle: var(--font-size-xl);
+    --profile-role-title: var(--card-title-large);
+    --profile-role-badge: var(--small-label);
+    --profile-role-summary: var(--body-text);
+    --profile-highlight-title: var(--card-title-large);
+    --profile-cta-description: var(--font-size-lg);
+
+    /* リスナーの声 */
+    --testimonial-quote: var(--body-text);
+    --testimonial-author: var(--font-size-base);
+    --testimonial-role: var(--font-size-sm);
+    --testimonial-badge-size: var(--hero-icon-size);
+
     /* メタ情報 */
     --meta-primary: clamp(0.8rem, 0.77rem + 0.1vw, 0.85rem);
     --meta-secondary: clamp(0.76rem, 0.74rem + 0.08vw, 0.8rem);
@@ -409,6 +432,7 @@ Version: 2.0.0
     --mobile-body-text: 0.93rem;
     --mobile-meta: 0.78rem;
     --mobile-stat-number: clamp(1.4rem, 5vw, 1.9rem);
+    --mobile-profile-name: var(--font-size-2xl);
 }
 
 /* ===== ベーススタイル ===== */
@@ -774,6 +798,7 @@ button:focus-visible {
         --meta-primary: 0.75rem;
         --meta-secondary: 0.7rem;
         --stat-number: var(--mobile-stat-number);
+        --profile-name: var(--mobile-profile-name);
     }
 }
 
