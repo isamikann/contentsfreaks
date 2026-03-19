@@ -68,32 +68,10 @@
     margin-bottom: var(--space-2);
 }
 
-.footer-rss-item {
-    line-height: 1.5;
-}
-
-.footer-rss-label {
-    display: block;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: var(--font-size-sm);
-    margin-bottom: 0.25rem;
-}
-
-.footer-rss-url {
-    display: block;
-    color: #8ecdf2;
-    word-break: break-all;
-    font-size: var(--font-size-sm);
-}
-
 .footer-links a {
     color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
     transition: color var(--transition-base);
-}
-
-.footer-rss-url:hover {
-    color: var(--color-primary-400);
 }
 
 .footer-links a:hover {
