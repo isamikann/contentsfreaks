@@ -141,11 +141,10 @@ function contentfreaks_unified_admin_page() {
 
     // ========== POST ハンドラ: YouTube動画紐付け ==========
     if (isset($_POST['sync_youtube_videos']) && wp_verify_nonce($_POST['sync_youtube_videos_nonce'], 'contentfreaks_sync_youtube_videos')) {
-        $result = contentfreaks_sync_youtube_video_ids();
-        if (!empty($result['errors'])) {
-            $messages[] = array('type' => 'error', 'message' => 'YouTube動画紐付け失敗: ' . implode(' / ', $result['errors']));
+        if (function_exists('contentfreaks_queue_youtube_sync_job') && contentfreaks_queue_youtube_sync_job('manual')) {
+            $messages[] = array('type' => 'success', 'message' => 'YouTube動画紐付けをバックグラウンドに投入しました。完了まで少し待ってから再読み込みしてください。');
         } else {
-            $messages[] = array('type' => 'success', 'message' => 'YouTube動画紐付け完了! 紐付け: ' . $result['synced'] . '件, 未マッチ: ' . $result['skipped'] . '件');
+            $messages[] = array('type' => 'warning', 'message' => 'YouTube動画紐付けはすでに実行待ちです。少し待ってから再度確認してください。');
         }
         $current_tab = 'tools';
     }

@@ -26,12 +26,45 @@ function contentfreaks_auto_link_new_episodes() {
     if (empty($unlinked)) {
         return;
     }
-    // 未紐付けがあれば全体同期を実行
+    contentfreaks_queue_youtube_sync_job('auto');
+}
+
+/**
+ * YouTube紐付けジョブを非同期実行用にキューへ積む
+ *
+ * @param  string $reason
+ * @return bool
+ */
+function contentfreaks_queue_youtube_sync_job($reason = 'manual') {
+    if (wp_next_scheduled('contentfreaks_run_youtube_sync_job')) {
+        return false;
+    }
+
+    update_option('contentfreaks_youtube_sync_job_pending', array(
+        'reason'  => $reason,
+        'queued'  => current_time('mysql'),
+    ), false);
+
+    wp_schedule_single_event(time() + 30, 'contentfreaks_run_youtube_sync_job');
+    return true;
+}
+
+/**
+ * YouTube紐付けジョブ本体（WP-Cronで実行）
+ */
+function contentfreaks_run_youtube_sync_job() {
     $result = contentfreaks_sync_youtube_video_ids();
+    update_option('contentfreaks_youtube_sync_job_last', array(
+        'completed' => current_time('mysql'),
+        'result'    => $result,
+    ), false);
+    delete_option('contentfreaks_youtube_sync_job_pending');
+
     if (!empty($result['synced'])) {
         error_log('YouTube自動紐付け: ' . $result['synced'] . '件紐付け完了');
     }
 }
+add_action('contentfreaks_run_youtube_sync_job', 'contentfreaks_run_youtube_sync_job');
 
 /**
  * 紐付け済み投稿の再生数を一括更新（1日1回スケジュール実行）
