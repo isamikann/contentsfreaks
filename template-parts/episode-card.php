@@ -62,26 +62,24 @@ $youtube_id = get_post_meta(get_the_ID(), 'episode_youtube_id', true);
         </h3>
 
         <div class="episode-meta">
-            <span class="episode-date"><?php echo get_the_date('Y.n.j'); ?></span>
-            <?php if ($duration) : ?>
-                <span class="episode-duration-badge">⏱ <?php echo esc_html($duration); ?></span>
-            <?php endif; ?>
-            <?php $yt_views = get_post_meta(get_the_ID(), 'episode_youtube_views', true); ?>
-            <?php if ($yt_views) : ?>
-                <span class="episode-yt-views">▶ <?php echo esc_html(contentfreaks_format_yt_number((int) $yt_views)); ?></span>
-            <?php endif; ?>
-        </div>
+            <div class="episode-meta-left">
+                <span class="episode-date"><?php echo get_the_date('Y.n.j'); ?></span>
+                <?php if ($duration) : ?>
+                    <span class="episode-duration-badge">⏱ <?php echo esc_html($duration); ?></span>
+                <?php endif; ?>
+            </div>
 
-        <?php
-        $tags = get_the_tags();
-        if ($tags && !is_wp_error($tags)) : ?>
-        <div class="episode-tags">
-            <?php foreach (array_slice($tags, 0, 3) as $tag) : ?>
-                <a href="<?php echo get_tag_link($tag->term_id); ?>" class="episode-tag">
-                    #<?php echo esc_html($tag->name); ?>
-                </a>
-            <?php endforeach; ?>
+            <?php
+            $tags = get_the_tags();
+            if ($tags && !is_wp_error($tags)) : ?>
+            <div class="episode-tags">
+                <?php foreach (array_slice($tags, 0, 3) as $tag) : ?>
+                    <a href="<?php echo get_tag_link($tag->term_id); ?>" class="episode-tag">
+                        #<?php echo esc_html($tag->name); ?>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
         </div>
-        <?php endif; ?>
     </div>
 </article>
