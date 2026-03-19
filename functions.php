@@ -486,6 +486,10 @@ function contentfreaks_unified_admin_page() {
                             <input type="submit" name="sync_youtube_videos" class="button-secondary" value="🎬 YouTube動画紐付け" />
                         </form>
                         <form method="post" style="display: inline;">
+                            <?php wp_nonce_field('contentfreaks_debug_youtube_match', 'debug_youtube_match_nonce'); ?>
+                            <input type="submit" name="debug_youtube_match" class="button-secondary" value="🔎 YouTube紐付け診断" />
+                        </form>
+                        <form method="post" style="display: inline;">
                             <?php wp_nonce_field('contentfreaks_test_rss', 'test_rss_nonce'); ?>
                             <input type="submit" name="test_rss" class="button-secondary" value="🔍 RSS接続テスト" />
                         </form>
@@ -498,6 +502,68 @@ function contentfreaks_unified_admin_page() {
             </div>
 
             <?php
+            // YouTube紐付け診断
+            if (isset($_POST['debug_youtube_match']) && wp_verify_nonce($_POST['debug_youtube_match_nonce'], 'contentfreaks_debug_youtube_match')) {
+                $api_key    = (defined('CONTENTFREAKS_YOUTUBE_API_KEY')    && CONTENTFREAKS_YOUTUBE_API_KEY    !== '')
+                                ? CONTENTFREAKS_YOUTUBE_API_KEY
+                                : get_option('contentfreaks_youtube_api_key', '');
+                $channel_id = (defined('CONTENTFREAKS_YOUTUBE_CHANNEL_ID') && CONTENTFREAKS_YOUTUBE_CHANNEL_ID !== '')
+                                ? CONTENTFREAKS_YOUTUBE_CHANNEL_ID
+                                : get_option('contentfreaks_youtube_channel_id', '');
+
+                echo '<div class="postbox" style="margin-bottom:20px;"><h2 class="hndle">🔎 YouTube紐付け診断</h2><div class="inside">';
+
+                // WP側: episode_numberの状況
+                $wp_episodes = get_posts(array('post_type'=>'post','posts_per_page'=>-1,'meta_key'=>'is_podcast_episode','meta_value'=>'1','fields'=>'ids'));
+                $wp_ep_numbers = array();
+                $wp_no_number  = array();
+                foreach ($wp_episodes as $pid) {
+                    $n = get_post_meta($pid, 'episode_number', true);
+                    if ($n) { $wp_ep_numbers[$pid] = (int)$n; }
+                    else    { $wp_no_number[]       = get_the_title($pid); }
+                }
+                echo '<h4>WP投稿側 (episode_number メタ)</h4>';
+                echo '<p>✅ 番号あり: <strong>' . count($wp_ep_numbers) . '件</strong> / ❌ 番号なし: <strong>' . count($wp_no_number) . '件</strong></p>';
+                if (!empty($wp_no_number)) {
+                    echo '<details><summary>番号なし投稿タイトル（先頭5件）</summary><ul>';
+                    foreach (array_slice($wp_no_number, 0, 5) as $t) {
+                        echo '<li>' . esc_html($t) . '</li>';
+                    }
+                    echo '</ul></details>';
+                }
+                $sample_nums = array_values(array_slice($wp_ep_numbers, 0, 5));
+                echo '<p>サンプル番号: ' . esc_html(implode(', ', $sample_nums)) . ' …</p>';
+
+                if (!empty($api_key) && !empty($channel_id)) {
+                    // YouTube側: 最初の10件のタイトルと抽出結果を表示
+                    $playlist_id = 'UU' . substr($channel_id, 2);
+                    $resp = wp_remote_get(add_query_arg(array('part'=>'snippet','playlistId'=>$playlist_id,'maxResults'=>20,'key'=>$api_key), 'https://www.googleapis.com/youtube/v3/playlistItems'), array('timeout'=>15));
+                    echo '<h4>YouTube動画タイトルと抽出番号（最新20件）</h4>';
+                    if (!is_wp_error($resp) && wp_remote_retrieve_response_code($resp) === 200) {
+                        $data = json_decode(wp_remote_retrieve_body($resp), true);
+                        echo '<table style="border-collapse:collapse;width:100%;font-size:13px;">';
+                        echo '<tr style="background:#f0f0f0;"><th style="padding:6px;border:1px solid #ccc;text-align:left;">YouTubeタイトル</th><th style="padding:6px;border:1px solid #ccc;width:80px;">抽出番号</th><th style="padding:6px;border:1px solid #ccc;width:80px;">WP紐付け</th></tr>';
+                        foreach ($data['items'] as $item) {
+                            $yt_title = $item['snippet']['title'] ?? '';
+                            $yt_ep    = contentfreaks_extract_episode_number_from_yt_title($yt_title);
+                            $matched  = ($yt_ep && in_array($yt_ep, array_values($wp_ep_numbers)));
+                            echo '<tr>';
+                            echo '<td style="padding:5px;border:1px solid #ddd;">' . esc_html($yt_title) . '</td>';
+                            echo '<td style="padding:5px;border:1px solid #ddd;text-align:center;">' . ($yt_ep !== null ? esc_html($yt_ep) : '<span style="color:#aaa">なし</span>') . '</td>';
+                            echo '<td style="padding:5px;border:1px solid #ddd;text-align:center;">' . ($matched ? '✅' : ($yt_ep ? '❌番号不一致' : '—')) . '</td>';
+                            echo '</tr>';
+                        }
+                        echo '</table><p style="margin-top:8px;color:#666;">✅=WP投稿と一致 / ❌=番号は取れたがWPにない / —=番号抽出できず</p>';
+                    } else {
+                        echo '<p style="color:red;">YouTube APIへの接続に失敗しました。APIキーとチャンネルIDを確認してください。</p>';
+                    }
+                } else {
+                    echo '<p style="color:orange;">⚠️ APIキーまたはチャンネルIDが未設定です。</p>';
+                }
+
+                echo '</div></div>';
+            }
+
             // URL構造テスト結果
             if (isset($_POST['test_url']) && wp_verify_nonce($_POST['test_url_nonce'], 'contentfreaks_test_url')) {
                 echo '<div class="postbox" style="margin-bottom: 20px;">';
