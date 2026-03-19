@@ -507,6 +507,36 @@ function contentfreaks_unified_admin_page() {
                             <input type="submit" name="test_url" class="button-secondary" value="🌐 URL構造テスト" />
                         </form>
                     </div>
+
+                    <?php if (function_exists('contentfreaks_get_youtube_sync_job_status')) : ?>
+                        <?php $youtube_job_status = contentfreaks_get_youtube_sync_job_status(); ?>
+                        <div style="margin-top: 16px; padding: 12px 14px; border: 1px solid #dcdcde; border-radius: 8px; background: #fff;">
+                            <strong>YouTube紐付けの状態:</strong>
+                            <?php if ($youtube_job_status['status'] === 'queued') : ?>
+                                <span style="color:#b45309;">実行待ち</span>
+                                <?php if (!empty($youtube_job_status['pending']['queued'])) : ?>
+                                    <span style="margin-left:8px; color:#666;">投入時刻: <?php echo esc_html($youtube_job_status['pending']['queued']); ?></span>
+                                <?php endif; ?>
+                                <?php if (!empty($youtube_job_status['next_run'])) : ?>
+                                    <span style="margin-left:8px; color:#666;">次回実行予定: <?php echo esc_html(date_i18n('Y-m-d H:i:s', $youtube_job_status['next_run'])); ?></span>
+                                <?php endif; ?>
+                            <?php elseif ($youtube_job_status['status'] === 'done') : ?>
+                                <span style="color:#15803d;">完了</span>
+                                <?php if (!empty($youtube_job_status['last']['completed'])) : ?>
+                                    <span style="margin-left:8px; color:#666;">完了時刻: <?php echo esc_html($youtube_job_status['last']['completed']); ?></span>
+                                <?php endif; ?>
+                                <?php if (!empty($youtube_job_status['last']['result'])) : ?>
+                                    <?php $last_result = $youtube_job_status['last']['result']; ?>
+                                    <span style="margin-left:8px; color:#666;">紐付け: <?php echo esc_html((string) ($last_result['synced'] ?? 0)); ?>件 / 未マッチ: <?php echo esc_html((string) ($last_result['skipped'] ?? 0)); ?>件</span>
+                                <?php endif; ?>
+                            <?php elseif ($youtube_job_status['status'] === 'stale') : ?>
+                                <span style="color:#b91c1c;">待機情報あり</span>
+                                <span style="margin-left:8px; color:#666;">Cronの実行がまだ反映されていない可能性があります。</span>
+                            <?php else : ?>
+                                <span style="color:#4b5563;">待機中ではありません</span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
 

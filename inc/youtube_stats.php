@@ -50,6 +50,32 @@ function contentfreaks_queue_youtube_sync_job($reason = 'manual') {
 }
 
 /**
+ * YouTube紐付けジョブの現在状態を返す
+ *
+ * @return array
+ */
+function contentfreaks_get_youtube_sync_job_status() {
+    $pending = get_option('contentfreaks_youtube_sync_job_pending', array());
+    $last    = get_option('contentfreaks_youtube_sync_job_last', array());
+    $next    = wp_next_scheduled('contentfreaks_run_youtube_sync_job');
+
+    $status = 'idle';
+    if (!empty($pending)) {
+        $status = $next ? 'queued' : 'stale';
+    }
+    if (!empty($last['completed']) && empty($pending)) {
+        $status = 'done';
+    }
+
+    return array(
+        'status'   => $status,
+        'pending'  => $pending,
+        'last'     => $last,
+        'next_run' => $next,
+    );
+}
+
+/**
  * YouTube紐付けジョブ本体（WP-Cronで実行）
  */
 function contentfreaks_run_youtube_sync_job() {
