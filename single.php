@@ -45,7 +45,7 @@ get_header(); ?>
                             )); ?>
                         <?php else : ?>
                             <div class="default-episode-image">
-                                <div style="background: linear-gradient(135deg, #f7ff0b, #ff6b35); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 4rem; border-radius: 15px;">🎙️</div>
+                                <div class="default-episode-image-inner">🎙️</div>
                             </div>
                         <?php endif; ?>
                         
