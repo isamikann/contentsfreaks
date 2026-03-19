@@ -77,10 +77,10 @@ function contentfreaks_output_ogp_tags() {
         $episode_image_url = get_post_meta($post_id, 'episode_image_url', true);
 
         $image_url = '';
-        if ($is_episode && $youtube_id) {
-            $image_url = 'https://i.ytimg.com/vi/' . $youtube_id . '/hqdefault.jpg';
-        } elseif (has_post_thumbnail()) {
+        if (has_post_thumbnail()) {
             $image_url = get_the_post_thumbnail_url($post_id, 'large');
+        } elseif ($is_episode && $youtube_id) {
+            $image_url = 'https://i.ytimg.com/vi/' . $youtube_id . '/hqdefault.jpg';
         } elseif ($is_episode && $episode_image_url) {
             $image_url = $episode_image_url;
         } elseif ($default_image) {
