@@ -311,14 +311,24 @@ function contentfreaks_sync_youtube_video_ids() {
  * @return string|null
  */
 function contentfreaks_make_title_episode_key($title) {
+    $title = trim(wp_strip_all_tags($title));
+
+    // 全角/半角の記号ゆれをある程度吸収
+    $normalized = str_replace(array('　', '〜', '～', '‐', '－', '―', '—', '–', '—'), array(' ', '-', '-', '-', '-', '-', '-', '-', '-'), $title);
+
     // 作品名を抽出: 『』「」【】 の順に試す
     $work = '';
-    if (preg_match('/[『「【]([^』」】\s]{1,30})[』」】]/u', $title, $m)) {
+    if (preg_match('/[『「【]([^』」】\s]{1,40})[』」】]/u', $normalized, $m)) {
+        $work = trim($m[1]);
+    }
+    if (empty($work) && preg_match('/^(.{1,30}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:第?\s*\d+\s*[回話]?|\d+話|EP\.?\s*\d+|#\d+|【\d+】|\[\d+\])/iu', $normalized, $m)) {
         $work = trim($m[1]);
     }
     if (empty($work)) {
         return null;
     }
+
+    $work = preg_replace('/[\s\p{P}\p{S}]+/u', '', $work);
 
     // 話数を抽出
     $ep = null;
@@ -329,6 +339,7 @@ function contentfreaks_make_title_episode_key($title) {
         '/#(\d+)/',           // #12
         '/【(\d+)】/',         // 【12】
         '/\[(\d+)\]/',        // [12]
+        '/(?:^|\s)(\d+)(?:\s*[話回])?/u', // 1話, 1回, 単独の1
     );
     foreach ($patterns as $pattern) {
         if (preg_match($pattern, $title, $m)) {
