@@ -24,8 +24,8 @@
                 <li><a href="<?php echo esc_url(CONTENTFREAKS_APPLE_URL); ?>" target="_blank" rel="noopener">Apple Podcasts</a></li>
                 <li><a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" target="_blank" rel="noopener">YouTube</a></li>
                 <li class="footer-rss-item">
-                    <span class="footer-rss-label">RSSフィードURL</span>
-                    <a class="footer-rss-url" href="<?php echo esc_url(get_feed_link()); ?>" target="_blank" rel="noopener"><?php echo esc_html(get_feed_link()); ?></a>
+                    <span class="footer-rss-label">ポッドキャストRSSフィード</span>
+                    <a class="footer-rss-url" href="<?php echo esc_url(CONTENTFREAKS_RSS_URL); ?>" target="_blank" rel="noopener"><?php echo esc_html(CONTENTFREAKS_RSS_URL); ?></a>
                 </li>
             </ul>
         </div>
