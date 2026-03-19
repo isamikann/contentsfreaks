@@ -22,6 +22,8 @@ get_header(); ?>
         
         $original_url = get_post_meta($post_id, 'episode_original_url', true);
         $episode_category = get_post_meta($post_id, 'episode_category', true) ?: 'エピソード';
+        $youtube_id = get_post_meta($post_id, 'episode_youtube_id', true);
+        $youtube_views = get_post_meta($post_id, 'episode_youtube_views', true);
         ?>
 
         <article class="single-episode">
@@ -92,6 +94,26 @@ get_header(); ?>
                     <h3 class="platform-links-title">🎧 お好みのアプリで聴く</h3>
                     <?php echo do_shortcode('[podcast_platforms]'); ?>
                 </div>
+                <?php if ($youtube_id) : ?>
+                <div class="episode-youtube-player">
+                    <h3 class="youtube-player-title">
+                        <span class="yt-badge-large">YouTube</span> 動画でも見る
+                        <?php if ($youtube_views) : ?>
+                            <span class="yt-views-inline">▶ <?php echo esc_html(contentfreaks_format_yt_number((int) $youtube_views)); ?> 回視聴</span>
+                        <?php endif; ?>
+                    </h3>
+                    <div class="youtube-embed-wrapper">
+                        <iframe
+                            src="https://www.youtube-nocookie.com/embed/<?php echo esc_attr($youtube_id); ?>?rel=0"
+                            title="<?php echo esc_attr(get_the_title()); ?>"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                            loading="lazy">
+                        </iframe>
+                    </div>
+                </div>
+                <?php endif; ?>
                 <?php endif; ?>
             </header>
 
