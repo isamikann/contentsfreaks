@@ -941,6 +941,8 @@ html {
     .episode-featured-image {
         max-width: 100%;
         margin: 0 auto;
+        width: calc(100vw - 2rem);
+        margin-left: calc(50% - 50vw + 1rem);
     }
     
     .episode-featured-image img {
@@ -948,6 +950,7 @@ html {
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         aspect-ratio: 16 / 9;
         object-fit: cover;
+        width: 100%;
     }
     
     .episode-info {
