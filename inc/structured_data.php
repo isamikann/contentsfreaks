@@ -73,6 +73,7 @@ function contentfreaks_output_ogp_tags() {
         $excerpt = has_excerpt() ? get_the_excerpt() : wp_trim_words(get_the_content(), 55);
         $permalink = get_permalink();
         $is_episode = get_post_meta($post_id, 'is_podcast_episode', true) === '1';
+        $youtube_id = get_post_meta($post_id, 'episode_youtube_id', true);
         
         // エピソードの場合、タイムスタンプ行を除去してからディスクリプション生成
         if ($is_episode && !has_excerpt()) {
@@ -91,7 +92,9 @@ function contentfreaks_output_ogp_tags() {
         echo '<meta property="article:published_time" content="' . esc_attr(get_the_date('c')) . '">' . "\n";
         echo '<meta property="article:modified_time" content="' . esc_attr(get_the_modified_date('c')) . '">' . "\n";
         
-        if (has_post_thumbnail()) {
+        if ($is_episode && $youtube_id) {
+            echo '<meta property="og:image" content="' . esc_url('https://i.ytimg.com/vi/' . $youtube_id . '/hqdefault.jpg') . '">' . "\n";
+        } elseif (has_post_thumbnail()) {
             $thumb_url = get_the_post_thumbnail_url($post_id, 'large');
             echo '<meta property="og:image" content="' . esc_url($thumb_url) . '">' . "\n";
         } elseif ($default_image) {
@@ -198,7 +201,9 @@ function contentfreaks_output_structured_data() {
                 );
             }
             
-            if (has_post_thumbnail()) {
+            if ($is_episode && $youtube_id) {
+                $episode_data['image'] = 'https://i.ytimg.com/vi/' . $youtube_id . '/hqdefault.jpg';
+            } elseif (has_post_thumbnail()) {
                 $episode_data['image'] = get_the_post_thumbnail_url($post_id, 'large');
             }
             
