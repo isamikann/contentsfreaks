@@ -68,19 +68,24 @@ get_header(); ?>
                 $episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
                 $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
                 $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
+                $youtube_id = get_post_meta(get_the_ID(), 'episode_youtube_id', true);
             ?>
                 <div class="featured-episode">
                     <div class="featured-episode-content">
                         <div class="featured-episode-image">
-                            <?php 
-                            // アイキャッチ画像をまず確認
-                            if (has_post_thumbnail()) : ?>
+                            <?php if ($youtube_id) : ?>
+                                <img
+                                    src="https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/maxresdefault.jpg"
+                                    alt="<?php echo esc_attr(get_the_title()); ?>"
+                                    loading="eager"
+                                    onerror="this.src='https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/hqdefault.jpg'"
+                                >
+                            <?php elseif (has_post_thumbnail()) : ?>
                                 <?php the_post_thumbnail('large', array(
                                     'alt' => get_the_title(),
-                                    'loading' => 'eager' // 最新エピソードは即座に読み込み
+                                    'loading' => 'eager'
                                 )); ?>
-                            <?php else : 
-                                // アイキャッチ画像がない場合、エピソードのメタデータから画像URLを取得を試行
+                            <?php else :
                                 $episode_image_url = get_post_meta(get_the_ID(), 'episode_image_url', true);
                                 if ($episode_image_url) : ?>
                                     <img src="<?php echo esc_url($episode_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="eager" style="width: 100%; height: auto; border-radius: 20px;">

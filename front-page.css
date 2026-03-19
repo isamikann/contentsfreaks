@@ -729,7 +729,7 @@
         box-shadow: 0 15px 35px rgba(0,0,0,0.2);
         display: block;
         line-height: 0;
-        aspect-ratio: 1 / 1; /* 正方形のアスペクト比を強制 */
+        aspect-ratio: 16 / 9;
     }
     
     .featured-episode-image img {
@@ -748,7 +748,7 @@
     .featured-episode-default-thumbnail {
         background: var(--latest-episode-badge-bg);
         width: 100%;
-        aspect-ratio: 1 / 1; /* 正方形のアスペクト比 */
+        aspect-ratio: 16 / 9;
         display: flex;
         align-items: center;
         justify-content: center;
