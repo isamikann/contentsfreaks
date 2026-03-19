@@ -33,7 +33,7 @@ get_header(); ?>
                 <?php if ($yt_stats) : ?>
                 <div class="episodes-stat">
                     <span class="episodes-stat-number"><?php echo contentfreaks_format_yt_number($yt_stats['view_count']); ?></span>
-                    <span class="episodes-stat-label"><span class="yt-badge">YouTube</span>総再生回数</span>
+                    <span class="episodes-stat-label">YouTube総再生回数</span>
                 </div>
                 <?php else : ?>
                 <div class="episodes-stat">
