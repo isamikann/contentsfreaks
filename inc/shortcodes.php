@@ -31,7 +31,6 @@ function contentfreaks_podcast_platforms_shortcode() {
         echo '<a href="' . esc_url($platform['url']) . '" class="platform-link platform-' . esc_attr($key) . '" target="_blank" rel="noopener">';
         echo '<span class="platform-icon">' . $platform['icon'] . '</span>';
         echo '<span class="platform-name">' . esc_html($platform['name']) . '</span>';
-        echo '<span class="platform-action">今すぐ聴く →</span>';
         echo '</a>';
     }
     

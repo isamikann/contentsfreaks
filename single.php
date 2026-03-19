@@ -87,14 +87,6 @@ get_header(); ?>
                         <source src="<?php echo esc_url($audio_url); ?>" type="audio/mpeg">
                         お使いのブラウザは音声再生に対応していません。
                     </audio>
-                    <div class="playback-speed-controls">
-                        <span class="speed-label">再生速度</span>
-                        <button type="button" class="speed-btn" data-speed="0.75">0.75x</button>
-                        <button type="button" class="speed-btn active" data-speed="1">1x</button>
-                        <button type="button" class="speed-btn" data-speed="1.25">1.25x</button>
-                        <button type="button" class="speed-btn" data-speed="1.5">1.5x</button>
-                        <button type="button" class="speed-btn" data-speed="2">2x</button>
-                    </div>
                 </div>
                 <?php endif; ?>
                 <div class="episode-platform-links">
