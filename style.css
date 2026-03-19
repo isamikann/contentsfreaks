@@ -362,44 +362,44 @@ Version: 2.0.0
     --front-cta-secondary-border: rgba(255, 255, 255, 0.3);
 
     /* フォントサイズ - 統一体系 */
-    --font-size-xs: 0.75rem;
-    --font-size-sm: 0.875rem;
-    --font-size-base: 1rem;
-    --font-size-lg: 1.125rem;
-    --font-size-xl: 1.25rem;
-    --font-size-2xl: 1.5rem;
-    --font-size-3xl: 1.875rem;
+    --font-size-xs: clamp(0.72rem, 0.68rem + 0.15vw, 0.75rem);
+    --font-size-sm: clamp(0.84rem, 0.8rem + 0.18vw, 0.875rem);
+    --font-size-base: clamp(0.95rem, 0.92rem + 0.2vw, 1rem);
+    --font-size-lg: clamp(1.05rem, 1rem + 0.25vw, 1.125rem);
+    --font-size-xl: clamp(1.15rem, 1.08rem + 0.35vw, 1.25rem);
+    --font-size-2xl: clamp(1.35rem, 1.22rem + 0.55vw, 1.5rem);
+    --font-size-3xl: clamp(1.65rem, 1.45rem + 0.95vw, 1.875rem);
 
     /* 新しい統一フォントサイズ定義 */
     /* ヒーロー・メインタイトル */
-    --hero-title: clamp(2.2rem, 4.5vw, 3.5rem);
-    --page-title: clamp(1.8rem, 3.5vw, 2.5rem);
-    --hero-subtitle: clamp(1.7rem, 3.5vw, 2.5rem);
+    --hero-title: clamp(2rem, 4vw + 0.5rem, 3.5rem);
+    --page-title: clamp(1.6rem, 2.8vw + 0.55rem, 2.5rem);
+    --hero-subtitle: clamp(1.5rem, 2.9vw + 0.4rem, 2.5rem);
 
     /* 記事・エピソードタイトル */
-    --card-title: 1.1rem;
-    --card-title-large: 1.2rem;
-    --single-title: clamp(1.4rem, 2.5vw, 1.8rem);
+    --card-title: clamp(1rem, 0.95rem + 0.28vw, 1.1rem);
+    --card-title-large: clamp(1.08rem, 1rem + 0.3vw, 1.2rem);
+    --single-title: clamp(1.35rem, 1.1rem + 1vw, 1.9rem);
 
     /* 本文・説明文 */
-    --body-text: 1rem;
-    --description: 0.95rem;
-    --caption: 0.875rem;
+    --body-text: clamp(0.95rem, 0.92rem + 0.18vw, 1rem);
+    --description: clamp(0.9rem, 0.88rem + 0.12vw, 0.95rem);
+    --caption: clamp(0.82rem, 0.8rem + 0.08vw, 0.875rem);
 
     /* メタ情報 */
-    --meta-primary: 0.85rem;
-    --meta-secondary: 0.8rem;
-    --meta-small: 0.75rem;
+    --meta-primary: clamp(0.8rem, 0.77rem + 0.1vw, 0.85rem);
+    --meta-secondary: clamp(0.76rem, 0.74rem + 0.08vw, 0.8rem);
+    --meta-small: clamp(0.7rem, 0.68rem + 0.06vw, 0.75rem);
 
     /* ナビゲーション */
-    --nav-primary: 1rem;
-    --nav-secondary: 0.9rem;
+    --nav-primary: clamp(0.95rem, 0.92rem + 0.12vw, 1rem);
+    --nav-secondary: clamp(0.85rem, 0.83rem + 0.08vw, 0.9rem);
 
     /* モバイル用フォントサイズ */
-    --mobile-hero-title: clamp(1.8rem, 4vw, 2.5rem);
-    --mobile-card-title: 1rem;
-    --mobile-body-text: 0.95rem;
-    --mobile-meta: 0.8rem;
+    --mobile-hero-title: clamp(1.7rem, 5vw, 2.4rem);
+    --mobile-card-title: 0.98rem;
+    --mobile-body-text: 0.93rem;
+    --mobile-meta: 0.78rem;
 }
 
 /* ===== ベーススタイル ===== */
