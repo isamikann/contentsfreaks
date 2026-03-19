@@ -297,7 +297,7 @@
     border: 1px solid var(--color-border-light, #e2e8f0);
     border-radius: 6px;
     padding: 0.2em 0.6em;
-    font-family: 'Inter', monospace;
+    font-family: inherit;
     font-size: 0.8125rem;
     font-weight: 600;
     color: var(--color-primary-400, #f7ff0b);

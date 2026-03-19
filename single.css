@@ -319,7 +319,7 @@ body {
     position: absolute;
     top: -0.5rem;
     left: 1rem;
-    font-family: serif;
+    font-family: inherit;
     opacity: 0.4;
 }
 
@@ -1569,7 +1569,7 @@ html {
 }
 
 .chapter-time {
-    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-family: inherit;
     font-size: var(--font-size-sm);
     font-weight: 600;
     color: var(--color-accent-400, #ff6b35);
