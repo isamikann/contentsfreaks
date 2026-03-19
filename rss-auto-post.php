@@ -254,6 +254,19 @@ function contentfreaks_set_featured_image_from_url($post_id, $image_url, $force_
     
     // HTTPSに変換（可能な場合）
     $image_url = str_replace('http://', 'https://', $image_url);
+
+    $candidate_urls = array($image_url);
+    if (preg_match('#i\.ytimg\.com/vi/([^/]+)/#', $image_url, $m)) {
+        $video_id = $m[1];
+        $candidate_urls = array(
+            'https://i.ytimg.com/vi/' . $video_id . '/maxresdefault.jpg',
+            'https://i.ytimg.com/vi/' . $video_id . '/sddefault.jpg',
+            'https://i.ytimg.com/vi/' . $video_id . '/hqdefault.jpg',
+            'https://i.ytimg.com/vi/' . $video_id . '/mqdefault.jpg',
+            'https://i.ytimg.com/vi/' . $video_id . '/default.jpg',
+            $image_url,
+        );
+    }
     
     // media_sideload_image関数を使用するために必要なファイルをインクルード
     if (!function_exists('media_sideload_image')) {
@@ -267,21 +280,24 @@ function contentfreaks_set_featured_image_from_url($post_id, $image_url, $force_
         return 30; // 30秒のタイムアウト
     });
     
-    $image_id = media_sideload_image($image_url, $post_id, null, 'id');
-    
+    foreach ($candidate_urls as $candidate_url) {
+        $image_id = media_sideload_image($candidate_url, $post_id, null, 'id');
+
+        if (!is_wp_error($image_id) && is_numeric($image_id)) {
+            set_post_thumbnail($post_id, $image_id);
+            remove_all_filters('http_request_timeout');
+            error_log('サムネイル設定成功 (Post ID: ' . $post_id . ', Image ID: ' . $image_id . ', URL: ' . $candidate_url . ')');
+            return true;
+        }
+    }
+
     // タイムアウトフィルターを削除
     remove_all_filters('http_request_timeout');
-    
-    if (!is_wp_error($image_id) && is_numeric($image_id)) {
-        set_post_thumbnail($post_id, $image_id);
-        error_log('サムネイル設定成功 (Post ID: ' . $post_id . ', Image ID: ' . $image_id . ')');
-        return true;
-    } else {
-        // エラーログに記録
-        $error_message = is_wp_error($image_id) ? $image_id->get_error_message() : 'Unknown error';
-        error_log('サムネイル設定エラー (Post ID: ' . $post_id . ', URL: ' . $image_url . '): ' . $error_message);
-        return false;
-    }
+
+    // エラーログに記録
+    $error_message = is_wp_error($image_id) ? $image_id->get_error_message() : 'Unknown error';
+    error_log('サムネイル設定エラー (Post ID: ' . $post_id . ', URL: ' . $image_url . '): ' . $error_message);
+    return false;
 }
 
 // 更新詳細ログ機能
