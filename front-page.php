@@ -63,49 +63,10 @@ get_header(); ?>
             
             if ($latest_episode_query->have_posts()) :
                 $latest_episode_query->the_post();
-                $latest_episode_id = get_the_ID(); // 最新エピソードのIDを取得
-                $audio_url = get_post_meta(get_the_ID(), 'episode_audio_url', true);
-                $episode_number = get_post_meta(get_the_ID(), 'episode_number', true);
-                $duration = get_post_meta(get_the_ID(), 'episode_duration', true);
-                $episode_category = get_post_meta(get_the_ID(), 'episode_category', true) ?: 'エピソード';
-                $youtube_id = get_post_meta(get_the_ID(), 'episode_youtube_id', true);
+                $latest_episode_id = get_the_ID();
             ?>
-                <div class="featured-episode">
-                    <div class="featured-episode-content">
-                        <div class="featured-episode-image">
-                            <?php if ($youtube_id) : ?>
-                                <img
-                                    src="https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/maxresdefault.jpg"
-                                    alt="<?php echo esc_attr(get_the_title()); ?>"
-                                    loading="eager"
-                                    onerror="this.src='https://i.ytimg.com/vi/<?php echo esc_attr($youtube_id); ?>/hqdefault.jpg'"
-                                >
-                            <?php elseif (has_post_thumbnail()) : ?>
-                                <?php the_post_thumbnail('large', array(
-                                    'alt' => get_the_title(),
-                                    'loading' => 'eager'
-                                )); ?>
-                            <?php else :
-                                $episode_image_url = get_post_meta(get_the_ID(), 'episode_image_url', true);
-                                if ($episode_image_url) : ?>
-                                    <img src="<?php echo esc_url($episode_image_url); ?>" alt="<?php echo esc_attr(get_the_title()); ?>" loading="eager" style="width: 100%; height: auto; border-radius: 20px;">
-                                <?php else : ?>
-                                    <div class="featured-episode-default-thumbnail">🎙️</div>
-                                <?php endif; ?>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <div class="featured-episode-details">
-                            <div class="episode-meta-info">
-                                <span class="episode-date"><?php echo get_the_date('Y.n.j'); ?></span>
-                            </div>
-                            
-                            <h3 class="featured-episode-title"><?php the_title(); ?></h3>
-                            <div class="episode-actions">
-                                <a href="<?php the_permalink(); ?>" class="episode-share-btn">詳細を見る</a>
-                            </div>
-                        </div>
-                    </div>
+                <div class="latest-episode-card-wrap">
+                    <?php get_template_part('template-parts/episode-card'); ?>
                 </div>
             <?php 
                 wp_reset_postdata();
