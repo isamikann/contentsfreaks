@@ -143,8 +143,6 @@ function contentfreaks_unified_admin_page() {
     if (isset($_POST['sync_youtube_videos']) && wp_verify_nonce($_POST['sync_youtube_videos_nonce'], 'contentfreaks_sync_youtube_videos')) {
         if (function_exists('contentfreaks_queue_youtube_sync_job') && contentfreaks_queue_youtube_sync_job('manual')) {
             $messages[] = array('type' => 'success', 'message' => 'YouTube動画紐付けをバックグラウンドに投入しました。完了まで少し待ってから再読み込みしてください。');
-        } else {
-            $messages[] = array('type' => 'warning', 'message' => 'YouTube動画紐付けはすでに実行待ちです。少し待ってから再度確認してください。');
         }
         $current_tab = 'tools';
     }
