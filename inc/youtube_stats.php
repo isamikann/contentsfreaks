@@ -239,12 +239,13 @@ function contentfreaks_sync_youtube_video_ids() {
         return array('synced' => 0, 'skipped' => 0, 'errors' => array('動画が見つかりませんでした。'));
     }
 
-    // ---- 2. 50件ずつ statistics を取得 ----
+    // ---- 2. 50件ずつ snippet + statistics を取得 ----
     $video_stats = array(); // video_id => view_count
+    $video_thumbnails = array(); // video_id => thumbnail_url
     foreach (array_chunk(array_keys($video_items), 50) as $chunk) {
         $resp = wp_remote_get(
             add_query_arg(array(
-                'part' => 'statistics',
+                'part' => 'snippet,statistics',
                 'id'   => implode(',', $chunk),
                 'key'  => $api_key,
             ), 'https://www.googleapis.com/youtube/v3/videos'),
@@ -256,6 +257,7 @@ function contentfreaks_sync_youtube_video_ids() {
         $data = json_decode(wp_remote_retrieve_body($resp), true);
         foreach ($data['items'] as $item) {
             $video_stats[$item['id']] = (int) ($item['statistics']['viewCount'] ?? 0);
+            $video_thumbnails[$item['id']] = contentfreaks_pick_youtube_thumbnail_url($item['snippet']['thumbnails'] ?? array());
         }
     }
 
@@ -290,7 +292,7 @@ function contentfreaks_sync_youtube_video_ids() {
         update_post_meta($post_id, 'episode_youtube_id',    $vid);
         update_post_meta($post_id, 'episode_youtube_views', $video_stats[$vid] ?? 0);
 
-        $youtube_thumbnail = 'https://i.ytimg.com/vi/' . $vid . '/hqdefault.jpg';
+        $youtube_thumbnail = $video_thumbnails[$vid] ?? 'https://i.ytimg.com/vi/' . $vid . '/hqdefault.jpg';
         update_post_meta($post_id, 'episode_image_url', $youtube_thumbnail);
 
         if (function_exists('contentfreaks_set_featured_image_from_url')) {
@@ -376,4 +378,22 @@ function contentfreaks_extract_episode_number_from_yt_title($title) {
         }
     }
     return null;
+}
+
+/**
+ * YouTube API の thumbnails から使える画像URLを優先順で選ぶ
+ * maxres -> standard -> high -> medium -> default の順
+ *
+ * @param  array $thumbnails
+ * @return string
+ */
+function contentfreaks_pick_youtube_thumbnail_url($thumbnails) {
+    $priority = array('maxres', 'standard', 'high', 'medium', 'default');
+    foreach ($priority as $size) {
+        if (!empty($thumbnails[$size]['url'])) {
+            return $thumbnails[$size]['url'];
+        }
+    }
+
+    return '';
 }
