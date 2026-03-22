@@ -320,7 +320,7 @@ function contentfreaks_sync_youtube_video_ids() {
         }
     }
 
-    // ---- 3. WP投稿タイトルとYouTubeタイトルを「作品名::話数」キーでマッチング ----
+    // ---- 3. WP投稿タイトルとYouTubeタイトルを「作品名::話数 / ::final / ::title」キーでマッチング ----
     $episodes = get_posts(array(
         'post_type'      => 'post',
         'posts_per_page' => -1,
@@ -329,8 +329,8 @@ function contentfreaks_sync_youtube_video_ids() {
         'fields'         => 'ids',
     ));
 
-    // YouTube: 「作品名::話数」インデックスを作成
-    $yt_index = array(); // "作品名::話数" => video_id
+    // YouTube: マッチキー（話数 / 最終回 / タイトル）をインデックス化
+    $yt_index = array(); // "作品名::..." => video_id
     foreach ($video_items as $vid => $title) {
         $key = contentfreaks_make_title_episode_key($title);
         if ($key && !isset($yt_index[$key])) {
@@ -388,6 +388,12 @@ function contentfreaks_make_title_episode_key($title) {
     if (empty($work) && preg_match('/^(.{1,30}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:第?\s*\d+\s*[回話]?|\d+話|EP\.?\s*\d+|#\d+|【\d+】|\[\d+\])/iu', $normalized, $m)) {
         $work = trim($m[1]);
     }
+    if (empty($work) && preg_match('/^(.{1,40}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:感想|レビュー|考察|解説|雑談|まとめ|語り|感想回|考察回)(?:\b|$)/iu', $normalized, $m)) {
+        $work = trim($m[1]);
+    }
+    if (empty($work) && mb_strlen($normalized) <= 40 && !preg_match('/[。！？!?]/u', $normalized)) {
+        $work = $normalized;
+    }
     if (empty($work)) {
         return null;
     }
@@ -417,7 +423,7 @@ function contentfreaks_make_title_episode_key($title) {
         }
     }
     if ($ep === null) {
-        return null;
+        return $work . '::title';
     }
 
     return $work . '::' . $ep;
