@@ -382,6 +382,9 @@ function contentfreaks_make_title_episode_key($title) {
     if (preg_match('/[『「【]([^』」】\s]{1,40})[』」】]/u', $normalized, $m)) {
         $work = trim($m[1]);
     }
+    if (empty($work) && preg_match('/^(.{1,30}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:最終回|最終話|ラスト回|finale?|final)(?:\b|$)/iu', $normalized, $m)) {
+        $work = trim($m[1]);
+    }
     if (empty($work) && preg_match('/^(.{1,30}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:第?\s*\d+\s*[回話]?|\d+話|EP\.?\s*\d+|#\d+|【\d+】|\[\d+\])/iu', $normalized, $m)) {
         $work = trim($m[1]);
     }
@@ -390,6 +393,11 @@ function contentfreaks_make_title_episode_key($title) {
     }
 
     $work = preg_replace('/[\s\p{P}\p{S}]+/u', '', $work);
+
+    // 最終回・最終話系は番号ではなく final キーに寄せて一致させる
+    if (preg_match('/(?:最終回|最終話|ラスト回|finale?|final)/iu', $title)) {
+        return $work . '::final';
+    }
 
     // 話数を抽出
     $ep = null;
