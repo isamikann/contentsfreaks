@@ -552,8 +552,8 @@ function contentfreaks_unified_admin_page() {
 
                 // WP側: マッチキーの状況
                 $wp_episodes = get_posts(array('post_type'=>'post','posts_per_page'=>-1,'meta_key'=>'is_podcast_episode','meta_value'=>'1','fields'=>'ids'));
-                $wp_key_stats   = array('number' => 0, 'final' => 0, 'title' => 0);
-                $wp_key_samples = array('number' => array(), 'final' => array(), 'title' => array());
+                $wp_key_stats   = array('number' => 0, 'part1' => 0, 'part2' => 0, 'final' => 0, 'title' => 0);
+                $wp_key_samples = array('number' => array(), 'part1' => array(), 'part2' => array(), 'final' => array(), 'title' => array());
                 $wp_no_key      = array();
                 foreach ($wp_episodes as $pid) {
                     $title = get_the_title($pid);
@@ -563,8 +563,8 @@ function contentfreaks_unified_admin_page() {
                         continue;
                     }
 
-                    $key_parts = explode('::', $key, 2);
-                    $key_kind = $key_parts[1] ?? 'unknown';
+                    $key_parts = explode('::', $key);
+                    $key_kind = $key_parts[2] ?? ($key_parts[1] ?? 'unknown');
                     if (isset($wp_key_stats[$key_kind])) {
                         $wp_key_stats[$key_kind]++;
                         if (count($wp_key_samples[$key_kind]) < 5) {
@@ -573,7 +573,7 @@ function contentfreaks_unified_admin_page() {
                     }
                 }
                 echo '<h4>WP投稿側 (マッチキー)</h4>';
-                echo '<p>✅ 話数あり: <strong>' . $wp_key_stats['number'] . '件</strong> / ⏳ 最終回: <strong>' . $wp_key_stats['final'] . '件</strong> / 🏷️ 作品名のみ: <strong>' . $wp_key_stats['title'] . '件</strong> / ❌ 抽出不可: <strong>' . count($wp_no_key) . '件</strong></p>';
+                echo '<p>✅ 話数あり: <strong>' . $wp_key_stats['number'] . '件</strong> / 🧩 前編: <strong>' . $wp_key_stats['part1'] . '件</strong> / 🧩 後編: <strong>' . $wp_key_stats['part2'] . '件</strong> / ⏳ 最終回: <strong>' . $wp_key_stats['final'] . '件</strong> / 🏷️ 作品名のみ: <strong>' . $wp_key_stats['title'] . '件</strong> / ❌ 抽出不可: <strong>' . count($wp_no_key) . '件</strong></p>';
                 if (!empty($wp_no_key)) {
                     echo '<details><summary>抽出できなかった投稿タイトル（先頭5件）</summary><ul>';
                     foreach (array_slice($wp_no_key, 0, 5) as $t) {
@@ -584,6 +584,20 @@ function contentfreaks_unified_admin_page() {
                 if (!empty($wp_key_samples['number'])) {
                     echo '<details><summary>話数ありサンプル</summary><ul>';
                     foreach ($wp_key_samples['number'] as $t) {
+                        echo '<li>' . esc_html($t) . '</li>';
+                    }
+                    echo '</ul></details>';
+                }
+                if (!empty($wp_key_samples['part1'])) {
+                    echo '<details><summary>前編サンプル</summary><ul>';
+                    foreach ($wp_key_samples['part1'] as $t) {
+                        echo '<li>' . esc_html($t) . '</li>';
+                    }
+                    echo '</ul></details>';
+                }
+                if (!empty($wp_key_samples['part2'])) {
+                    echo '<details><summary>後編サンプル</summary><ul>';
+                    foreach ($wp_key_samples['part2'] as $t) {
                         echo '<li>' . esc_html($t) . '</li>';
                     }
                     echo '</ul></details>';
@@ -623,8 +637,13 @@ function contentfreaks_unified_admin_page() {
                             $yt_key   = contentfreaks_make_title_episode_key($yt_title);
                             $yt_kind = '';
                             if ($yt_key) {
-                                $yt_key_parts = explode('::', $yt_key, 2);
-                                $yt_kind = $yt_key_parts[1] ?? '';
+                                $yt_key_parts = explode('::', $yt_key);
+                                if (!empty($yt_key_parts[2])) {
+                                    $part_label = $yt_key_parts[2] === 'part1' ? '前編' : ($yt_key_parts[2] === 'part2' ? '後編' : $yt_key_parts[2]);
+                                    $yt_kind = $yt_key_parts[1] . ' / ' . $part_label;
+                                } else {
+                                    $yt_kind = $yt_key_parts[1] ?? '';
+                                }
                             }
                             $matched  = ($yt_key && in_array($yt_key, $wp_keys));
                             echo '<tr>';

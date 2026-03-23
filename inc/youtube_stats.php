@@ -320,7 +320,7 @@ function contentfreaks_sync_youtube_video_ids() {
         }
     }
 
-    // ---- 3. WP投稿タイトルとYouTubeタイトルを「作品名::話数 / ::final / ::title」キーでマッチング ----
+    // ---- 3. WP投稿タイトルとYouTubeタイトルを「作品名::話数[::part] / ::final / ::title」キーでマッチング ----
     $episodes = get_posts(array(
         'post_type'      => 'post',
         'posts_per_page' => -1,
@@ -329,7 +329,7 @@ function contentfreaks_sync_youtube_video_ids() {
         'fields'         => 'ids',
     ));
 
-    // YouTube: マッチキー（話数 / 最終回 / タイトル）をインデックス化
+    // YouTube: マッチキー（話数 / パート / 最終回 / タイトル）をインデックス化
     $yt_index = array(); // "作品名::..." => video_id
     foreach ($video_items as $vid => $title) {
         $key = contentfreaks_make_title_episode_key($title);
@@ -367,6 +367,7 @@ function contentfreaks_sync_youtube_video_ids() {
  * タイトルから「作品名::話数」のマッチングキーを生成
  * 例: 「『リブート』8話感想考察」→ "リブート::8"
  * 例: 「『再会』第7話」→ "再会::7"
+ * 例: 「『再会』第7話 前編」→ "再会::7::part1"
  *
  * @param  string      $title
  * @return string|null
@@ -406,6 +407,8 @@ function contentfreaks_make_title_episode_key($title) {
         return $work . '::final';
     }
 
+    $part = contentfreaks_extract_episode_part_from_title($title);
+
     // 話数を抽出
     $ep = null;
     $patterns = array(
@@ -424,10 +427,40 @@ function contentfreaks_make_title_episode_key($title) {
         }
     }
     if ($ep === null) {
+        if ($part !== null) {
+            return $work . '::' . $part;
+        }
         return $work . '::title';
     }
 
-    return $work . '::' . $ep;
+    $key = $work . '::' . $ep;
+    if ($part !== null) {
+        $key .= '::' . $part;
+    }
+
+    return $key;
+}
+
+/**
+ * タイトルから前編/後編などのパート情報を抽出
+ * 対応形式: 前編 / 前半 / 後編 / 後半 / Part1 / Part 2 / 第1部 / 第2部
+ *
+ * @param  string   $title
+ * @return string|null
+ */
+function contentfreaks_extract_episode_part_from_title($title) {
+    $patterns = array(
+        '/(?:前編|前半|上編|上半|第1部|パート\s*1|part\s*(?:1|i)\b)/iu' => 'part1',
+        '/(?:後編|後半|下編|下半|第2部|パート\s*2|part\s*(?:2|ii)\b)/iu' => 'part2',
+    );
+
+    foreach ($patterns as $pattern => $part) {
+        if (preg_match($pattern, $title)) {
+            return $part;
+        }
+    }
+
+    return null;
 }
 
 /**
