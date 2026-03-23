@@ -386,6 +386,7 @@ function contentfreaks_make_title_episode_key($title) {
         $work = trim($m[1]);
     }
     if (empty($work) && preg_match('/^(.{1,30}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:第?\s*\d+\s*[回話]?|\d+話|EP\.?\s*\d+|#\d+|【\d+】|\[\d+\])/iu', $normalized, $m)) {
+        if (empty($work) && preg_match('/^(.{1,30}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:第?\s*\d+\s*[回話]?|\d+話|EP\.?\s*\d+|Episode\s*\d+|#\d+|【\d+】|\[\d+\])/iu', $normalized, $m)) {
         $work = trim($m[1]);
     }
     if (empty($work) && preg_match('/^(.{1,40}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:感想|レビュー|考察|解説|雑談|まとめ|語り|感想回|考察回|Episode)(?:\b|$)/iu', $normalized, $m)) {
@@ -438,7 +439,7 @@ function contentfreaks_make_title_episode_key($title) {
  */
 function contentfreaks_extract_episode_number_from_yt_title($title) {
     $patterns = array(
-        '/\bep\.?\s*(\d+)/i',   // EP.12, ep12
+        '/\b(?:ep|episode)\.?\s*(\d+)/i', // EP.12, Episode12, episode 12
         '/#(\d+)/',              // #12
         '/第(\d+)[回話]/u',      // 第12回, 第12話
         '/(\d+)話/u',            // 12話（「第」なし）
