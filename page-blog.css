@@ -649,6 +649,7 @@ html {
         margin: 0.8rem 0;
         line-height: 1.4;
         display: -webkit-box;
+        line-clamp: 3;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
@@ -659,6 +660,7 @@ html {
         margin-bottom: 1.2rem;
         line-height: 1.5;
         display: -webkit-box;
+        line-clamp: 3;
         -webkit-line-clamp: 3;
         -webkit-box-orient: vertical;
         overflow: hidden;
@@ -821,6 +823,7 @@ html {
         margin: 0.6rem 0;
         line-height: 1.3;
         display: -webkit-box;
+        line-clamp: 2;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
@@ -831,6 +834,7 @@ html {
         margin-bottom: 1rem;
         line-height: 1.5;
         display: -webkit-box;
+        line-clamp: 2;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
@@ -1066,6 +1070,7 @@ html {
     .blog-excerpt {
         font-size: 0.9rem;
         -webkit-line-clamp: 3;
+        line-clamp: 3;
         display: -webkit-box;
         -webkit-box-orient: vertical;
         overflow: hidden;

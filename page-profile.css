@@ -1109,9 +1109,6 @@ body {
     .contact-cta-container {
         padding: 0 1rem;
     }
-}
-    }
-    
     .highlight-card {
         padding: 1.5rem;
     }
@@ -1430,9 +1427,6 @@ body {
 
 /* ダークモード対応の準備 */
 @media (prefers-color-scheme: dark) {
-    .profile-page {
-        /* 将来のダークモード対応 */
-    }
 }
 
 /* ===== PC デスクトップ見やすさ改善 (1025px+) ===== */
