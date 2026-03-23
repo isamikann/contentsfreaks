@@ -250,7 +250,7 @@
 
 /* フッタービジネスリンク */
 .footer-business-link {
-    color: var(--primary, #f7ff0b) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
     font-weight: 600;
 }
 
