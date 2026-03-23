@@ -386,8 +386,7 @@ function contentfreaks_make_title_episode_key($title) {
     if (empty($work) && preg_match('/^(.{1,30}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:最終回|最終話|ラスト回|finale?|final)(?:\b|$)/iu', $normalized, $m)) {
         $work = trim($m[1]);
     }
-    if (empty($work) && preg_match('/^(.{1,30}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:第?\s*\d+\s*[回話]?|\d+話|EP\.?\s*\d+|#\d+|【\d+】|\[\d+\])/iu', $normalized, $m)) {
-        if (empty($work) && preg_match('/^(.{1,30}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:第?\s*\d+\s*[回話]?|\d+話|EP\.?\s*\d+|Episode\s*\d+|#\d+|【\d+】|\[\d+\])/iu', $normalized, $m)) {
+    if (empty($work) && preg_match('/^(.{1,30}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:第?\s*\d+\s*[回話]?|\d+話|EP\.?\s*\d+|Episode\s*\d+|#\d+|【\d+】|\[\d+\])/iu', $normalized, $m)) {
         $work = trim($m[1]);
     }
     if (empty($work) && preg_match('/^(.{1,40}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:感想|レビュー|考察|解説|雑談|まとめ|語り|感想回|考察回|Episode)(?:\b|$)/iu', $normalized, $m)) {
