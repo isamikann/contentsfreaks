@@ -379,7 +379,7 @@ function contentfreaks_make_title_episode_key($title) {
 
     // 作品名を抽出: 『』「」【】 の順に試す
     $work = '';
-    if (preg_match('/[『「【]([^』」】\s]{1,40})[』」】]/u', $normalized, $m)) {
+    if (preg_match('/[『「【]\s*([^』」】]{1,40}?)\s*[』」】]/u', $normalized, $m)) {
         $work = trim($m[1]);
     }
     if (empty($work) && preg_match('/^(.{1,30}?)(?:\s*[-|｜|\||:：]\s*|\s+)?(?:最終回|最終話|ラスト回|finale?|final)(?:\b|$)/iu', $normalized, $m)) {
