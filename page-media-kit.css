@@ -2,6 +2,8 @@
    Media Kit ページ専用スタイル
    ============================================= */
 
+body { padding-top: 0 !important; }
+
 .media-kit-page {
     background: var(--color-bg-primary, #ffffff);
 }
@@ -10,7 +12,7 @@
 .mk-hero {
     background: var(--black, #1a1a1a);
     color: var(--white, #fff);
-    padding: 6rem 1.5rem 4rem;
+    padding: calc(6rem + 70px) 1.5rem 4rem;
     text-align: center;
 }
 
@@ -391,7 +393,7 @@
    ============================================= */
 @media (max-width: 768px) {
     .mk-hero {
-        padding: 5rem 1.25rem 3rem;
+        padding: calc(5rem + 60px) 1.25rem 3rem;
     }
 
     .mk-overview-grid {
