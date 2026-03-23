@@ -69,7 +69,7 @@ function contentfreaks_enqueue_scripts() {
     } elseif (is_page('profile')) {
         wp_enqueue_style('contentfreaks-profile', get_stylesheet_directory_uri() . '/page-profile.css', array('contentfreaks-components'), '1.1.0');
     } elseif (is_page('media-kit')) {
-        wp_enqueue_style('contentfreaks-media-kit', get_stylesheet_directory_uri() . '/page-media-kit.css', array('contentfreaks-components'), '1.0.0');
+        wp_enqueue_style('contentfreaks-media-kit', get_stylesheet_directory_uri() . '/page-media-kit.css', array('contentfreaks-components'), '1.0.1');
     } elseif (is_page('contact')) {
         wp_enqueue_style('contentfreaks-contact', get_stylesheet_directory_uri() . '/page-contact.css', array('contentfreaks-components'), '1.0.0');
         wp_enqueue_script('contentfreaks-contact-js', get_stylesheet_directory_uri() . '/page-contact.js', array(), '1.0.0', true);

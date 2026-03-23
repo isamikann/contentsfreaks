@@ -184,8 +184,8 @@ Version: 2.0.0
     --front-hero-title-gradient: linear-gradient(45deg, #ffffff, #f0f8ff);
     --front-hero-artwork-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
 
-    /* 最新エピソードセクション - ニュートラルな薄いグレー〜白 */
-    --latest-episode-bg: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    /* 最新エピソードセクション */
+    --latest-episode-bg: #ffffff;
     --latest-episode-card-bg: var(--white);
     --latest-episode-card-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
     --latest-episode-badge-bg: linear-gradient(45deg, #ff6b35, #f7931e);
@@ -211,36 +211,36 @@ Version: 2.0.0
     --recent-episodes-btn-secondary: rgba(51, 65, 85, 0.08);
     --recent-episodes-btn-secondary-text: #334155;
 
-    /* ホスト紹介セクション - ソフトベージュ〜薄いグリーン */
-    --hosts-bg: linear-gradient(135deg, #fef7ed 0%, #f0fdf4 100%);
+    /* ホスト紹介セクション */
+    --hosts-bg: #f7f8fa;
     --hosts-card-bg: var(--white);
-    --hosts-card-border: #e7f5e7;
-    --hosts-card-border-hover: #22c55e;
-    --hosts-card-shadow: 0 10px 25px rgba(34, 197, 94, 0.1);
-    --hosts-card-shadow-hover: 0 20px 40px rgba(34, 197, 94, 0.15);
-    --hosts-accent: #16a34a;
-    --hosts-title-gradient: linear-gradient(135deg, #166534, #22c55e);
-    --hosts-text: #374151;
+    --hosts-card-border: #e2e8f0;
+    --hosts-card-border-hover: var(--primary);
+    --hosts-card-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+    --hosts-card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.10);
+    --hosts-accent: var(--accent);
+    --hosts-title-gradient: linear-gradient(135deg, var(--accent), var(--primary));
+    --hosts-text: var(--text-primary);
 
-    /* リスナーの声セクション - 薄いゴールド〜クリーム */
-    --testimonials-bg: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    /* リスナーの声セクション */
+    --testimonials-bg: #ffffff;
     --testimonials-card-bg: var(--white);
-    --testimonials-card-border: #fde68a;
-    --testimonials-card-shadow: 0 10px 25px rgba(245, 158, 11, 0.1);
-    --testimonials-accent: #d97706;
-    --testimonials-title: #92400e;
-    --testimonials-text: #78716c;
-    --testimonials-quote: #a16207;
+    --testimonials-card-border: #e2e8f0;
+    --testimonials-card-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+    --testimonials-accent: var(--accent);
+    --testimonials-title: var(--text-primary);
+    --testimonials-text: var(--text-secondary);
+    --testimonials-quote: var(--accent);
 
-    /* プラットフォームセクション - 薄いピンク〜コーラル */
-    --platforms-bg: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
-    --platforms-bg-pattern: rgba(236, 72, 153, 0.08);
-    --platforms-title: linear-gradient(135deg, #be185d, #ec4899);
-    --platforms-subtitle: #be185d;
+    /* プラットフォームセクション */
+    --platforms-bg: #f7f8fa;
+    --platforms-bg-pattern: transparent;
+    --platforms-title: linear-gradient(135deg, var(--accent), var(--primary));
+    --platforms-subtitle: var(--text-secondary);
     --platforms-card-bg: var(--white);
-    --platforms-card-border: #f9a8d4;
-    --platforms-card-border-hover: #ec4899;
-    --platforms-card-shadow: 0 10px 25px rgba(236, 72, 153, 0.12);
+    --platforms-card-border: #e2e8f0;
+    --platforms-card-border-hover: var(--primary);
+    --platforms-card-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
 
     /* 統計情報カラー */
     --front-stats-bg: transparent;

@@ -541,12 +541,12 @@
         font-weight: 600;
         font-size: 1.1rem;
         transition: all 0.3s ease;
-        box-shadow: 0 8px 25px rgba(46, 125, 50, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
     }
     
     .hosts-profile-btn:hover {
         transform: translateY(-3px);
-        box-shadow: 0 12px 35px rgba(46, 125, 50, 0.5);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
         color: var(--white);
         text-decoration: none;
     }
@@ -698,12 +698,12 @@
     .episodes-view-all-btn {
         background: var(--recent-episodes-title-gradient);
         color: var(--white);
-        box-shadow: 0 8px 25px rgba(46, 125, 50, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
     }
     
     .episodes-view-all-btn:hover {
         transform: translateY(-3px);
-        box-shadow: 0 12px 35px rgba(46, 125, 50, 0.5);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
         color: var(--white);
         text-decoration: none;
     }
@@ -711,12 +711,12 @@
     .blog-view-all-btn {
         background: var(--blog-hero-bg);
         color: var(--white);
-        box-shadow: 0 8px 25px rgba(46, 125, 50, 0.3);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.10);
     }
     
     .blog-view-all-btn:hover {
         transform: translateY(-3px);
-        box-shadow: 0 12px 35px rgba(46, 125, 50, 0.5);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
         color: var(--white);
         text-decoration: none;
     }
@@ -789,16 +789,6 @@
         overflow: hidden;
     }
     
-    .testimonials-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="M20,20 Q30,10 40,20 T60,20" stroke="rgba(217,119,6,0.1)" stroke-width="2" fill="none"/><path d="M10,60 Q25,50 40,60 T70,60" stroke="rgba(217,119,6,0.08)" stroke-width="1.5" fill="none"/></svg>');
-    }
-    
     .testimonials-container {
         max-width: 860px;
         margin: 0 auto;
@@ -819,7 +809,7 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        text-shadow: 0 4px 20px rgba(217,119,6,0.2);
+        text-shadow: none;
         margin-bottom: 1rem;
     }
     
@@ -853,7 +843,7 @@
     
     .testimonial-card:hover {
         transform: translateY(-10px);
-        box-shadow: 0 30px 60px rgba(217,119,6,0.2);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08);
         background: var(--white);
     }
     
@@ -1314,9 +1304,9 @@
    ============================================= */
 .history-journey-section {
     padding: 5rem 2rem;
-    background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
-    border-top: 1px solid #dde3f0;
-    border-bottom: 1px solid #dde3f0;
+    background: #f7f8fa;
+    border-top: 1px solid rgba(0,0,0,0.06);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 
 .history-journey-container {
