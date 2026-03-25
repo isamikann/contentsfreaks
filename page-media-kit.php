@@ -62,6 +62,12 @@ get_header(); ?>
                     </dl>
                 </div>
                 <div class="mk-overview-platforms">
+                    <?php
+                    $yt_stats = contentfreaks_get_youtube_channel_stats();
+                    $youtube_followers = $yt_stats
+                        ? $yt_stats['subscriber_count']
+                        : get_theme_mod('mk_youtube_subscribers', '900');
+                    ?>
                     <a href="<?php echo esc_url(CONTENTFREAKS_SPOTIFY_URL); ?>" target="_blank" rel="noopener" class="mk-platform-card">
                         <span class="mk-pf-name">Spotify</span>
                         <span class="mk-pf-number"><?php echo esc_html(get_theme_mod('mk_spotify_followers', '300')); ?></span>
@@ -75,16 +81,15 @@ get_header(); ?>
                     <a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" target="_blank" rel="noopener" class="mk-platform-card">
                         <span class="mk-pf-name">YouTube</span>
                         <span class="mk-pf-number"><?php
-                            $yt_stats = contentfreaks_get_youtube_channel_stats();
                             echo $yt_stats
                                 ? esc_html(contentfreaks_format_yt_number($yt_stats['subscriber_count']))
-                                : esc_html(get_theme_mod('mk_youtube_subscribers', '900'));
+                                : esc_html($youtube_followers);
                         ?></span>
                         <span class="mk-pf-label">登録者</span>
                     </a>
                     <div class="mk-platform-card mk-platform-total">
                         <span class="mk-pf-name">合計</span>
-                        <span class="mk-pf-number"><?php echo esc_html(get_option('contentfreaks_listener_count', '1500')); ?></span>
+                        <span class="mk-pf-number"><?php echo esc_html(contentfreaks_get_total_followers($youtube_followers)); ?></span>
                         <span class="mk-pf-label">総フォロワー</span>
                     </div>
                     <?php $mk_monthly = get_theme_mod('mk_monthly_plays', ''); if ($mk_monthly) : ?>

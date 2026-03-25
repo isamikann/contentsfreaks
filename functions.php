@@ -183,7 +183,6 @@ function contentfreaks_unified_admin_page() {
 
     // ========== POST ハンドラ: メディアキット ==========
     if (isset($_POST['save_mediakit_settings']) && wp_verify_nonce($_POST['mediakit_nonce'], 'contentfreaks_mediakit')) {
-        update_option('contentfreaks_listener_count', sanitize_text_field($_POST['listener_count']));
         $mk_keys = array('mk_spotify_followers', 'mk_apple_followers', 'mk_youtube_subscribers', 'mk_monthly_plays', 'mk_frequency', 'mk_since', 'mk_amazon_tag');
         foreach ($mk_keys as $key) {
             set_theme_mod($key, sanitize_text_field($_POST[$key]));
@@ -419,11 +418,10 @@ function contentfreaks_unified_admin_page() {
                         <?php wp_nonce_field('contentfreaks_mediakit', 'mediakit_nonce'); ?>
                         <table class="form-table">
                             <tr>
-                                <th scope="row"><label for="listener_count">リスナー数</label></th>
+                                <th scope="row">総フォロワー数</th>
                                 <td>
-                                    <input type="number" id="listener_count" name="listener_count" min="0"
-                                           value="<?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>" style="width: 150px;" />
-                                    <p class="description">フロントページとプロフィールページに表示されます。</p>
+                                    <strong><?php echo esc_html(contentfreaks_get_total_followers()); ?></strong>
+                                    <p class="description">Spotify / Apple Podcasts / YouTube の各数値から自動計算されます。</p>
                                 </td>
                             </tr>
                             <tr>
@@ -1896,6 +1894,37 @@ function contentfreaks_get_podcast_count() {
     $count = $query->found_posts;
     set_transient('contentfreaks_podcast_count', $count, HOUR_IN_SECONDS);
     return $count;
+}
+
+/**
+ * 数値っぽい文字列を整数に正規化する
+ */
+function contentfreaks_normalize_stat_number($value) {
+    if (is_numeric($value)) {
+        return (int) $value;
+    }
+
+    $digits = preg_replace('/[^0-9]/', '', (string) $value);
+    return $digits === '' ? 0 : (int) $digits;
+}
+
+/**
+ * 総フォロワー数を取得
+ */
+function contentfreaks_get_total_followers($youtube_followers = null) {
+    $spotify_followers = contentfreaks_normalize_stat_number(get_theme_mod('mk_spotify_followers', '300'));
+    $apple_followers   = contentfreaks_normalize_stat_number(get_theme_mod('mk_apple_followers', '150'));
+
+    if ($youtube_followers === null) {
+        $yt_stats = contentfreaks_get_youtube_channel_stats();
+        $youtube_followers = $yt_stats
+            ? $yt_stats['subscriber_count']
+            : get_theme_mod('mk_youtube_subscribers', '900');
+    }
+
+    $youtube_followers = contentfreaks_normalize_stat_number($youtube_followers);
+
+    return $spotify_followers + $apple_followers + $youtube_followers;
 }
 
 /**

@@ -29,7 +29,7 @@ get_header(); ?>
                         <span class="stat-unit">配信時間</span>
                     </div>
                     <div class="journey-stat">
-                        <span class="stat-value"><?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?></span>
+                        <span class="stat-value"><?php echo esc_attr(contentfreaks_get_total_followers()); ?></span>
                         <span class="stat-unit">フォロワー</span>
                     </div>
                     <div class="journey-stat">

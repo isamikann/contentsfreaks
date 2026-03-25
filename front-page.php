@@ -321,7 +321,7 @@ get_header(); ?>
                 </div>
                 <div class="achievement-badge fade-in">
                     <span class="badge-icon">👥</span>
-                    <span class="badge-value"><?php echo esc_html(get_option('contentfreaks_listener_count', '1500')); ?></span>
+                    <span class="badge-value"><?php echo esc_html(contentfreaks_get_total_followers()); ?></span>
                     <span class="badge-label">総フォロワー</span>
                 </div>
                 <div class="achievement-badge fade-in">

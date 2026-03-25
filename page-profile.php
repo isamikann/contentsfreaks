@@ -26,7 +26,7 @@ get_header(); ?>
                         <span class="stat-label">エピソード</span>
                     </div>
                     <div class="hero-stat">
-                        <span class="stat-number"><?php echo esc_attr(get_option('contentfreaks_listener_count', '1500')); ?>+</span>
+                        <span class="stat-number"><?php echo esc_attr(contentfreaks_get_total_followers()); ?>+</span>
                         <span class="stat-label">リスナー</span>
                     </div>
                 </div>
