@@ -255,6 +255,18 @@ function contentfreaks_set_featured_image_from_url($post_id, $image_url, $force_
     // HTTPSに変換（可能な場合）
     $image_url = str_replace('http://', 'https://', $image_url);
 
+    $current_image_url = get_post_meta($post_id, 'episode_image_url', true);
+    if ($force_replace && has_post_thumbnail($post_id) && $current_image_url === $image_url) {
+        return true;
+    }
+
+    $existing_attachment_id = contentfreaks_find_attachment_by_source_url($image_url);
+    if ($existing_attachment_id) {
+        set_post_thumbnail($post_id, $existing_attachment_id);
+        error_log('既存サムネイルを再利用 (Post ID: ' . $post_id . ', Attachment ID: ' . $existing_attachment_id . ', URL: ' . $image_url . ')');
+        return true;
+    }
+
     $candidate_urls = array($image_url);
     if (preg_match('#i\.ytimg\.com/vi/([^/]+)/#', $image_url, $m)) {
         $video_id = $m[1];
@@ -285,6 +297,7 @@ function contentfreaks_set_featured_image_from_url($post_id, $image_url, $force_
 
         if (!is_wp_error($image_id) && is_numeric($image_id)) {
             set_post_thumbnail($post_id, $image_id);
+            contentfreaks_register_attachment_source_url($image_id, $candidate_url);
             remove_all_filters('http_request_timeout');
             error_log('サムネイル設定成功 (Post ID: ' . $post_id . ', Image ID: ' . $image_id . ', URL: ' . $candidate_url . ')');
             return true;
@@ -298,6 +311,46 @@ function contentfreaks_set_featured_image_from_url($post_id, $image_url, $force_
     $error_message = is_wp_error($image_id) ? $image_id->get_error_message() : 'Unknown error';
     error_log('サムネイル設定エラー (Post ID: ' . $post_id . ', URL: ' . $image_url . '): ' . $error_message);
     return false;
+}
+
+// 画像URLに紐づく既存 attachment を検索
+function contentfreaks_find_attachment_by_source_url($image_url) {
+    if (empty($image_url)) {
+        return 0;
+    }
+
+    $normalized_url = str_replace('http://', 'https://', $image_url);
+
+    $attachment_ids = get_posts(array(
+        'post_type'      => 'attachment',
+        'post_status'    => 'inherit',
+        'meta_key'       => '_contentfreaks_source_url',
+        'meta_value'     => $normalized_url,
+        'fields'         => 'ids',
+        'posts_per_page' => 1,
+    ));
+
+    if (!empty($attachment_ids)) {
+        return (int) $attachment_ids[0];
+    }
+
+    global $wpdb;
+    $attachment_id = $wpdb->get_var($wpdb->prepare(
+        "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND guid = %s LIMIT 1",
+        'attachment',
+        $normalized_url
+    ));
+
+    return $attachment_id ? (int) $attachment_id : 0;
+}
+
+// attachment に元画像URLを保存して、次回以降の再利用を可能にする
+function contentfreaks_register_attachment_source_url($attachment_id, $image_url) {
+    if (!$attachment_id || empty($image_url)) {
+        return;
+    }
+
+    update_post_meta($attachment_id, '_contentfreaks_source_url', str_replace('http://', 'https://', $image_url));
 }
 
 // 更新詳細ログ機能
