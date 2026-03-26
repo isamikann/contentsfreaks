@@ -35,6 +35,17 @@ get_header(); ?>
                 <a href="<?php echo esc_url(CONTENTFREAKS_APPLE_URL); ?>" target="_blank" rel="noopener" class="platform-apple">Apple Podcasts</a>
                 <a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" target="_blank" rel="noopener" class="platform-youtube">YouTube</a>
             </nav>
+
+            <div class="hero-business-cta" aria-label="制作実績とMedia Kit">
+                <div class="hero-business-copy">
+                    <span class="hero-business-eyebrow">For Business</span>
+                    <p class="hero-business-title">制作実績・媒体情報はこちら</p>
+                    <p class="hero-business-desc">コラボ、タイアップ、イベント出演をご検討の方へ。番組の概要や実績をまとめています。</p>
+                </div>
+                <a href="<?php echo esc_url(contentfreaks_get_page_url('media-kit')); ?>" class="hero-business-link">
+                    Media Kitを見る
+                </a>
+            </div>
         </div>
     </section>
 

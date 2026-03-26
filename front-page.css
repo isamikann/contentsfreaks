@@ -95,6 +95,71 @@
     max-width: 480px;
 }
 
+.hero-business-cta {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+}
+
+.hero-business-copy {
+    min-width: 0;
+}
+
+.hero-business-eyebrow {
+    display: inline-block;
+    margin-bottom: 0.35rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.68);
+}
+
+.hero-business-title {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--white);
+}
+
+.hero-business-desc {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.hero-business-link {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.85rem 1.1rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--black);
+    background: var(--primary);
+    box-shadow: 0 10px 24px rgba(247, 255, 11, 0.22);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+
+.hero-business-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(247, 255, 11, 0.28);
+    color: var(--black);
+}
+
 /* ヒーローCTA */
 .podcast-hero-cta {
     margin-top: 2rem;
@@ -174,10 +239,31 @@
         align-items: center;
         gap: 0.8rem;
     }
+
+    .hero-business-cta {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: left;
+        padding: 1rem;
+    }
     
     .podcast-cta-primary, .podcast-cta-secondary {
         width: 280px;
         justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-business-title {
+        font-size: 0.95rem;
+    }
+
+    .hero-business-desc {
+        font-size: 0.8125rem;
+    }
+
+    .hero-business-link {
+        width: 100%;
     }
 }
 
