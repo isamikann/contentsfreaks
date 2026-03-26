@@ -37,24 +37,24 @@ get_header(); ?>
             </nav>
 
             <div class="hero-stats" aria-label="番組の主な数字">
-                <div class="hero-stat">
-                    <span class="hero-stat-value"><?php echo contentfreaks_get_podcast_count(); ?></span>
-                    <span class="hero-stat-label">配信回数</span>
+                <div class="hero-stats-row">
+                    <div class="hero-stat">
+                        <span class="hero-stat-value"><?php echo contentfreaks_get_podcast_count(); ?></span>
+                        <span class="hero-stat-label">配信回数</span>
+                    </div>
+                    <div class="hero-stat-divider" aria-hidden="true"></div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-value"><?php echo esc_html(contentfreaks_get_total_followers()); ?></span>
+                        <span class="hero-stat-label">総フォロワー</span>
+                    </div>
+                    <div class="hero-stat-divider" aria-hidden="true"></div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-value">4.7</span>
+                        <span class="hero-stat-label">平均評価</span>
+                    </div>
                 </div>
-                <div class="hero-stat-divider" aria-hidden="true"></div>
-                <div class="hero-stat">
-                    <span class="hero-stat-value"><?php echo esc_html(contentfreaks_get_total_followers()); ?></span>
-                    <span class="hero-stat-label">総フォロワー</span>
-                </div>
-                <div class="hero-stat-divider" aria-hidden="true"></div>
-                <div class="hero-stat">
-                    <span class="hero-stat-value">4.7</span>
-                    <span class="hero-stat-label">平均評価</span>
-                </div>
-            </div>
 
-            <div class="hero-media-kit-cta">
-                <span class="hero-media-kit-label">For Business</span>
+                <p class="hero-media-kit-text">番組の詳細情報とお仕事の依頼はこちら</p>
                 <a href="<?php echo esc_url(contentfreaks_get_page_url('media-kit')); ?>" class="hero-media-kit-link">
                     Media Kitを見る
                 </a>
