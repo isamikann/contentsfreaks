@@ -68,6 +68,151 @@ function contentfreaks_admin_menu() {
 add_action('admin_menu', 'contentfreaks_admin_menu');
 
 /**
+ * 管理画面のPOST処理を admin_init フックで処理（推奨パターン）
+ */
+function contentfreaks_handle_admin_posts() {
+    // 管理画面でなければ実行しない
+    if (!is_admin()) {
+        return;
+    }
+    
+    // 権限チェック
+    if (!current_user_can('manage_options')) {
+        return;
+    }
+
+    // 手動同期実行
+    if (isset($_POST['manual_sync']) && isset($_POST['sync_nonce']) && wp_verify_nonce($_POST['sync_nonce'], 'contentfreaks_sync')) {
+        $result = contentfreaks_sync_rss_to_posts();
+        
+        // 結果をTransientに保存（30秒）
+        if (!empty($result['errors'])) {
+            set_transient('contentfreaks_admin_message', array(
+                'type' => 'warning',
+                'message' => $result['synced'] . ' 件のエピソードを同期しました。エラー: ' . count($result['errors']) . ' 件'
+            ), 30);
+        } else {
+            set_transient('contentfreaks_admin_message', array(
+                'type' => 'success',
+                'message' => $result['synced'] . ' 件のエピソードを同期しました！'
+            ), 30);
+        }
+        
+        // リダイレクト
+        wp_safe_remote_get(add_query_arg('tab', 'tools', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        return;
+    }
+
+    // タグ再抽出
+    if (isset($_POST['re_extract_tags']) && isset($_POST['re_extract_tags_nonce']) && wp_verify_nonce($_POST['re_extract_tags_nonce'], 'contentfreaks_re_extract_tags')) {
+        $processed = contentfreaks_re_extract_all_tags();
+        set_transient('contentfreaks_admin_message', array(
+            'type' => 'success',
+            'message' => $processed . ' 件の投稿からタグを再抽出しました！'
+        ), 30);
+        wp_safe_remote_get(add_query_arg('tab', 'tools', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        return;
+    }
+
+    // キャッシュクリア
+    if (isset($_POST['clear_cache']) && isset($_POST['clear_cache_nonce']) && wp_verify_nonce($_POST['clear_cache_nonce'], 'contentfreaks_clear_cache')) {
+        contentfreaks_clear_rss_cache();
+        set_transient('contentfreaks_admin_message', array(
+            'type' => 'success',
+            'message' => 'RSSキャッシュをクリアしました！'
+        ), 30);
+        wp_safe_remote_get(add_query_arg('tab', 'tools', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        return;
+    }
+
+    // リライトルール更新
+    if (isset($_POST['flush_rewrite_rules']) && isset($_POST['flush_rewrite_rules_nonce']) && wp_verify_nonce($_POST['flush_rewrite_rules_nonce'], 'contentfreaks_flush_rewrite_rules')) {
+        delete_option('rewrite_rules');
+        contentfreaks_episodes_rewrite_rules();
+        flush_rewrite_rules();
+        delete_option('contentfreaks_rewrite_rules_flushed');
+        set_transient('contentfreaks_admin_message', array(
+            'type' => 'success',
+            'message' => 'リライトルールを強制更新しました！'
+        ), 30);
+        wp_safe_remote_get(add_query_arg('tab', 'tools', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        return;
+    }
+
+    // YouTube動画紐付け
+    if (isset($_POST['sync_youtube_videos']) && isset($_POST['sync_youtube_videos_nonce']) && wp_verify_nonce($_POST['sync_youtube_videos_nonce'], 'contentfreaks_sync_youtube_videos')) {
+        if (function_exists('contentfreaks_queue_youtube_sync_job') && contentfreaks_queue_youtube_sync_job('manual')) {
+            set_transient('contentfreaks_admin_message', array(
+                'type' => 'success',
+                'message' => 'YouTube動画紐付けをバックグラウンドに投入しました。完了まで少し待ってから再読み込みしてください。'
+            ), 30);
+        }
+        wp_safe_remote_get(add_query_arg('tab', 'tools', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        return;
+    }
+
+    // YouTube API設定保存
+    if (isset($_POST['save_youtube_settings']) && isset($_POST['youtube_settings_nonce']) && wp_verify_nonce($_POST['youtube_settings_nonce'], 'contentfreaks_youtube_settings')) {
+        $api_key    = sanitize_text_field($_POST['youtube_api_key']);
+        $channel_id = sanitize_text_field($_POST['youtube_channel_id']);
+        update_option('contentfreaks_youtube_api_key',    $api_key);
+        update_option('contentfreaks_youtube_channel_id', $channel_id);
+        contentfreaks_clear_youtube_stats_cache();
+        set_transient('contentfreaks_admin_message', array(
+            'type' => 'success',
+            'message' => 'YouTube API設定を保存しました！'
+        ), 30);
+        wp_safe_remote_get(add_query_arg('tab', 'settings', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        return;
+    }
+
+    // 基本設定保存
+    if (isset($_POST['save_basic_settings']) && isset($_POST['basic_settings_nonce']) && wp_verify_nonce($_POST['basic_settings_nonce'], 'contentfreaks_basic_settings')) {
+        set_theme_mod('podcast_name', sanitize_text_field($_POST['podcast_name']));
+        set_theme_mod('podcast_description', sanitize_textarea_field($_POST['podcast_description']));
+        update_option('contentfreaks_pickup_episodes', sanitize_text_field($_POST['contentfreaks_pickup_episodes']));
+        set_transient('contentfreaks_admin_message', array(
+            'type' => 'success',
+            'message' => '基本設定を保存しました！'
+        ), 30);
+        wp_safe_remote_get(add_query_arg('tab', 'settings', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        return;
+    }
+
+    // ホスト設定保存
+    if (isset($_POST['save_host_settings']) && isset($_POST['host_settings_nonce']) && wp_verify_nonce($_POST['host_settings_nonce'], 'contentfreaks_host_settings')) {
+        foreach (array('host1', 'host2') as $host) {
+            set_theme_mod($host . '_name', sanitize_text_field($_POST[$host . '_name']));
+            set_theme_mod($host . '_role', sanitize_text_field($_POST[$host . '_role']));
+            set_theme_mod($host . '_bio', sanitize_textarea_field($_POST[$host . '_bio']));
+            set_theme_mod($host . '_twitter', esc_url_raw($_POST[$host . '_twitter']));
+            set_theme_mod($host . '_youtube', esc_url_raw($_POST[$host . '_youtube']));
+        }
+        set_transient('contentfreaks_admin_message', array(
+            'type' => 'success',
+            'message' => 'ホスト設定を保存しました！'
+        ), 30);
+        wp_safe_remote_get(add_query_arg('tab', 'hosts', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        return;
+    }
+
+    // メディアキット設定保存
+    if (isset($_POST['save_mediakit_settings']) && isset($_POST['mediakit_nonce']) && wp_verify_nonce($_POST['mediakit_nonce'], 'contentfreaks_mediakit')) {
+        $mk_keys = array('mk_spotify_followers', 'mk_apple_followers', 'mk_youtube_subscribers', 'mk_monthly_plays', 'mk_frequency', 'mk_since', 'mk_amazon_tag');
+        foreach ($mk_keys as $key) {
+            set_theme_mod($key, sanitize_text_field($_POST[$key]));
+        }
+        set_transient('contentfreaks_admin_message', array(
+            'type' => 'success',
+            'message' => 'メディアキット設定を保存しました！'
+        ), 30);
+        wp_safe_remote_get(add_query_arg('tab', 'mediakit', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        return;
+    }
+}
+add_action('admin_init', 'contentfreaks_handle_admin_posts', 5);
+
+/**
  * RSSキャッシュクリア機能
  */
 function contentfreaks_clear_rss_cache() {
@@ -107,92 +252,15 @@ function contentfreaks_re_extract_all_tags() {
  * 統一された管理画面（タブ式）
  */
 function contentfreaks_unified_admin_page() {
+    // Transientからメッセージを取得
     $messages = array();
+    $transient_message = get_transient('contentfreaks_admin_message');
+    if ($transient_message) {
+        $messages[] = $transient_message;
+        delete_transient('contentfreaks_admin_message');
+    }
+
     $current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'dashboard';
-
-    // ========== POST ハンドラ: ツール ==========
-    if (isset($_POST['manual_sync']) && wp_verify_nonce($_POST['sync_nonce'], 'contentfreaks_sync')) {
-        $result = contentfreaks_sync_rss_to_posts();
-        if (!empty($result['errors'])) {
-            $messages[] = array('type' => 'warning', 'message' => $result['synced'] . ' 件のエピソードを同期しました。エラー: ' . count($result['errors']) . ' 件');
-        } else {
-            $messages[] = array('type' => 'success', 'message' => $result['synced'] . ' 件のエピソードを同期しました！');
-        }
-        $current_tab = 'tools';
-    }
-
-    if (isset($_POST['re_extract_tags']) && wp_verify_nonce($_POST['re_extract_tags_nonce'], 'contentfreaks_re_extract_tags')) {
-        $processed = contentfreaks_re_extract_all_tags();
-        $messages[] = array('type' => 'success', 'message' => $processed . ' 件の投稿からタグを再抽出しました！');
-        $current_tab = 'tools';
-    }
-
-    if (isset($_POST['clear_cache']) && wp_verify_nonce($_POST['clear_cache_nonce'], 'contentfreaks_clear_cache')) {
-        contentfreaks_clear_rss_cache();
-        $messages[] = array('type' => 'success', 'message' => 'RSSキャッシュをクリアしました！');
-        $current_tab = 'tools';
-    }
-
-    if (isset($_POST['flush_rewrite_rules']) && wp_verify_nonce($_POST['flush_rewrite_rules_nonce'], 'contentfreaks_flush_rewrite_rules')) {
-        delete_option('rewrite_rules');
-        contentfreaks_episodes_rewrite_rules();
-        flush_rewrite_rules();
-        delete_option('contentfreaks_rewrite_rules_flushed');
-        $messages[] = array('type' => 'success', 'message' => 'リライトルールを強制更新しました！');
-        $current_tab = 'tools';
-    }
-
-    // ========== POST ハンドラ: YouTube動画紐付け ==========
-    if (isset($_POST['sync_youtube_videos']) && wp_verify_nonce($_POST['sync_youtube_videos_nonce'], 'contentfreaks_sync_youtube_videos')) {
-        if (function_exists('contentfreaks_queue_youtube_sync_job') && contentfreaks_queue_youtube_sync_job('manual')) {
-            $messages[] = array('type' => 'success', 'message' => 'YouTube動画紐付けをバックグラウンドに投入しました。完了まで少し待ってから再読み込みしてください。');
-        }
-        $current_tab = 'tools';
-    }
-
-    // ========== POST ハンドラ: YouTube API設定 ==========
-    if (isset($_POST['save_youtube_settings']) && wp_verify_nonce($_POST['youtube_settings_nonce'], 'contentfreaks_youtube_settings')) {
-        $api_key    = sanitize_text_field($_POST['youtube_api_key']);
-        $channel_id = sanitize_text_field($_POST['youtube_channel_id']);
-        update_option('contentfreaks_youtube_api_key',    $api_key);
-        update_option('contentfreaks_youtube_channel_id', $channel_id);
-        // キーが変わったのでキャッシュをクリア
-        contentfreaks_clear_youtube_stats_cache();
-        $messages[] = array('type' => 'success', 'message' => 'YouTube API設定を保存しました！');
-        $current_tab = 'settings';
-    }
-
-    // ========== POST ハンドラ: 基本設定 ==========
-    if (isset($_POST['save_basic_settings']) && wp_verify_nonce($_POST['basic_settings_nonce'], 'contentfreaks_basic_settings')) {
-        set_theme_mod('podcast_name', sanitize_text_field($_POST['podcast_name']));
-        set_theme_mod('podcast_description', sanitize_textarea_field($_POST['podcast_description']));
-        update_option('contentfreaks_pickup_episodes', sanitize_text_field($_POST['contentfreaks_pickup_episodes']));
-        $messages[] = array('type' => 'success', 'message' => '基本設定を保存しました！');
-        $current_tab = 'settings';
-    }
-
-    // ========== POST ハンドラ: ホスト設定 ==========
-    if (isset($_POST['save_host_settings']) && wp_verify_nonce($_POST['host_settings_nonce'], 'contentfreaks_host_settings')) {
-        foreach (array('host1', 'host2') as $host) {
-            set_theme_mod($host . '_name', sanitize_text_field($_POST[$host . '_name']));
-            set_theme_mod($host . '_role', sanitize_text_field($_POST[$host . '_role']));
-            set_theme_mod($host . '_bio', sanitize_textarea_field($_POST[$host . '_bio']));
-            set_theme_mod($host . '_twitter', esc_url_raw($_POST[$host . '_twitter']));
-            set_theme_mod($host . '_youtube', esc_url_raw($_POST[$host . '_youtube']));
-        }
-        $messages[] = array('type' => 'success', 'message' => 'ホスト設定を保存しました！');
-        $current_tab = 'hosts';
-    }
-
-    // ========== POST ハンドラ: メディアキット ==========
-    if (isset($_POST['save_mediakit_settings']) && wp_verify_nonce($_POST['mediakit_nonce'], 'contentfreaks_mediakit')) {
-        $mk_keys = array('mk_spotify_followers', 'mk_apple_followers', 'mk_youtube_subscribers', 'mk_monthly_plays', 'mk_frequency', 'mk_since', 'mk_amazon_tag');
-        foreach ($mk_keys as $key) {
-            set_theme_mod($key, sanitize_text_field($_POST[$key]));
-        }
-        $messages[] = array('type' => 'success', 'message' => 'メディアキット設定を保存しました！');
-        $current_tab = 'mediakit';
-    }
 
     // ========== 統計情報 ==========
     $current_rss_count = contentfreaks_get_rss_episode_count();
