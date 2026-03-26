@@ -410,4 +410,62 @@ function contentfreaks_update_featured_image_if_changed($post_id, $new_image_url
     return false;
 }
 
+/**
+ * RSS投稿でアイキャッチが未設定の場合、RSS画像を設定する
+ * YouTubeサムネイル設定に失敗した場合のフォールバック用
+ *
+ * @return int 更新件数
+ */
+function contentfreaks_apply_rss_featured_images_for_unset_posts() {
+    // アイキャッチが未設定でかつポッドキャストエピソード且つRSS画像URLがあるものを取得
+    $unset_posts = get_posts(array(
+        'post_type'      => 'post',
+        'posts_per_page' => -1,
+        'meta_query'     => array(
+            'relation' => 'AND',
+            array('key' => 'is_podcast_episode', 'value' => '1'),
+            array('key' => 'episode_image_url', 'compare' => 'EXISTS'),
+        ),
+        'fields' => 'ids',
+    ));
+    
+    if (empty($unset_posts)) {
+        return 0;
+    }
+    
+    $updated_count = 0;
+    foreach ($unset_posts as $post_id) {
+        // アイキャッチが存在しない場合のみ処理
+        if (has_post_thumbnail($post_id)) {
+            continue;
+        }
+        
+        $image_url = get_post_meta($post_id, 'episode_image_url', true);
+        if (empty($image_url)) {
+            continue;
+        }
+        
+        // RSSの画像が設定できるか試す（YouTubeがなければ、RSSを設定）
+        if (function_exists('contentfreaks_set_featured_image_from_url')) {
+            $result = contentfreaks_set_featured_image_from_url($post_id, $image_url, false);
+            if ($result) {
+                error_log('RSS画像をアイキャッチとして設定: Post ID ' . $post_id . ', URL: ' . $image_url);
+                $updated_count++;
+            }
+        }
+    }
+    
+    if ($updated_count > 0) {
+        error_log('RSS画像アイキャッチ設定完了: ' . $updated_count . '件更新');
+    }
+    
+    return $updated_count;
+}
+
+/**
+ * 定期実行: アイキャッチ未設定投稿へのRSS画像適用
+ * RSS同期または YouTube紐付け後に実行
+ */
+add_action('contentfreaks_apply_rss_featured_images', 'contentfreaks_apply_rss_featured_images_for_unset_posts');
+
 // 統一された管理画面はfunctions.phpに移動されました

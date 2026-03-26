@@ -47,6 +47,9 @@ add_action('contentfreaks_hourly_sync', 'contentfreaks_sync_rss_to_posts');
 // RSS同期後に新エピソードをYouTubeと自動紐付け
 add_action('contentfreaks_hourly_sync', 'contentfreaks_auto_link_new_episodes');
 
+// RSS同期後にアイキャッチが未設定のエピソードにRSS画像を適用
+add_action('contentfreaks_hourly_sync', 'contentfreaks_apply_rss_featured_images_for_unset_posts', 20);
+
 // 1日1回: 既存紐付け済み投稿の再生数を更新
 add_action('contentfreaks_daily_youtube_sync', 'contentfreaks_refresh_youtube_views');
 

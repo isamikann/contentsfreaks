@@ -89,6 +89,11 @@ function contentfreaks_run_youtube_sync_job() {
     if (!empty($result['synced'])) {
         error_log('YouTube自動紐付け: ' . $result['synced'] . '件紐付け完了');
     }
+    
+    // YouTube紐付け後、アイキャッチが未設定の投稿にRSS画像を適用
+    if (function_exists('contentfreaks_apply_rss_featured_images_for_unset_posts')) {
+        do_action('contentfreaks_apply_rss_featured_images');
+    }
 }
 add_action('contentfreaks_run_youtube_sync_job', 'contentfreaks_run_youtube_sync_job');
 
@@ -355,7 +360,16 @@ function contentfreaks_sync_youtube_video_ids() {
         update_post_meta($post_id, 'episode_image_url', $youtube_thumbnail);
 
         if (function_exists('contentfreaks_set_featured_image_from_url')) {
-            contentfreaks_set_featured_image_from_url($post_id, $youtube_thumbnail, true);
+            $image_set = contentfreaks_set_featured_image_from_url($post_id, $youtube_thumbnail, true);
+            
+            // YouTubeサムネイル設定に失敗した場合、RSSから取得した画像をフォールバック
+            if (!$image_set) {
+                $rss_image_url = get_post_meta($post_id, 'episode_image_url', true);
+                if (!empty($rss_image_url) && $rss_image_url !== $youtube_thumbnail) {
+                    error_log('YouTubeサムネイル設定失敗、RSSからのフォールバック開始 (Post ID: ' . $post_id . ', RSS URL: ' . $rss_image_url . ')');
+                    contentfreaks_set_featured_image_from_url($post_id, $rss_image_url, true);
+                }
+            }
         }
         $synced++;
     }
