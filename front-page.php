@@ -52,6 +52,13 @@ get_header(); ?>
                     <span class="hero-stat-label">平均評価</span>
                 </div>
             </div>
+
+            <div class="hero-media-kit-cta">
+                <span class="hero-media-kit-label">For Business</span>
+                <a href="<?php echo esc_url(contentfreaks_get_page_url('media-kit')); ?>" class="hero-media-kit-link">
+                    Media Kitを見る
+                </a>
+            </div>
         </div>
     </section>
 

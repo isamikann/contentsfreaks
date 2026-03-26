@@ -137,6 +137,45 @@
     background: rgba(255, 255, 255, 0.14);
 }
 
+.hero-media-kit-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hero-media-kit-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.66);
+}
+
+.hero-media-kit-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 0.95rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--black);
+    background: var(--primary);
+    box-shadow: 0 10px 24px rgba(247, 255, 11, 0.2);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hero-media-kit-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px rgba(247, 255, 11, 0.28);
+    color: var(--black);
+}
+
 /* ヒーローCTA */
 .podcast-hero-cta {
     margin-top: 2rem;
@@ -230,6 +269,12 @@
     .hero-stat {
         min-width: 72px;
     }
+
+    .hero-media-kit-cta {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -244,6 +289,10 @@
 
     .hero-stat-divider {
         display: none;
+    }
+
+    .hero-media-kit-link {
+        width: 100%;
     }
 }
 
