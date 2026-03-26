@@ -36,15 +36,21 @@ get_header(); ?>
                 <a href="<?php echo esc_url(CONTENTFREAKS_YOUTUBE_URL); ?>" target="_blank" rel="noopener" class="platform-youtube">YouTube</a>
             </nav>
 
-            <div class="hero-business-cta" aria-label="制作実績とMedia Kit">
-                <div class="hero-business-copy">
-                    <span class="hero-business-eyebrow">For Business</span>
-                    <p class="hero-business-title">制作実績・媒体情報はこちら</p>
-                    <p class="hero-business-desc">コラボ、タイアップ、イベント出演をご検討の方へ。番組の概要や実績をまとめています。</p>
+            <div class="hero-stats" aria-label="番組の主な数字">
+                <div class="hero-stat">
+                    <span class="hero-stat-value"><?php echo contentfreaks_get_podcast_count(); ?></span>
+                    <span class="hero-stat-label">配信回数</span>
                 </div>
-                <a href="<?php echo esc_url(contentfreaks_get_page_url('media-kit')); ?>" class="hero-business-link">
-                    Media Kitを見る
-                </a>
+                <div class="hero-stat-divider" aria-hidden="true"></div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value"><?php echo esc_html(contentfreaks_get_total_followers()); ?></span>
+                    <span class="hero-stat-label">総フォロワー</span>
+                </div>
+                <div class="hero-stat-divider" aria-hidden="true"></div>
+                <div class="hero-stat">
+                    <span class="hero-stat-value">4.7</span>
+                    <span class="hero-stat-label">平均評価</span>
+                </div>
             </div>
         </div>
     </section>
@@ -313,38 +319,6 @@ get_header(); ?>
                     <button type="submit" class="form-submit-btn">送信する</button>
                     <div id="form-message" class="form-message" style="display:none;"></div>
                 </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- 実績バッジセクション -->
-    <section class="achievements-badge-section">
-        <div class="achievements-badge-container">
-            <div class="achievements-header">
-                <h2>Media Kit</h2>
-                <p class="section-subtitle">コラボ・タイアップ・お仕事のご依頼はこちら</p>
-            </div>
-            <div class="achievements-badges">
-                <div class="achievement-badge fade-in">
-                    <span class="badge-icon">🎙️</span>
-                    <span class="badge-value"><?php echo contentfreaks_get_podcast_count(); ?>回</span>
-                    <span class="badge-label">配信実績</span>
-                </div>
-                <div class="achievement-badge fade-in">
-                    <span class="badge-icon">👥</span>
-                    <span class="badge-value"><?php echo esc_html(contentfreaks_get_total_followers()); ?></span>
-                    <span class="badge-label">総フォロワー</span>
-                </div>
-                <div class="achievement-badge fade-in">
-                    <span class="badge-icon">⭐</span>
-                    <span class="badge-value">4.7</span>
-                    <span class="badge-label">平均評価</span>
-                </div>
-            </div>
-            <div class="achievements-cta fade-in">
-                <a href="<?php echo esc_url(contentfreaks_get_page_url('media-kit')); ?>" class="achievements-business-link">
-                    お仕事のご依頼・Media Kit →
-                </a>
             </div>
         </div>
     </section>

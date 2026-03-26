@@ -95,69 +95,46 @@
     max-width: 480px;
 }
 
-.hero-business-cta {
+.hero-stats {
     width: 100%;
     max-width: 560px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 1rem;
-    padding: 1rem 1.25rem;
+    padding: 0.9rem 1rem;
     border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 18px;
     background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(10px);
 }
 
-.hero-business-copy {
-    min-width: 0;
+.hero-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 88px;
 }
 
-.hero-business-eyebrow {
-    display: inline-block;
-    margin-bottom: 0.35rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.68);
-}
-
-.hero-business-title {
-    margin: 0 0 0.25rem;
-    font-size: 1rem;
-    font-weight: 700;
+.hero-stat-value {
+    font-size: 1.2rem;
+    font-weight: 800;
+    line-height: 1;
     color: var(--white);
 }
 
-.hero-business-desc {
-    margin: 0;
-    font-size: 0.875rem;
-    line-height: 1.6;
-    color: rgba(255, 255, 255, 0.78);
+.hero-stat-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.68);
 }
 
-.hero-business-link {
-    flex: 0 0 auto;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.85rem 1.1rem;
-    border-radius: 999px;
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: var(--black);
-    background: var(--primary);
-    box-shadow: 0 10px 24px rgba(247, 255, 11, 0.22);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
-}
-
-.hero-business-link:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 28px rgba(247, 255, 11, 0.28);
-    color: var(--black);
+.hero-stat-divider {
+    width: 1px;
+    height: 2.25rem;
+    background: rgba(255, 255, 255, 0.14);
 }
 
 /* ヒーローCTA */
@@ -239,31 +216,34 @@
         align-items: center;
         gap: 0.8rem;
     }
-
-    .hero-business-cta {
-        flex-direction: column;
-        align-items: stretch;
-        text-align: left;
-        padding: 1rem;
-    }
     
     .podcast-cta-primary, .podcast-cta-secondary {
         width: 280px;
         justify-content: center;
     }
+
+    .hero-stats {
+        gap: 0.75rem;
+        padding: 0.85rem 0.9rem;
+    }
+
+    .hero-stat {
+        min-width: 72px;
+    }
 }
 
 @media (max-width: 480px) {
-    .hero-business-title {
-        font-size: 0.95rem;
+    .hero-stats {
+        gap: 0.5rem;
+        flex-wrap: wrap;
     }
 
-    .hero-business-desc {
-        font-size: 0.8125rem;
+    .hero-stat {
+        min-width: 84px;
     }
 
-    .hero-business-link {
-        width: 100%;
+    .hero-stat-divider {
+        display: none;
     }
 }
 
@@ -1279,113 +1259,6 @@
 }
 
 /* =============================================
-   実績バッジセクション（トップページ）
-   ============================================= */
-.achievements-badge-section {
-    padding: 5rem 2rem;
-    background: var(--color-bg-secondary, #f7fafc);
-    border-top: 1px solid rgba(0,0,0,0.05);
-}
-
-.achievements-badge-container {
-    max-width: 900px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.achievements-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.achievements-header h2 {
-    font-size: var(--page-title);
-    font-weight: 900;
-    background: linear-gradient(135deg, var(--primary, #f7ff0b), var(--accent, #ff6b35));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 0;
-}
-
-.achievements-badges {
-    display: flex;
-    justify-content: center;
-    gap: 2rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.25rem;
-}
-
-.achievement-badge {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 1rem 1.5rem;
-    background: var(--color-bg-primary, #fff);
-    border-radius: 14px;
-    border: 1px solid rgba(0,0,0,0.06);
-    min-width: 120px;
-    transition: transform 0.2s;
-}
-
-.achievement-badge:hover {
-    transform: translateY(-2px);
-}
-
-.badge-icon {
-    font-size: 1.5rem;
-}
-
-.badge-value {
-    font-size: 1.3rem;
-    font-weight: 800;
-    color: var(--text-primary, #1a1a1a);
-    line-height: 1.2;
-}
-
-.badge-label {
-    font-size: 0.75rem;
-    color: var(--text-secondary, #666);
-    font-weight: 600;
-}
-
-.achievements-cta {
-    margin-top: 0.75rem;
-}
-
-.achievements-business-link {
-    display: inline-block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--accent, #ff6b35);
-    text-decoration: none;
-    padding: 0.5rem 1.25rem;
-    border-radius: 50px;
-    border: 1px solid rgba(255,107,53,0.25);
-    transition: all 0.2s;
-}
-
-.achievements-business-link:hover {
-    background: var(--accent, #ff6b35);
-    color: var(--white, #fff);
-}
-
-@media (max-width: 600px) {
-    .achievements-badges {
-        gap: 0.75rem;
-    }
-    .achievement-badge {
-        padding: 0.75rem 1rem;
-        min-width: 80px;
-    }
-    .badge-value {
-        font-size: 1.1rem;
-    }
-}
-
-
-/* =============================================
    コンフリの歩みセクション（トップページ）
    ============================================= */
 .history-journey-section {
@@ -1488,9 +1361,6 @@
 }
 
 @media (max-width: 600px) {
-    .achievements-badge-section {
-        padding: 3.5rem 1.5rem;
-    }
     .history-journey-section {
         padding: 3.5rem 1.5rem;
     }
