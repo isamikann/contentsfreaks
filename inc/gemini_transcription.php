@@ -190,16 +190,17 @@ function contentfreaks_gemini_generate_article( $file_uri, $mime_type, $episode_
     $safe_desc  = wp_strip_all_tags( wp_trim_words( $episode_description, 200, '' ) );
 
     $prompt = <<<PROMPT
-このポッドキャスト音声を文字起こしして、読者向けのブログ記事として整形してください。
+この音声は日本語のポッドキャストです。必ず日本語で文字起こしし、日本語のブログ記事として整形してください。
+音声の言語は日本語です。韓国語や他の言語で文字起こししないでください。
 
 エピソードタイトル: {$safe_title}
 RSS概要: {$safe_desc}
 
 必ず以下の JSON 形式だけで返してください（前後に余計なテキスト・コードブロック不要）:
 {
-  "transcription": "音声の全文テキスト（話し言葉のまま）",
+  "transcription": "音声の全文テキスト（日本語・話し言葉のまま）",
   "article_title": "SEOを意識した日本語ブログ記事タイトル（30〜60文字）",
-  "article_body": "<h2>導入見出し</h2>\n<p>本文...</p>\n<h2>...</h2>\n<p>...</p>\n<h2>まとめ</h2>\n<p>...</p> という HTML 形式。話し言葉を書き言葉に変換すること。",
+  "article_body": "<h2>導入見出し</h2>\\n<p>本文...</p>\\n<h2>...</h2>\\n<p>...</p>\\n<h2>まとめ</h2>\\n<p>...</p> という HTML 形式。話し言葉を書き言葉に変換すること。",
   "summary": "meta description 用の日本語概要（100〜150文字）",
   "tags": ["タグ1", "タグ2", "タグ3", "タグ4", "タグ5"]
 }
