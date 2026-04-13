@@ -139,12 +139,15 @@ add_action('wp_ajax_contentfreaks_run_gemini', function() {
         }
     }
 
+    $debug = get_post_meta($post_id, 'episode_ai_debug', true);
+
     wp_send_json_success(array(
         'post_id'    => $post_id,
         'post_title' => $post_title,
         'status'     => $status,
         'error'      => $error ?: null,
         'php_output' => !empty($php_output) ? substr($php_output, 0, 500) : null,
+        'debug_step' => $debug ?: null,
     ));
 });
 
@@ -242,7 +245,12 @@ add_action('admin_footer', function() {
                             }, 1000);
                         } else if (d.status === 'error') {
                             var errDetail = d.error || d.php_output || '詳細不明';
-                            $status.css('color','#b91c1c').text('❌ エラー: ' + d.post_title + ' — ' + errDetail);
+                            var debugInfo = d.debug_step ? ' [debug: ' + d.debug_step + ']' : '';
+                            $status.css('color','#b91c1c').text('❌ エラー: ' + d.post_title + ' — ' + errDetail + debugInfo);
+                            resetRunBtn();
+                        } else if (d.status === 'done') {
+                            var debugInfo = d.debug_step ? ' [' + d.debug_step + ']' : '';
+                            $status.css('color','#059669').text('✅ 成功: ' + d.post_title + debugInfo);
                             resetRunBtn();
                         } else {
                             $status.css('color','#b45309').text('⚠️ ' + d.status + ': ' + d.post_title + (d.error ? ' — '+d.error : ''));
