@@ -353,27 +353,10 @@ function contentfreaks_generate_episode_article( $post_id ) {
         $audio_url = contentfreaks_fix_audio_url( $audio_url );
     }
 
-    // RSS から最新の音声 URL を取得し直す（期限切れ対策）
-    $guid = get_post_meta( $post_id, 'episode_guid', true );
-    if ( $guid && function_exists( 'contentfreaks_get_rss_episodes' ) ) {
-        // キャッシュをバイパスして最新 RSS を取得
-        delete_transient( 'contentfreaks_rss_episodes_all' );
-        $rss_episodes = contentfreaks_get_rss_episodes( 0 );
-        foreach ( $rss_episodes as $ep ) {
-            if ( ! empty( $ep['guid'] ) && $ep['guid'] === $guid && ! empty( $ep['audio_url'] ) ) {
-                $fresh_url = $ep['audio_url'];
-                if ( function_exists( 'contentfreaks_fix_audio_url' ) ) {
-                    $fresh_url = contentfreaks_fix_audio_url( $fresh_url );
-                }
-                if ( $fresh_url !== $audio_url ) {
-                    error_log( "Gemini: RSS から最新音声URLを取得 Post ID={$post_id}" );
-                    // メタも更新しておく
-                    update_post_meta( $post_id, 'episode_audio_url', $fresh_url );
-                }
-                $audio_url = $fresh_url;
-                break;
-            }
-        }
+    if ( empty( $audio_url ) ) {
+        update_post_meta( $post_id, 'episode_ai_status', 'error' );
+        update_post_meta( $post_id, 'episode_ai_error', '音声 URL の修正後に空になりました' );
+        return false;
     }
 
     // 処理中フラグ（タイムアウト検出用タイムスタンプも保存）
@@ -414,10 +397,16 @@ function contentfreaks_generate_episode_article( $post_id ) {
         $msg  = $article_data->get_error_message();
         $code = $article_data->get_error_code();
 
-        // レート制限 (429) は error にせず pending に戻して次回 Cron で再試行
+        // レート制限 (429): Cronから呼ばれた場合はpendingに戻す、AJAXからは error として返す
         if ( $code === 'rate_limit' ) {
-            update_post_meta( $post_id, 'episode_ai_status', 'pending' );
-            error_log( "Gemini: レート制限 → pending に戻す Post ID={$post_id}: {$msg}" );
+            $is_ajax = defined( 'DOING_AJAX' ) && DOING_AJAX;
+            if ( $is_ajax ) {
+                update_post_meta( $post_id, 'episode_ai_status', 'error' );
+                update_post_meta( $post_id, 'episode_ai_error', $msg );
+            } else {
+                update_post_meta( $post_id, 'episode_ai_status', 'pending' );
+            }
+            error_log( "Gemini: レート制限 Post ID={$post_id}: {$msg}" );
             return false;
         }
 
