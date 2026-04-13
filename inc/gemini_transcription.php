@@ -190,15 +190,14 @@ function contentfreaks_gemini_generate_article( $file_uri, $mime_type, $episode_
     $safe_desc  = wp_strip_all_tags( wp_trim_words( $episode_description, 200, '' ) );
 
     $prompt = <<<PROMPT
-この音声は日本語のポッドキャストです。必ず日本語で文字起こしし、日本語のブログ記事として整形してください。
-音声の言語は日本語です。韓国語や他の言語で文字起こししないでください。
+この音声は日本語のポッドキャストです。音声を聞き取り、日本語のブログ記事として整形してください。
+音声の言語は日本語です。韓国語や他の言語で出力しないでください。
 
 エピソードタイトル: {$safe_title}
 RSS概要: {$safe_desc}
 
 必ず以下の JSON 形式だけで返してください（前後に余計なテキスト・コードブロック不要）:
 {
-  "transcription": "音声の全文テキスト（日本語・話し言葉のまま）",
   "article_title": "SEOを意識した日本語ブログ記事タイトル（30〜60文字）",
   "article_body": "<h2>導入見出し</h2>\\n<p>本文...</p>\\n<h2>...</h2>\\n<p>...</p>\\n<h2>まとめ</h2>\\n<p>...</p> という HTML 形式。話し言葉を書き言葉に変換すること。",
   "summary": "meta description 用の日本語概要（100〜150文字）",
@@ -222,7 +221,7 @@ PROMPT;
         ),
         'generationConfig' => array(
             'temperature'      => 0.3,
-            'maxOutputTokens'  => 8192,
+            'maxOutputTokens'  => 65536,
             'responseMimeType' => 'application/json',
         ),
     );
@@ -285,23 +284,79 @@ PROMPT;
         return new WP_Error( 'empty_response', 'Gemini API から空のレスポンスが返されました。parts=' . count($parts) );
     }
 
+    // finishReason チェック — MAX_TOKENS で出力が途中で切れた場合を検出
+    $finish_reason = $data['candidates'][0]['finishReason'] ?? '';
+    if ( $finish_reason === 'MAX_TOKENS' ) {
+        error_log( 'Gemini: finishReason=MAX_TOKENS — 出力がトークン制限で切断されました。' );
+    }
+
     // コードブロック除去
     $generated_text = preg_replace( '/^```(?:json)?\s*/i', '', trim( $generated_text ) );
     $generated_text = preg_replace( '/\s*```$/', '', $generated_text );
 
     $article_data = json_decode( $generated_text, true );
 
+    // パース失敗時: {…} を抽出して再試行
     if ( json_last_error() !== JSON_ERROR_NONE ) {
         if ( preg_match( '/\{.*\}/s', $generated_text, $m ) ) {
             $article_data = json_decode( $m[0], true );
         }
     }
 
+    // まだ失敗: 切れたJSONの修復を試みる（閉じ括弧追加）
+    if ( json_last_error() !== JSON_ERROR_NONE ) {
+        $repaired = contentfreaks_repair_truncated_json( $generated_text );
+        if ( $repaired !== null ) {
+            $article_data = $repaired;
+            error_log( 'Gemini: 切れたJSONを修復しました。' );
+        }
+    }
+
     if ( json_last_error() !== JSON_ERROR_NONE || empty( $article_data ) ) {
-        return new WP_Error( 'json_parse_error', 'JSON パース失敗: ' . substr( $generated_text, 0, 200 ) );
+        $reason = $finish_reason ? " (finishReason={$finish_reason})" : '';
+        return new WP_Error( 'json_parse_error', 'JSON パース失敗' . $reason . ': ' . substr( $generated_text, 0, 200 ) );
     }
 
     return $article_data;
+}
+
+// ============================================================
+// Gemini Files API — ファイル削除（容量節約）
+// ============================================================
+// 切れたJSONの修復
+// ============================================================
+
+function contentfreaks_repair_truncated_json( $text ) {
+    $text = trim( $text );
+    // 先頭が { でなければ抽出
+    if ( $text[0] !== '{' && preg_match( '/\{.*/s', $text, $m ) ) {
+        $text = $m[0];
+    }
+    // 末尾に閉じ括弧を段階的に追加して試行
+    $closers = array( '"', '"]', '"}', ']}', '"}' );
+    foreach ( $closers as $c ) {
+        $try = $text . $c;
+        $decoded = json_decode( $try, true );
+        if ( json_last_error() === JSON_ERROR_NONE && ! empty( $decoded ) ) {
+            return $decoded;
+        }
+    }
+    // ブルートフォース: 開き括弧を数えて閉じる
+    $opens = substr_count( $text, '{' ) - substr_count( $text, '}' );
+    $open_arr = substr_count( $text, '[' ) - substr_count( $text, ']' );
+    $suffix = str_repeat( ']', max( 0, $open_arr ) ) . str_repeat( '}', max( 0, $opens ) );
+    // 文字列が途中で切れていたら閉じる
+    $try = $text . '"' . $suffix;
+    $decoded = json_decode( $try, true );
+    if ( json_last_error() === JSON_ERROR_NONE && ! empty( $decoded ) ) {
+        return $decoded;
+    }
+    $try = $text . $suffix;
+    $decoded = json_decode( $try, true );
+    if ( json_last_error() === JSON_ERROR_NONE && ! empty( $decoded ) ) {
+        return $decoded;
+    }
+    return null;
 }
 
 // ============================================================
@@ -443,7 +498,6 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
     $article_title = $article_data['article_title'] ?? '';
     $summary       = $article_data['summary']       ?? '';
     $tags          = $article_data['tags']          ?? array();
-    $transcription = $article_data['transcription'] ?? '';
 
     if ( empty( $article_body ) ) {
         update_post_meta( $post_id, 'episode_ai_status', 'error' );
@@ -484,7 +538,6 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
     update_post_meta( $post_id, 'episode_ai_debug', 'step7:done' );
     update_post_meta( $post_id, 'episode_ai_status', 'done' );
     update_post_meta( $post_id, 'episode_ai_generated_at', current_time( 'mysql' ) );
-    update_post_meta( $post_id, 'episode_ai_transcription', sanitize_textarea_field( $transcription ) );
     update_post_meta( $post_id, 'episode_ai_summary', sanitize_textarea_field( $summary ) );
 
     error_log( "Gemini: 完了 Post ID={$post_id}" );
