@@ -242,7 +242,7 @@ PROMPT;
             ),
         ),
         'generationConfig' => array(
-            'temperature'      => 0.3,
+            'temperature'      => 0.7,
             'maxOutputTokens'  => 65536,
             'responseMimeType' => 'application/json',
         ),
@@ -339,7 +339,52 @@ PROMPT;
         return new WP_Error( 'json_parse_error', 'JSON パース失敗' . $reason . ': ' . substr( $generated_text, 0, 200 ) );
     }
 
+    // 繰り返しループの後処理
+    if ( ! empty( $article_data['article_body'] ) ) {
+        $article_data['article_body'] = contentfreaks_remove_repetition( $article_data['article_body'] );
+    }
+
     return $article_data;
+}
+
+// ============================================================
+// 繰り返しループ除去
+// ============================================================
+
+/**
+ * LLMが同じフレーズを繰り返すバグを検出し、最初の出現で切り詰める。
+ * 20文字以上のフレーズが3回以上連続で繰り返される場合に除去する。
+ */
+function contentfreaks_remove_repetition( $text ) {
+    // HTMLタグを除いたテキストで判定する
+    $plain = wp_strip_all_tags( $text );
+
+    // 文区切り（句点・改行・</p>）で分割
+    $sentences = preg_split( '/(?<=。)|(?<=\n)|(?<=<\/p>)/u', $text );
+    if ( count( $sentences ) < 4 ) {
+        return $text;
+    }
+
+    $seen   = array();
+    $result = array();
+
+    foreach ( $sentences as $i => $sentence ) {
+        $key = trim( wp_strip_all_tags( $sentence ) );
+        if ( mb_strlen( $key ) < 15 ) {
+            // 短すぎる断片はスキップ（繰り返し判定しない）
+            $result[] = $sentence;
+            continue;
+        }
+        if ( isset( $seen[ $key ] ) && $seen[ $key ] >= 2 ) {
+            // 同じ文が3回目以降 → ここで打ち切り
+            error_log( 'Gemini: 繰り返しループを検出・除去しました。key=' . mb_substr( $key, 0, 40 ) );
+            break;
+        }
+        $seen[ $key ] = ( $seen[ $key ] ?? 0 ) + 1;
+        $result[]     = $sentence;
+    }
+
+    return implode( '', $result );
 }
 
 // ============================================================
