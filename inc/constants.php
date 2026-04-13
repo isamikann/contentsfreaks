@@ -36,3 +36,10 @@ if (!defined('CONTENTFREAKS_YOUTUBE_API_KEY')) {
 if (!defined('CONTENTFREAKS_YOUTUBE_CHANNEL_ID')) {
     define('CONTENTFREAKS_YOUTUBE_CHANNEL_ID', '');
 }
+
+// Google Gemini API（文字起こし・記事生成）
+// 実際の値は wp-config.php で define すること（gitに含めないため）
+// 取得先: https://aistudio.google.com/app/apikey
+if (!defined('CONTENTFREAKS_GEMINI_API_KEY')) {
+    define('CONTENTFREAKS_GEMINI_API_KEY', '');
+}

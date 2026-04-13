@@ -65,6 +65,8 @@ function contentfreaks_sync_rss_to_posts() {
                 }
                 // タイトルから『』内のテキストを抽出してタグ作成
                 contentfreaks_extract_and_create_tags_from_title($post_id, $episode['title']);
+                // Gemini AI 文字起こし・記事化のキューに追加
+                update_post_meta($post_id, 'episode_ai_status', 'pending');
                 $synced_count++;
             } else {
                 $errors[] = '投稿作成エラー: ' . $episode['title'];
