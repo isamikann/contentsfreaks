@@ -168,10 +168,10 @@ add_action('admin_footer', function() {
                             $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
                             location.reload();
                         } else if (d.status === 'error' && d.error && d.error.indexOf('429') !== -1) {
-                            // レート制限 → 秒数を取得して自動リトライ
-                            var sec = 60;
+                            // レート制限 → 秒数を取得して自動リトライ（最低65秒待機でTPM1分窓リセット）
+                            var sec = 65;
                             var m = d.error.match(/(\d+)秒後/);
-                            if (m) sec = parseInt(m[1], 10) + 3;
+                            if (m) sec = Math.max(parseInt(m[1], 10) + 10, 65);
                             $status.css('color','#b45309').text(
                                 '⏳ レート制限のため ' + sec + ' 秒後に自動リトライします... (' + d.post_title + ')'
                             );
