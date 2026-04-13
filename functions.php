@@ -142,12 +142,27 @@ add_action('admin_footer', function() {
     <script>
     (function($){
         var nonce = <?php echo wp_json_encode(wp_create_nonce('contentfreaks_gemini_ajax')); ?>;
+        var stopRequested = false;
+        var countdownTimer = null;
+
+        function resetRunBtn() {
+            stopRequested = false;
+            $('#gemini-run-btn').prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
+            $('#gemini-stop-btn').hide();
+        }
 
         function runGemini(retryCount) {
             retryCount = retryCount || 0;
+            if (stopRequested) {
+                $('#gemini-run-status').css('color','#888').text('⏹ 停止しました。');
+                resetRunBtn();
+                return;
+            }
             var $btn = $('#gemini-run-btn');
+            var $stopBtn = $('#gemini-stop-btn');
             var $status = $('#gemini-run-status');
             $btn.prop('disabled', true);
+            $stopBtn.show();
             if (retryCount === 0) {
                 $btn.text('⏳ 処理中...');
                 $status.css('color','#888').text('音声ダウンロード中（最大2〜3分かかります）');
@@ -162,12 +177,17 @@ add_action('admin_footer', function() {
                         var d = res.data;
                         if (d.status === 'no_pending') {
                             $status.css('color','#888').text('pendingがありません。先に「全件キュー登録」を押してください。');
-                            $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
+                            resetRunBtn();
                         } else if (d.status === 'done') {
                             $status.css('color','#15803d').text('✅ 完了: ' + d.post_title);
-                            $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
+                            resetRunBtn();
                             location.reload();
                         } else if (d.status === 'error' && d.error && d.error.indexOf('429') !== -1) {
+                            if (stopRequested) {
+                                $status.css('color','#888').text('⏹ 停止しました。');
+                                resetRunBtn();
+                                return;
+                            }
                             // レート制限 → 秒数を取得して自動リトライ（最低65秒待機でTPM1分窓リセット）
                             var sec = 65;
                             var m = d.error.match(/(\d+)秒後/);
@@ -177,35 +197,48 @@ add_action('admin_footer', function() {
                             );
                             $btn.text('⏳ ' + sec + '秒後にリトライ...');
                             var countdown = sec;
-                            var timer = setInterval(function(){
+                            countdownTimer = setInterval(function(){
+                                if (stopRequested) {
+                                    clearInterval(countdownTimer);
+                                    $status.css('color','#888').text('⏹ 停止しました。');
+                                    resetRunBtn();
+                                    return;
+                                }
                                 countdown--;
                                 $btn.text('⏳ ' + countdown + '秒後にリトライ...');
                                 if (countdown <= 0) {
-                                    clearInterval(timer);
+                                    clearInterval(countdownTimer);
                                     $status.css('color','#888').text('リトライ中...');
                                     runGemini(retryCount + 1);
                                 }
                             }, 1000);
                         } else if (d.status === 'error') {
                             $status.css('color','#b91c1c').text('❌ エラー: ' + d.post_title + ' — ' + (d.error || '詳細不明'));
-                            $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
+                            resetRunBtn();
                         } else {
                             $status.css('color','#b45309').text('⚠️ ' + d.status + ': ' + d.post_title + (d.error ? ' — '+d.error : ''));
-                            $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
+                            resetRunBtn();
                         }
                     } else {
                         $status.css('color','red').text('❌ AJAXエラー: ' + (res.data || '不明'));
-                        $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
+                        resetRunBtn();
                     }
                 },
                 error: function(xhr, status) {
                     $status.css('color','red').text('❌ 通信エラー: ' + status);
-                    $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
+                    resetRunBtn();
                 }
             });
         }
 
         $('#gemini-run-btn').on('click', function(){ runGemini(0); });
+
+        $('#gemini-stop-btn').on('click', function(){
+            stopRequested = true;
+            if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+            $(this).prop('disabled', true).text('停止中...');
+            $('#gemini-run-status').css('color','#888').text('⏹ 停止しました。次のリクエストはキャンセルされます。');
+        });
     })(jQuery);
     </script>
     <?php
@@ -948,6 +981,9 @@ function contentfreaks_unified_admin_page() {
                         </form>
                         <button type="button" id="gemini-run-btn" class="button-primary" style="cursor:pointer;">
                             ▶ AI記事化：今すぐ 1 件処理
+                        </button>
+                        <button type="button" id="gemini-stop-btn" class="button-secondary" style="cursor:pointer;display:none;background:#b91c1c;color:#fff;border-color:#991b1b;">
+                            ⏹ 停止
                         </button>
                         <span id="gemini-run-status" style="margin-left:10px;font-size:13px;"></span>
                         <form method="post" style="display: inline;">
