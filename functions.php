@@ -207,6 +207,24 @@ function contentfreaks_handle_admin_posts() {
         return;
     }
 
+    // Gemini: エラー投稿をすべて pending に戻す（リトライ）
+    if (isset($_POST['gemini_retry_errors']) && isset($_POST['gemini_retry_errors_nonce']) && wp_verify_nonce($_POST['gemini_retry_errors_nonce'], 'contentfreaks_gemini_retry_errors')) {
+        global $wpdb;
+        $error_ids = $wpdb->get_col(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = 'episode_ai_status' AND meta_value = 'error'"
+        );
+        foreach ($error_ids as $eid) {
+            update_post_meta((int)$eid, 'episode_ai_status', 'pending');
+            delete_post_meta((int)$eid, 'episode_ai_error');
+        }
+        set_transient('contentfreaks_admin_message', array(
+            'type'    => 'success',
+            'message' => count($error_ids) . ' 件のエラーをリトライキューに追加しました。',
+        ), 30);
+        wp_safe_remote_get(add_query_arg('tab', 'dashboard', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        return;
+    }
+
     // YouTube API設定保存
     if (isset($_POST['save_youtube_settings']) && isset($_POST['youtube_settings_nonce']) && wp_verify_nonce($_POST['youtube_settings_nonce'], 'contentfreaks_youtube_settings')) {
         $api_key    = sanitize_text_field($_POST['youtube_api_key']);
@@ -414,6 +432,50 @@ function contentfreaks_unified_admin_page() {
                     </div>
                     <?php if ($ai_key_set && ($ai_stats['pending'] > 0 || $ai_stats['unprocessed'] > 0)): ?>
                         <p style="margin-top:10px;color:#666;font-size:13px;">⏱️ 5分毎に自動処理されます。すぐに実行したい場合はツールタブから「今すぐ 1 件処理」を使用してください。</p>
+                    <?php endif; ?>
+
+                    <?php
+                    // エラー詳細テーブル
+                    if ($ai_stats['error'] > 0):
+                        global $wpdb;
+                        $error_posts = $wpdb->get_results(
+                            "SELECT p.ID, p.post_title, pm2.meta_value AS ai_error
+                               FROM {$wpdb->posts} p
+                               INNER JOIN {$wpdb->postmeta} pm  ON p.ID = pm.post_id  AND pm.meta_key  = 'episode_ai_status' AND pm.meta_value = 'error'
+                               LEFT  JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = 'episode_ai_error'
+                              WHERE p.post_type = 'post'
+                              ORDER BY p.post_date DESC"
+                        );
+                    ?>
+                    <div style="margin-top:14px;padding:12px 14px;border:1px solid #fca5a5;border-radius:8px;background:#fff5f5;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                            <strong style="color:#b91c1c;">❌ エラー詳細</strong>
+                            <form method="post" style="margin:0;">
+                                <?php wp_nonce_field('contentfreaks_gemini_retry_errors', 'gemini_retry_errors_nonce'); ?>
+                                <input type="submit" name="gemini_retry_errors" class="button button-small" value="🔄 全件リトライ" />
+                            </form>
+                        </div>
+                        <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                            <thead>
+                                <tr style="background:#fee2e2;">
+                                    <th style="padding:6px 8px;border:1px solid #fca5a5;text-align:left;">エピソード</th>
+                                    <th style="padding:6px 8px;border:1px solid #fca5a5;text-align:left;">エラー内容</th>
+                                    <th style="padding:6px 8px;border:1px solid #fca5a5;width:60px;">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($error_posts as $ep): ?>
+                                <tr>
+                                    <td style="padding:5px 8px;border:1px solid #fca5a5;"><?php echo esc_html($ep->post_title); ?></td>
+                                    <td style="padding:5px 8px;border:1px solid #fca5a5;color:#b91c1c;"><?php echo esc_html($ep->ai_error ?: '詳細不明'); ?></td>
+                                    <td style="padding:5px 8px;border:1px solid #fca5a5;text-align:center;">
+                                        <a href="<?php echo esc_url(get_edit_post_link($ep->ID)); ?>" class="button button-small">編集</a>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
                     <?php endif; ?>
                 </div>
             </div>
