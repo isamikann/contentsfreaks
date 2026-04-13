@@ -243,7 +243,7 @@ PROMPT;
         ),
     );
 
-    $api_url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
+    $api_url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
               . '?key=' . rawurlencode( $api_key );
 
     $response = wp_remote_post( $api_url, array(
