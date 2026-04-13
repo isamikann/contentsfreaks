@@ -44,11 +44,26 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
         return new WP_Error( 'no_api_key', 'Gemini API Key が設定されていません。管理画面 → 設定 から入力してください。' );
     }
 
+    // URL の修正（ダブルエンコード等を解消）
+    if ( function_exists( 'contentfreaks_fix_audio_url' ) ) {
+        $audio_url = contentfreaks_fix_audio_url( $audio_url );
+    }
+
+    if ( empty( $audio_url ) ) {
+        return new WP_Error( 'invalid_url', '音声 URL が空です。' );
+    }
+
     // ---- 音声ダウンロード ----
+    // Anchor.fm / CloudFront は User-Agent や Referer が空だと 403 を返す場合がある
     $response = wp_remote_get( $audio_url, array(
         'timeout'     => 120,
         'sslverify'   => true,
-        'redirection' => 5,
+        'redirection' => 10,
+        'headers'     => array(
+            'User-Agent' => 'Mozilla/5.0 (compatible; ContentFreaks-Bot/1.0; +https://contentsfreaks.com)',
+            'Referer'    => 'https://anchor.fm/',
+            'Accept'     => 'audio/mpeg, audio/*;q=0.9, */*;q=0.8',
+        ),
     ) );
 
     if ( is_wp_error( $response ) ) {
@@ -56,6 +71,30 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
     }
 
     $http_code = wp_remote_retrieve_response_code( $response );
+
+    // 403 の場合は Spotify Referer でリトライ
+    if ( $http_code === 403 ) {
+        error_log( "Gemini: 403 → Spotify Referer でリトライ URL={$audio_url}" );
+        $response = wp_remote_get( $audio_url, array(
+            'timeout'     => 120,
+            'sslverify'   => true,
+            'redirection' => 10,
+            'headers'     => array(
+                'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+                'Referer'    => 'https://open.spotify.com/',
+                'Accept'     => 'audio/mpeg, audio/*;q=0.9, */*;q=0.8',
+            ),
+        ) );
+        if ( ! is_wp_error( $response ) ) {
+            $http_code = wp_remote_retrieve_response_code( $response );
+        }
+    }
+
+    if ( $http_code === 403 ) {
+        error_log( "Gemini: 音声403（リトライ後も失敗） URL={$audio_url}" );
+        return new WP_Error( 'download_http_error', "音声ファイルへのアクセスが拒否されました (HTTP 403)。Anchor.fm の配信 URL が期限切れか認証が必要な可能性があります。RSS 再同期後にリトライしてください。" );
+    }
+
     if ( $http_code !== 200 ) {
         return new WP_Error( 'download_http_error', "音声ファイルの取得に失敗しました (HTTP {$http_code})" );
     }
@@ -296,6 +335,34 @@ function contentfreaks_generate_episode_article( $post_id ) {
         update_post_meta( $post_id, 'episode_ai_error', '音声 URL が見つかりません' );
         error_log( "Gemini: 音声URL不明 Post ID={$post_id}" );
         return false;
+    }
+
+    // URL 修正（ダブルエンコード解消）
+    if ( function_exists( 'contentfreaks_fix_audio_url' ) ) {
+        $audio_url = contentfreaks_fix_audio_url( $audio_url );
+    }
+
+    // RSS から最新の音声 URL を取得し直す（期限切れ対策）
+    $guid = get_post_meta( $post_id, 'episode_guid', true );
+    if ( $guid && function_exists( 'contentfreaks_get_rss_episodes' ) ) {
+        // キャッシュをバイパスして最新 RSS を取得
+        delete_transient( 'contentfreaks_rss_episodes_all' );
+        $rss_episodes = contentfreaks_get_rss_episodes( 0 );
+        foreach ( $rss_episodes as $ep ) {
+            if ( ! empty( $ep['guid'] ) && $ep['guid'] === $guid && ! empty( $ep['audio_url'] ) ) {
+                $fresh_url = $ep['audio_url'];
+                if ( function_exists( 'contentfreaks_fix_audio_url' ) ) {
+                    $fresh_url = contentfreaks_fix_audio_url( $fresh_url );
+                }
+                if ( $fresh_url !== $audio_url ) {
+                    error_log( "Gemini: RSS から最新音声URLを取得 Post ID={$post_id}" );
+                    // メタも更新しておく
+                    update_post_meta( $post_id, 'episode_audio_url', $fresh_url );
+                }
+                $audio_url = $fresh_url;
+                break;
+            }
+        }
     }
 
     // 処理中フラグ（タイムアウト検出用タイムスタンプも保存）
