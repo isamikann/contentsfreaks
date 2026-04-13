@@ -142,11 +142,16 @@ add_action('admin_footer', function() {
     <script>
     (function($){
         var nonce = <?php echo wp_json_encode(wp_create_nonce('contentfreaks_gemini_ajax')); ?>;
-        $('#gemini-run-btn').on('click', function(){
-            var $btn = $(this);
+
+        function runGemini(retryCount) {
+            retryCount = retryCount || 0;
+            var $btn = $('#gemini-run-btn');
             var $status = $('#gemini-run-status');
-            $btn.prop('disabled', true).text('⏳ 処理中...');
-            $status.css('color','#888').text('音声ダウンロード中（最大2〜3分かかります）');
+            $btn.prop('disabled', true);
+            if (retryCount === 0) {
+                $btn.text('⏳ 処理中...');
+                $status.css('color','#888').text('音声ダウンロード中（最大2〜3分かかります）');
+            }
             $.ajax({
                 url: ajaxurl,
                 method: 'POST',
@@ -157,25 +162,50 @@ add_action('admin_footer', function() {
                         var d = res.data;
                         if (d.status === 'no_pending') {
                             $status.css('color','#888').text('pendingがありません。先に「全件キュー登録」を押してください。');
+                            $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
                         } else if (d.status === 'done') {
                             $status.css('color','#15803d').text('✅ 完了: ' + d.post_title);
+                            $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
                             location.reload();
+                        } else if (d.status === 'error' && d.error && d.error.indexOf('429') !== -1) {
+                            // レート制限 → 秒数を取得して自動リトライ
+                            var sec = 60;
+                            var m = d.error.match(/(\d+)秒後/);
+                            if (m) sec = parseInt(m[1], 10) + 3;
+                            $status.css('color','#b45309').text(
+                                '⏳ レート制限のため ' + sec + ' 秒後に自動リトライします... (' + d.post_title + ')'
+                            );
+                            $btn.text('⏳ ' + sec + '秒後にリトライ...');
+                            var countdown = sec;
+                            var timer = setInterval(function(){
+                                countdown--;
+                                $btn.text('⏳ ' + countdown + '秒後にリトライ...');
+                                if (countdown <= 0) {
+                                    clearInterval(timer);
+                                    $status.css('color','#888').text('リトライ中...');
+                                    runGemini(retryCount + 1);
+                                }
+                            }, 1000);
                         } else if (d.status === 'error') {
                             $status.css('color','#b91c1c').text('❌ エラー: ' + d.post_title + ' — ' + (d.error || '詳細不明'));
+                            $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
                         } else {
-                            $status.css('color','#b45309').text('⚠️ ステータス: ' + d.status + ' / ' + d.post_title + (d.error ? ' — '+d.error : ''));
+                            $status.css('color','#b45309').text('⚠️ ' + d.status + ': ' + d.post_title + (d.error ? ' — '+d.error : ''));
+                            $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
                         }
                     } else {
                         $status.css('color','red').text('❌ AJAXエラー: ' + (res.data || '不明'));
+                        $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
                     }
-                    $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
                 },
                 error: function(xhr, status) {
-                    $status.css('color','red').text('❌ 通信エラー: ' + status + ' (タイムアウトの場合はサーバーのPHP max_execution_timeを確認してください)');
+                    $status.css('color','red').text('❌ 通信エラー: ' + status);
                     $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
                 }
             });
-        });
+        }
+
+        $('#gemini-run-btn').on('click', function(){ runGemini(0); });
     })(jQuery);
     </script>
     <?php
