@@ -59,7 +59,8 @@ function contentfreaks_schedule_sync() {
         wp_schedule_event(time(), 'contentfreaks_five_minutes', 'contentfreaks_gemini_transcription_batch');
     }
 }
-add_action('wp', 'contentfreaks_schedule_sync');
+// init フック: フロントエンド・管理画面どちらでもCronを登録する
+add_action('init', 'contentfreaks_schedule_sync');
 
 add_action('contentfreaks_hourly_sync', 'contentfreaks_sync_rss_to_posts');
 
@@ -201,7 +202,7 @@ function contentfreaks_handle_admin_posts() {
         contentfreaks_process_pending_transcriptions();
         set_transient('contentfreaks_admin_message', array(
             'type'    => 'success',
-            'message' => 'Gemini AI 処理を 1 件実行しました。',
+            'message' => 'Gemini AI 処理を 1 件実行しました。下のAI処理状況で結果を確認してください。',
         ), 30);
         wp_safe_remote_get(add_query_arg('tab', 'tools', admin_url('tools.php?page=contentfreaks-podcast-management')));
         return;
@@ -729,6 +730,70 @@ function contentfreaks_unified_admin_page() {
 
         <?php elseif ($current_tab === 'tools'): ?>
             <!-- ===== ツール ===== -->
+
+            <?php
+            // ツールタブでもAI統計をリアルタイムで表示
+            $ai_stats_tools = contentfreaks_get_ai_stats();
+            global $wpdb;
+            $ai_errors_tools = $wpdb->get_results(
+                "SELECT p.ID, p.post_title, pm2.meta_value AS ai_error
+                   FROM {$wpdb->posts} p
+                   INNER JOIN {$wpdb->postmeta} pm  ON p.ID = pm.post_id  AND pm.meta_key  = 'episode_ai_status' AND pm.meta_value = 'error'
+                   LEFT  JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = 'episode_ai_error'
+                  WHERE p.post_type = 'post'
+                  ORDER BY p.post_date DESC"
+            );
+            ?>
+            <div class="postbox" style="margin-bottom: 20px;">
+                <h2 class="hndle">🤖 AI記事化 現在の状態</h2>
+                <div class="inside">
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px;">
+                        <div style="background:#f0f8ff;padding:10px 16px;border-radius:6px;border-left:3px solid #2196F3;text-align:center;min-width:80px;">
+                            <div style="font-size:11px;color:#666;">待機中</div>
+                            <div style="font-size:22px;font-weight:bold;color:#2196F3;"><?php echo esc_html($ai_stats_tools['pending']); ?></div>
+                        </div>
+                        <div style="background:#fffbf0;padding:10px 16px;border-radius:6px;border-left:3px solid #f59e0b;text-align:center;min-width:80px;">
+                            <div style="font-size:11px;color:#666;">処理中</div>
+                            <div style="font-size:22px;font-weight:bold;color:#f59e0b;"><?php echo esc_html($ai_stats_tools['processing']); ?></div>
+                        </div>
+                        <div style="background:#f0fff0;padding:10px 16px;border-radius:6px;border-left:3px solid #4CAF50;text-align:center;min-width:80px;">
+                            <div style="font-size:11px;color:#666;">完了</div>
+                            <div style="font-size:22px;font-weight:bold;color:#4CAF50;"><?php echo esc_html($ai_stats_tools['done']); ?></div>
+                        </div>
+                        <div style="background:#fff0f0;padding:10px 16px;border-radius:6px;border-left:3px solid #ef4444;text-align:center;min-width:80px;">
+                            <div style="font-size:11px;color:#666;">エラー</div>
+                            <div style="font-size:22px;font-weight:bold;color:#ef4444;"><?php echo esc_html($ai_stats_tools['error']); ?></div>
+                        </div>
+                        <div style="background:#f9f9f9;padding:10px 16px;border-radius:6px;border-left:3px solid #aaa;text-align:center;min-width:80px;">
+                            <div style="font-size:11px;color:#666;">未処理</div>
+                            <div style="font-size:22px;font-weight:bold;color:#888;"><?php echo esc_html($ai_stats_tools['unprocessed']); ?></div>
+                        </div>
+                    </div>
+                    <?php if (!empty($ai_errors_tools)): ?>
+                    <div style="border:1px solid #fca5a5;border-radius:6px;padding:10px 12px;background:#fff5f5;">
+                        <strong style="color:#b91c1c;">エラー詳細:</strong>
+                        <ul style="margin:6px 0 0 16px;">
+                            <?php foreach ($ai_errors_tools as $ep): ?>
+                            <li style="margin-bottom:4px;">
+                                <a href="<?php echo esc_url(get_edit_post_link($ep->ID)); ?>"><?php echo esc_html($ep->post_title); ?></a>
+                                &nbsp;— <span style="color:#b91c1c;font-size:12px;"><?php echo esc_html($ep->ai_error ?: '詳細不明'); ?></span>
+                            </li>
+                            <?php endforeach; ?>
+                        </ul>
+                        <form method="post" style="margin-top:8px;">
+                            <?php wp_nonce_field('contentfreaks_gemini_retry_errors', 'gemini_retry_errors_nonce'); ?>
+                            <input type="submit" name="gemini_retry_errors" class="button button-small" value="🔄 エラーを全件リトライ" />
+                        </form>
+                    </div>
+                    <?php endif; ?>
+                    <?php if ($ai_stats_tools['pending'] === 0 && $ai_stats_tools['done'] === 0 && $ai_stats_tools['error'] === 0 && $ai_stats_tools['unprocessed'] === 0): ?>
+                    <p style="color:#666;font-size:13px;margin-top:8px;">⚠️ まだキューに登録されていません。下の「全件キュー登録」を押してください。</p>
+                    <?php elseif ($ai_stats_tools['pending'] > 0): ?>
+                    <p style="color:#666;font-size:13px;margin-top:8px;">⏱️ 5分毎のCronで自動処理されます。すぐ確認したい場合は「今すぐ 1 件処理」を押してページを再読み込みしてください。</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
             <div class="postbox" style="margin-bottom: 20px;">
                 <h2 class="hndle">操作メニュー</h2>
                 <div class="inside">
