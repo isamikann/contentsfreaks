@@ -190,18 +190,34 @@ function contentfreaks_gemini_generate_article( $file_uri, $mime_type, $episode_
     $safe_desc  = wp_strip_all_tags( wp_trim_words( $episode_description, 200, '' ) );
 
     $prompt = <<<PROMPT
-この音声は日本語のポッドキャストです。音声を聞き取り、日本語のブログ記事として整形してください。
+あなたはエンタメ系ブログ「Contents Freaks」のライターです。
+以下のポッドキャスト音声を聞き取り、読者向けのブログ記事を日本語で書いてください。
 音声の言語は日本語です。韓国語や他の言語で出力しないでください。
 
-エピソードタイトル: {$safe_title}
-RSS概要: {$safe_desc}
+■ ポッドキャスト情報
+- 番組名: Contents Freaks（コンテンツフリークス）
+- ホスト: ミクとラッキーの2人
+- ジャンル: 映画・ドラマの感想・考察
+- エピソードタイトル: {$safe_title}
+- RSS概要: {$safe_desc}
 
-必ず以下の JSON 形式だけで返してください（前後に余計なテキスト・コードブロック不要）:
+■ 記事ルール
+- 文体: ですます調で親しみやすく
+- 読者層: その作品を観た人向け（ネタバレあり前提）
+- 分量: ポッドキャストの長さに応じて自動調整する
+- 構成: 導入 → トピックごとのセクション → まとめ
+- h2見出しを5〜8個使い、必要に応じてh3も使用する
+- ミクやラッキーの意見・発言を「ミクは〜と語りました」のように引用すること
+- 適宜リスト（ul/li）も使ってよい
+- 点数評価やランキング付けはしない
+- 記事の最後に以下のポッドキャスト誘導文をそのまま入れること:
+  <p>この話題はポッドキャスト「Contents Freaks」でさらに詳しく語っています。ぜひお聴きください！</p>
+
+■ 出力（以下のJSONのみ返すこと。前後に余計なテキスト不要）
 {
-  "article_title": "SEOを意識した日本語ブログ記事タイトル（30〜60文字）",
-  "article_body": "<h2>導入見出し</h2>\\n<p>本文...</p>\\n<h2>...</h2>\\n<p>...</p>\\n<h2>まとめ</h2>\\n<p>...</p> という HTML 形式。話し言葉を書き言葉に変換すること。",
+  "article_body": "HTML形式（h2, h3, p, ul, li タグを使用）",
   "summary": "meta description 用の日本語概要（100〜150文字）",
-  "tags": ["タグ1", "タグ2", "タグ3", "タグ4", "タグ5"]
+  "tags": ["作品名", "出演者名1", "出演者名2", "..."]
 }
 PROMPT;
 
@@ -495,7 +511,6 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
     update_post_meta( $post_id, 'episode_ai_debug', 'step4:parsing_article keys=' . implode(',', array_keys($article_data)) );
 
     $article_body  = $article_data['article_body']  ?? '';
-    $article_title = $article_data['article_title'] ?? '';
     $summary       = $article_data['summary']       ?? '';
     $tags          = $article_data['tags']          ?? array();
 
@@ -511,9 +526,7 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
         'post_content' => wp_kses_post( $article_body ),
     );
 
-    if ( ! empty( $article_title ) && $article_title !== $post->post_title ) {
-        $update['post_title'] = sanitize_text_field( $article_title );
-    }
+    // タイトルはRSSのものをそのまま使う（AI上書きしない）
 
     if ( ! empty( $summary ) && empty( trim( $post->post_excerpt ) ) ) {
         $update['post_excerpt'] = sanitize_textarea_field( $summary );
