@@ -90,6 +90,29 @@ add_action('wp_ajax_contentfreaks_gemini_toggle_pause', function() {
 });
 
 // ============================================================
+// AJAX: 選択エピソードを再キュー
+// ============================================================
+add_action('wp_ajax_contentfreaks_requeue_episodes', function() {
+    check_ajax_referer('contentfreaks_gemini_ajax', 'nonce');
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('権限がありません');
+    }
+    $ids = isset($_POST['post_ids']) ? array_map('intval', (array)$_POST['post_ids']) : array();
+    $ids = array_filter($ids, function($id) { return $id > 0; });
+    if (empty($ids)) {
+        wp_send_json_error('エピソードが選択されていません');
+    }
+    $count = 0;
+    foreach ($ids as $pid) {
+        update_post_meta($pid, 'episode_ai_status', 'pending');
+        delete_post_meta($pid, 'episode_ai_error');
+        delete_post_meta($pid, 'episode_ai_debug');
+        $count++;
+    }
+    wp_send_json_success(array('queued' => $count));
+});
+
+// ============================================================
 // AJAX: Gemini 1件処理（WP-Cron非依存・直接実行）
 // ============================================================
 add_action('wp_ajax_contentfreaks_run_gemini', function() {
@@ -299,6 +322,46 @@ add_action('admin_footer', function() {
                 },
                 error: function() {
                     $('#gemini-run-status').css('color','red').text('❌ 通信エラー');
+                    $btn.prop('disabled', false);
+                }
+            });
+        });
+
+        // エピソード一覧: 全選択/解除
+        $('#ep-select-all').on('change', function(){
+            $('.ep-checkbox').prop('checked', this.checked);
+            updateRequeueBtn();
+        });
+        $(document).on('change', '.ep-checkbox', function(){ updateRequeueBtn(); });
+        function updateRequeueBtn(){
+            var cnt = $('.ep-checkbox:checked').length;
+            $('#requeue-selected-btn').prop('disabled', cnt === 0).text('🔄 選択したエピソードを再キュー' + (cnt > 0 ? '（' + cnt + '件）' : ''));
+        }
+
+        // 選択再キュー
+        $('#requeue-selected-btn').on('click', function(){
+            var ids = [];
+            $('.ep-checkbox:checked').each(function(){ ids.push($(this).val()); });
+            if (ids.length === 0) return;
+            if (!confirm(ids.length + '件のエピソードを再キュー（pending）に戻します。よろしいですか？')) return;
+            var $btn = $(this);
+            $btn.prop('disabled', true);
+            $('#requeue-status').css('color','#888').text('処理中...');
+            $.ajax({
+                url: ajaxurl,
+                method: 'POST',
+                data: { action: 'contentfreaks_requeue_episodes', nonce: nonce, post_ids: ids },
+                success: function(res) {
+                    if (res.success) {
+                        $('#requeue-status').css('color','#059669').text('✅ ' + res.data.queued + '件を待機中に戻しました。2秒後にリロードします。');
+                        setTimeout(function(){ location.reload(); }, 2000);
+                    } else {
+                        $('#requeue-status').css('color','red').text('❌ ' + (res.data || 'エラー'));
+                        $btn.prop('disabled', false);
+                    }
+                },
+                error: function() {
+                    $('#requeue-status').css('color','red').text('❌ 通信エラー');
                     $btn.prop('disabled', false);
                 }
             });
@@ -756,6 +819,79 @@ function contentfreaks_unified_admin_page() {
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- エピソード一覧（個別再処理） -->
+            <?php
+            global $wpdb;
+            $all_episodes = $wpdb->get_results(
+                "SELECT p.ID, p.post_title, p.post_date,
+                        COALESCE(pm_s.meta_value, '') AS ai_status,
+                        COALESCE(pm_e.meta_value, '') AS ai_error,
+                        COALESCE(pm_d.meta_value, '') AS ai_debug
+                   FROM {$wpdb->posts} p
+                   INNER JOIN {$wpdb->postmeta} pm_ep ON p.ID = pm_ep.post_id AND pm_ep.meta_key = 'is_podcast_episode' AND pm_ep.meta_value = '1'
+                   LEFT JOIN {$wpdb->postmeta} pm_s  ON p.ID = pm_s.post_id  AND pm_s.meta_key  = 'episode_ai_status'
+                   LEFT JOIN {$wpdb->postmeta} pm_e  ON p.ID = pm_e.post_id  AND pm_e.meta_key  = 'episode_ai_error'
+                   LEFT JOIN {$wpdb->postmeta} pm_d  ON p.ID = pm_d.post_id  AND pm_d.meta_key  = 'episode_ai_debug'
+                  WHERE p.post_type = 'post' AND p.post_status IN ('publish','draft')
+                  ORDER BY p.post_date DESC"
+            );
+            if (!empty($all_episodes)):
+            ?>
+            <div class="postbox" style="margin-bottom: 20px;">
+                <h2 class="hndle">📋 エピソード一覧</h2>
+                <div class="inside">
+                    <div style="margin-bottom:10px;display:flex;gap:10px;align-items:center;">
+                        <button type="button" id="requeue-selected-btn" class="button-secondary" disabled>🔄 選択したエピソードを再キュー</button>
+                        <span id="requeue-status" style="font-size:13px;"></span>
+                    </div>
+                    <table class="widefat striped" style="font-size:13px;">
+                        <thead>
+                            <tr>
+                                <th style="width:30px;"><input type="checkbox" id="ep-select-all" /></th>
+                                <th>エピソード</th>
+                                <th style="width:70px;">ステータス</th>
+                                <th style="width:100px;">日付</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($all_episodes as $ep):
+                                $status = $ep->ai_status ?: '未処理';
+                                $badge_color = match($status) {
+                                    'done'       => '#059669',
+                                    'pending'    => '#2563eb',
+                                    'processing' => '#d97706',
+                                    'error'      => '#dc2626',
+                                    default      => '#888',
+                                };
+                                $badge_label = match($status) {
+                                    'done'       => '✅ 完了',
+                                    'pending'    => '⏳ 待機',
+                                    'processing' => '⚙️ 処理中',
+                                    'error'      => '❌ エラー',
+                                    default      => '— 未処理',
+                                };
+                            ?>
+                            <tr>
+                                <td><input type="checkbox" class="ep-checkbox" value="<?php echo (int)$ep->ID; ?>" /></td>
+                                <td>
+                                    <a href="<?php echo esc_url(get_edit_post_link($ep->ID)); ?>"><?php echo esc_html($ep->post_title); ?></a>
+                                    <?php if ($status === 'error' && $ep->ai_error): ?>
+                                        <br><small style="color:#dc2626;"><?php echo esc_html(mb_strimwidth($ep->ai_error, 0, 80, '…')); ?></small>
+                                    <?php endif; ?>
+                                </td>
+                                <td><span style="color:<?php echo $badge_color; ?>;font-weight:bold;font-size:12px;"><?php echo $badge_label; ?></span></td>
+                                <td style="font-size:12px;color:#666;"><?php echo esc_html(date_i18n('Y/m/d', strtotime($ep->post_date))); ?></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                    <p style="margin-top:8px;color:#666;font-size:12px;">
+                        ✅完了済みを含め、チェックを入れたエピソードを「待機中(pending)」に戻して再処理できます。
+                    </p>
                 </div>
             </div>
             <?php endif; ?>
