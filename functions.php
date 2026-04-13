@@ -117,16 +117,34 @@ add_action('wp_ajax_contentfreaks_run_gemini', function() {
     $post_id = $posts[0]->ID;
     $post_title = $posts[0]->post_title;
 
-    contentfreaks_generate_episode_article($post_id);
+    // PHP出力バッファでWarning/Noticeも捕捉
+    ob_start();
+    $result = contentfreaks_generate_episode_article($post_id);
+    $php_output = ob_get_clean();
 
     $status = get_post_meta($post_id, 'episode_ai_status', true);
     $error  = get_post_meta($post_id, 'episode_ai_error', true);
+
+    // エラー詳細が空の場合、PHPの出力やresultから補完
+    if ($status === 'error' && empty($error)) {
+        $fallback = '';
+        if (!empty($php_output)) {
+            $fallback = 'PHP出力: ' . substr(strip_tags($php_output), 0, 500);
+        } elseif ($result === false) {
+            $fallback = 'generate_episode_article() が false を返しましたが、エラー詳細が未記録です';
+        }
+        if ($fallback) {
+            update_post_meta($post_id, 'episode_ai_error', $fallback);
+            $error = $fallback;
+        }
+    }
 
     wp_send_json_success(array(
         'post_id'    => $post_id,
         'post_title' => $post_title,
         'status'     => $status,
         'error'      => $error ?: null,
+        'php_output' => !empty($php_output) ? substr($php_output, 0, 500) : null,
     ));
 });
 
@@ -223,7 +241,8 @@ add_action('admin_footer', function() {
                                 }
                             }, 1000);
                         } else if (d.status === 'error') {
-                            $status.css('color','#b91c1c').text('❌ エラー: ' + d.post_title + ' — ' + (d.error || '詳細不明'));
+                            var errDetail = d.error || d.php_output || '詳細不明';
+                            $status.css('color','#b91c1c').text('❌ エラー: ' + d.post_title + ' — ' + errDetail);
                             resetRunBtn();
                         } else {
                             $status.css('color','#b45309').text('⚠️ ' + d.status + ': ' + d.post_title + (d.error ? ' — '+d.error : ''));
