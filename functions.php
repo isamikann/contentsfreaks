@@ -76,6 +76,50 @@ add_action('contentfreaks_daily_youtube_sync', 'contentfreaks_refresh_youtube_vi
 // Gemini 文字起こしバッチ（5分毎）
 add_action('contentfreaks_gemini_transcription_batch', 'contentfreaks_process_pending_transcriptions');
 
+// ============================================================
+// AJAX: Gemini 1件処理（WP-Cron非依存・直接実行）
+// ============================================================
+add_action('wp_ajax_contentfreaks_run_gemini', function() {
+    check_ajax_referer('contentfreaks_gemini_ajax', 'nonce');
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('権限がありません');
+    }
+
+    @set_time_limit(600);
+
+    $posts = get_posts(array(
+        'post_type'   => 'post',
+        'post_status' => array('publish', 'draft'),
+        'meta_key'    => 'episode_ai_status',
+        'meta_value'  => 'pending',
+        'orderby'     => 'date',
+        'order'       => 'DESC',
+        'numberposts' => 1,
+    ));
+
+    if (empty($posts)) {
+        wp_send_json_success(array('status' => 'no_pending', 'message' => 'pending なエピソードがありません'));
+    }
+
+    $post_id = $posts[0]->ID;
+    $post_title = $posts[0]->post_title;
+
+    contentfreaks_generate_episode_article($post_id);
+
+    $status = get_post_meta($post_id, 'episode_ai_status', true);
+    $error  = get_post_meta($post_id, 'episode_ai_error', true);
+
+    wp_send_json_success(array(
+        'post_id'    => $post_id,
+        'post_title' => $post_title,
+        'status'     => $status,
+        'error'      => $error ?: null,
+    ));
+});
+
+// Gemini 文字起こしバッチ（5分毎）
+add_action('contentfreaks_gemini_transcription_batch', 'contentfreaks_process_pending_transcriptions');
+
 /**
  * 管理画面メニュー（統一された管理画面）
  */
@@ -89,6 +133,53 @@ function contentfreaks_admin_menu() {
     );
 }
 add_action('admin_menu', 'contentfreaks_admin_menu');
+
+// 管理画面に Gemini AJAX 用インライン JS を追加
+add_action('admin_footer', function() {
+    $screen = get_current_screen();
+    if (!$screen || strpos($screen->id, 'contentfreaks-podcast-management') === false) return;
+    ?>
+    <script>
+    (function($){
+        var nonce = <?php echo wp_json_encode(wp_create_nonce('contentfreaks_gemini_ajax')); ?>;
+        $('#gemini-run-btn').on('click', function(){
+            var $btn = $(this);
+            var $status = $('#gemini-run-status');
+            $btn.prop('disabled', true).text('⏳ 処理中...');
+            $status.css('color','#888').text('音声ダウンロード中（最大2〜3分かかります）');
+            $.ajax({
+                url: ajaxurl,
+                method: 'POST',
+                timeout: 360000,
+                data: { action: 'contentfreaks_run_gemini', nonce: nonce },
+                success: function(res) {
+                    if (res.success) {
+                        var d = res.data;
+                        if (d.status === 'no_pending') {
+                            $status.css('color','#888').text('pendingがありません。先に「全件キュー登録」を押してください。');
+                        } else if (d.status === 'done') {
+                            $status.css('color','#15803d').text('✅ 完了: ' + d.post_title);
+                            location.reload();
+                        } else if (d.status === 'error') {
+                            $status.css('color','#b91c1c').text('❌ エラー: ' + d.post_title + ' — ' + (d.error || '詳細不明'));
+                        } else {
+                            $status.css('color','#b45309').text('⚠️ ステータス: ' + d.status + ' / ' + d.post_title + (d.error ? ' — '+d.error : ''));
+                        }
+                    } else {
+                        $status.css('color','red').text('❌ AJAXエラー: ' + (res.data || '不明'));
+                    }
+                    $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
+                },
+                error: function(xhr, status) {
+                    $status.css('color','red').text('❌ 通信エラー: ' + status + ' (タイムアウトの場合はサーバーのPHP max_execution_timeを確認してください)');
+                    $btn.prop('disabled', false).text('▶ AI記事化：今すぐ 1 件処理');
+                }
+            });
+        });
+    })(jQuery);
+    </script>
+    <?php
+});
 
 /**
  * 管理画面のPOST処理を admin_init フックで処理（推奨パターン）
@@ -825,10 +916,10 @@ function contentfreaks_unified_admin_page() {
                             <?php wp_nonce_field('contentfreaks_gemini_queue_all', 'gemini_queue_all_nonce'); ?>
                             <input type="submit" name="gemini_queue_all" class="button-secondary" value="🤖 AI記事化：全件キュー登録" />
                         </form>
-                        <form method="post" style="display: inline;">
-                            <?php wp_nonce_field('contentfreaks_gemini_run_now', 'gemini_run_now_nonce'); ?>
-                            <input type="submit" name="gemini_run_now" class="button-secondary" value="▶ AI記事化：バックグラウンド実行" />
-                        </form>
+                        <button type="button" id="gemini-run-btn" class="button-primary" style="cursor:pointer;">
+                            ▶ AI記事化：今すぐ 1 件処理
+                        </button>
+                        <span id="gemini-run-status" style="margin-left:10px;font-size:13px;"></span>
                         <form method="post" style="display: inline;">
                             <?php wp_nonce_field('contentfreaks_gemini_diagnose', 'gemini_diagnose_nonce'); ?>
                             <input type="submit" name="gemini_diagnose" class="button-secondary" value="🔍 AI診断" />
