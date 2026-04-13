@@ -313,6 +313,18 @@ function contentfreaks_gemini_delete_file( $file_name ) {
 // ============================================================
 
 function contentfreaks_generate_episode_article( $post_id ) {
+    try {
+        return contentfreaks_generate_episode_article_inner( $post_id );
+    } catch ( \Throwable $e ) {
+        $msg = 'PHP例外: ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')';
+        update_post_meta( $post_id, 'episode_ai_status', 'error' );
+        update_post_meta( $post_id, 'episode_ai_error', $msg );
+        error_log( "Gemini: 例外 Post ID={$post_id}: {$msg}" );
+        return false;
+    }
+}
+
+function contentfreaks_generate_episode_article_inner( $post_id ) {
     $audio_url = get_post_meta( $post_id, 'episode_audio_url', true );
     if ( empty( $audio_url ) ) {
         update_post_meta( $post_id, 'episode_ai_status', 'error' );
@@ -414,10 +426,17 @@ function contentfreaks_generate_episode_article( $post_id ) {
         $update['post_excerpt'] = sanitize_textarea_field( $summary );
     }
 
-    wp_update_post( $update );
+    $wp_result = wp_update_post( $update, true );
+    if ( is_wp_error( $wp_result ) ) {
+        $msg = 'wp_update_post失敗: ' . $wp_result->get_error_message();
+        update_post_meta( $post_id, 'episode_ai_status', 'error' );
+        update_post_meta( $post_id, 'episode_ai_error', $msg );
+        error_log( "Gemini: {$msg} Post ID={$post_id}" );
+        return false;
+    }
 
     if ( ! empty( $tags ) && is_array( $tags ) ) {
-        wp_add_post_tags( $post_id, array_map( 'sanitize_text_field', $tags ) );
+        wp_set_post_tags( $post_id, array_map( 'sanitize_text_field', $tags ), true );
     }
 
     update_post_meta( $post_id, 'episode_ai_status', 'done' );
