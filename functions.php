@@ -199,10 +199,13 @@ function contentfreaks_handle_admin_posts() {
 
     // Gemini: 今すぐ 1 件処理
     if (isset($_POST['gemini_run_now']) && isset($_POST['gemini_run_now_nonce']) && wp_verify_nonce($_POST['gemini_run_now_nonce'], 'contentfreaks_gemini_run_now')) {
-        contentfreaks_process_pending_transcriptions();
+        // 直接実行でなく、即時実行Cronとして登録→spawn_cronで起動
+        // こうすることでPHPタイムアウトを回避し、バックグラウンドで処理される
+        wp_schedule_single_event( time(), 'contentfreaks_gemini_transcription_batch' );
+        spawn_cron();
         set_transient('contentfreaks_admin_message', array(
             'type'    => 'success',
-            'message' => 'Gemini AI 処理を 1 件実行しました。下のAI処理状況で結果を確認してください。',
+            'message' => 'AI处理をバックグラウンドで開始しました。数分待ってページを再読み込みすると状態が更新されます。',
         ), 30);
         wp_safe_remote_get(add_query_arg('tab', 'tools', admin_url('tools.php?page=contentfreaks-podcast-management')));
         return;
@@ -824,7 +827,11 @@ function contentfreaks_unified_admin_page() {
                         </form>
                         <form method="post" style="display: inline;">
                             <?php wp_nonce_field('contentfreaks_gemini_run_now', 'gemini_run_now_nonce'); ?>
-                            <input type="submit" name="gemini_run_now" class="button-secondary" value="▶ AI記事化：今すぐ 1 件処理" />
+                            <input type="submit" name="gemini_run_now" class="button-secondary" value="▶ AI記事化：バックグラウンド実行" />
+                        </form>
+                        <form method="post" style="display: inline;">
+                            <?php wp_nonce_field('contentfreaks_gemini_diagnose', 'gemini_diagnose_nonce'); ?>
+                            <input type="submit" name="gemini_diagnose" class="button-secondary" value="🔍 AI診断" />
                         </form>
                         <form method="post" style="display: inline;">
                             <?php wp_nonce_field('contentfreaks_debug_youtube_match', 'debug_youtube_match_nonce'); ?>
@@ -873,6 +880,57 @@ function contentfreaks_unified_admin_page() {
             </div>
 
             <?php
+            // AI 診断
+            if (isset($_POST['gemini_diagnose']) && wp_verify_nonce($_POST['gemini_diagnose_nonce'] ?? '', 'contentfreaks_gemini_diagnose')) {
+                global $wpdb;
+                echo '<div class="postbox" style="margin-bottom:20px;"><h2 class="hndle">🔍 AI 診断結果</h2><div class="inside">';
+
+                // 1. 全投稿数
+                $total_posts = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type='post' AND post_status IN ('publish','draft')");
+                echo "<p>📄 投稿(post)総数: <strong>{$total_posts}</strong></p>";
+
+                // 2. is_podcast_episode=1 の数
+                $podcast_count = (int) $wpdb->get_var("SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE meta_key='is_podcast_episode' AND meta_value='1'");
+                echo "<p>🎙️ is_podcast_episode=1 の投稿数: <strong>{$podcast_count}</strong></p>";
+                if ($podcast_count === 0) {
+                    echo "<p style='color:red;'>⚠️ ポッドキャストエピソードが1件も見つかりません。RSS同期が正しく動作しているか確認してください。</p>";
+                }
+
+                // 3. episode_audio_url を持つ投稿数
+                $audio_count = (int) $wpdb->get_var("SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE meta_key='episode_audio_url' AND meta_value != ''");
+                echo "<p>🎵 episode_audio_url 保有投稿数: <strong>{$audio_count}</strong></p>";
+
+                // 4. episode_ai_status の分布
+                $status_rows = $wpdb->get_results("SELECT meta_value, COUNT(*) AS cnt FROM {$wpdb->postmeta} WHERE meta_key='episode_ai_status' GROUP BY meta_value");
+                echo "<p>🤖 episode_ai_status の内訳:</p><ul>";
+                if (empty($status_rows)) {
+                    echo "<li style='color:red;'>meta が1件もありません（全件キュー登録がまだです）</li>";
+                } else {
+                    foreach ($status_rows as $r) {
+                        echo '<li><code>' . esc_html($r->meta_value) . '</code>: ' . (int)$r->cnt . '件</li>';
+                    }
+                }
+                echo '</ul>';
+
+                // 5. Cron スケジュール確認
+                $cron_next = wp_next_scheduled('contentfreaks_gemini_transcription_batch');
+                echo '<p>⏱️ 次回Gemini Cron実行: ' . ($cron_next ? esc_html(date_i18n('Y-m-d H:i:s', $cron_next)) . '（' . human_time_diff($cron_next) . '後）' : '<strong style="color:red;">登録されていません</strong>') . '</p>';
+
+                // 6. サンプルとして最新1件の音声URLを表示
+                $sample = $wpdb->get_row("SELECT p.ID, p.post_title, pm.meta_value AS audio_url FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} pm ON p.ID=pm.post_id AND pm.meta_key='episode_audio_url' WHERE p.post_type='post' ORDER BY p.post_date DESC LIMIT 1");
+                if ($sample) {
+                    echo '<p>🔗 最新エピソードの音声URL サンプル:<br><code style="word-break:break-all;font-size:11px;">' . esc_html($sample->audio_url) . '</code></p>';
+                }
+
+                // 7. Cron が未登録なら今すぐ登録する
+                if (!$cron_next) {
+                    wp_schedule_event(time(), 'contentfreaks_five_minutes', 'contentfreaks_gemini_transcription_batch');
+                    echo '<p style="color:green;">✅ Cron を今すぐ登録しました。</p>';
+                }
+
+                echo '</div></div>';
+            }
+
             // YouTube紐付け診断
             if (isset($_POST['debug_youtube_match']) && wp_verify_nonce($_POST['debug_youtube_match_nonce'], 'contentfreaks_debug_youtube_match')) {
                 $api_key    = (defined('CONTENTFREAKS_YOUTUBE_API_KEY')    && CONTENTFREAKS_YOUTUBE_API_KEY    !== '')
