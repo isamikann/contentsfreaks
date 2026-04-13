@@ -261,9 +261,27 @@ PROMPT;
         return new WP_Error( 'generate_api_error', "Gemini API エラー (HTTP {$http_code}): " . substr($err, 0, 300) );
     }
 
-    $generated_text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
+    $generated_text = '';
+    // gemini-2.5-flash-lite は思考モデルのため、parts[0] が思考テキスト (thought:true) の場合がある。
+    // 実際の出力は thought フラグのない最後の part に入る。
+    $parts = $data['candidates'][0]['content']['parts'] ?? array();
+    foreach ( array_reverse( $parts ) as $part ) {
+        if ( ! empty( $part['text'] ) && empty( $part['thought'] ) ) {
+            $generated_text = $part['text'];
+            break;
+        }
+    }
     if ( empty( $generated_text ) ) {
-        return new WP_Error( 'empty_response', 'Gemini API から空のレスポンスが返されました。' );
+        // フォールバック: どの part にも text がなければ最初の text を使用
+        foreach ( $parts as $part ) {
+            if ( ! empty( $part['text'] ) ) {
+                $generated_text = $part['text'];
+                break;
+            }
+        }
+    }
+    if ( empty( $generated_text ) ) {
+        return new WP_Error( 'empty_response', 'Gemini API から空のレスポンスが返されました。parts=' . count($parts) );
     }
 
     // コードブロック除去
@@ -392,6 +410,12 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
     if ( is_wp_error( $article_data ) ) {
         $msg  = $article_data->get_error_message();
         $code = $article_data->get_error_code();
+        // エラーメッセージの不正文字をサニタイズ（DB保存失敗防止）
+        $msg = mb_convert_encoding( $msg, 'UTF-8', 'UTF-8' );
+        $msg = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $msg );
+        if ( empty( $msg ) ) {
+            $msg = "Gemini生成エラー (code: {$code})";
+        }
 
         // 429: AJAXではerrorとして表示、Cronではpendingに戻す
         if ( $code === 'rate_limit' ) {
