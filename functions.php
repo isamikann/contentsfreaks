@@ -130,9 +130,6 @@ add_action('wp_ajax_contentfreaks_run_gemini', function() {
     ));
 });
 
-// Gemini 文字起こしバッチ（5分毎）
-add_action('contentfreaks_gemini_transcription_batch', 'contentfreaks_process_pending_transcriptions');
-
 /**
  * 管理画面メニュー（統一された管理画面）
  */
@@ -385,23 +382,9 @@ function contentfreaks_handle_admin_posts() {
         $queued = contentfreaks_queue_all_episodes_for_transcription();
         set_transient('contentfreaks_admin_message', array(
             'type'    => 'success',
-            'message' => $queued . ' 件のエピソードを AI 処理キューに追加しました。5分毎に自動処理されます。',
+            'message' => $queued . ' 件のエピソードを AI 処理キューに追加しました。',
         ), 30);
-        wp_safe_remote_get(add_query_arg('tab', 'tools', admin_url('tools.php?page=contentfreaks-podcast-management')));
-        return;
-    }
-
-    // Gemini: 今すぐ 1 件処理
-    if (isset($_POST['gemini_run_now']) && isset($_POST['gemini_run_now_nonce']) && wp_verify_nonce($_POST['gemini_run_now_nonce'], 'contentfreaks_gemini_run_now')) {
-        // 直接実行でなく、即時実行Cronとして登録→spawn_cronで起動
-        // こうすることでPHPタイムアウトを回避し、バックグラウンドで処理される
-        wp_schedule_single_event( time(), 'contentfreaks_gemini_transcription_batch' );
-        spawn_cron();
-        set_transient('contentfreaks_admin_message', array(
-            'type'    => 'success',
-            'message' => 'AI处理をバックグラウンドで開始しました。数分待ってページを再読み込みすると状態が更新されます。',
-        ), 30);
-        wp_safe_remote_get(add_query_arg('tab', 'tools', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        wp_safe_remote_get(add_query_arg('tab', 'ai', admin_url('tools.php?page=contentfreaks-podcast-management')));
         return;
     }
 
@@ -419,7 +402,7 @@ function contentfreaks_handle_admin_posts() {
             'type'    => 'success',
             'message' => count($error_ids) . ' 件のエラーをリトライキューに追加しました。',
         ), 30);
-        wp_safe_remote_get(add_query_arg('tab', 'dashboard', admin_url('tools.php?page=contentfreaks-podcast-management')));
+        wp_safe_remote_get(add_query_arg('tab', 'ai', admin_url('tools.php?page=contentfreaks-podcast-management')));
         return;
     }
 
@@ -551,8 +534,9 @@ function contentfreaks_unified_admin_page() {
 
     $tabs = array(
         'dashboard' => '📊 ダッシュボード',
-        'settings'  => '⚙️ 基本設定',
-        'hosts'     => '👥 ホスト設定',
+        'ai'        => '🤖 AI記事化',
+        'settings'  => '⚙️ 設定',
+        'hosts'     => '👥 ホスト',
         'mediakit'  => '📈 メディアキット',
         'tools'     => '🔧 ツール',
     );
@@ -594,90 +578,6 @@ function contentfreaks_unified_admin_page() {
                 </div>
             </div>
 
-            <?php
-            $ai_stats = contentfreaks_get_ai_stats();
-            $ai_key_set = !empty(contentfreaks_get_gemini_api_key());
-            ?>
-            <div class="postbox" style="margin-bottom: 20px;">
-                <h2 class="hndle">🤖 Gemini AI 文字起こし状況</h2>
-                <div class="inside">
-                    <?php if (!$ai_key_set): ?>
-                        <div style="background:#fff8f0;padding:10px 15px;border-left:4px solid #ff9800;border-radius:4px;margin-bottom:12px;">
-                            ⚠️ Gemini API Key が未設定です。<a href="<?php echo esc_url(add_query_arg('tab', 'settings', $page_url)); ?>">設定タブ</a>から入力してください。
-                        </div>
-                    <?php endif; ?>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
-                        <div style="background:#f0f8ff;padding:12px;border-radius:6px;border-left:3px solid #2196F3;text-align:center;">
-                            <div style="font-size:11px;color:#666;margin-bottom:4px;">待機中</div>
-                            <div style="font-size:22px;font-weight:bold;color:#2196F3;"><?php echo esc_html($ai_stats['pending']); ?></div>
-                        </div>
-                        <div style="background:#fffbf0;padding:12px;border-radius:6px;border-left:3px solid #f59e0b;text-align:center;">
-                            <div style="font-size:11px;color:#666;margin-bottom:4px;">処理中</div>
-                            <div style="font-size:22px;font-weight:bold;color:#f59e0b;"><?php echo esc_html($ai_stats['processing']); ?></div>
-                        </div>
-                        <div style="background:#f0fff0;padding:12px;border-radius:6px;border-left:3px solid #4CAF50;text-align:center;">
-                            <div style="font-size:11px;color:#666;margin-bottom:4px;">完了</div>
-                            <div style="font-size:22px;font-weight:bold;color:#4CAF50;"><?php echo esc_html($ai_stats['done']); ?></div>
-                        </div>
-                        <div style="background:#fff0f0;padding:12px;border-radius:6px;border-left:3px solid #ef4444;text-align:center;">
-                            <div style="font-size:11px;color:#666;margin-bottom:4px;">エラー</div>
-                            <div style="font-size:22px;font-weight:bold;color:#ef4444;"><?php echo esc_html($ai_stats['error']); ?></div>
-                        </div>
-                        <div style="background:#f9f9f9;padding:12px;border-radius:6px;border-left:3px solid #aaa;text-align:center;">
-                            <div style="font-size:11px;color:#666;margin-bottom:4px;">未処理</div>
-                            <div style="font-size:22px;font-weight:bold;color:#888;"><?php echo esc_html($ai_stats['unprocessed']); ?></div>
-                        </div>
-                    </div>
-                    <?php if ($ai_key_set && ($ai_stats['pending'] > 0 || $ai_stats['unprocessed'] > 0)): ?>
-                        <p style="margin-top:10px;color:#666;font-size:13px;">⏱️ 5分毎に自動処理されます。すぐに実行したい場合はツールタブから「今すぐ 1 件処理」を使用してください。</p>
-                    <?php endif; ?>
-
-                    <?php
-                    // エラー詳細テーブル
-                    if ($ai_stats['error'] > 0):
-                        global $wpdb;
-                        $error_posts = $wpdb->get_results(
-                            "SELECT p.ID, p.post_title, pm2.meta_value AS ai_error
-                               FROM {$wpdb->posts} p
-                               INNER JOIN {$wpdb->postmeta} pm  ON p.ID = pm.post_id  AND pm.meta_key  = 'episode_ai_status' AND pm.meta_value = 'error'
-                               LEFT  JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = 'episode_ai_error'
-                              WHERE p.post_type = 'post'
-                              ORDER BY p.post_date DESC"
-                        );
-                    ?>
-                    <div style="margin-top:14px;padding:12px 14px;border:1px solid #fca5a5;border-radius:8px;background:#fff5f5;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                            <strong style="color:#b91c1c;">❌ エラー詳細</strong>
-                            <form method="post" style="margin:0;">
-                                <?php wp_nonce_field('contentfreaks_gemini_retry_errors', 'gemini_retry_errors_nonce'); ?>
-                                <input type="submit" name="gemini_retry_errors" class="button button-small" value="🔄 全件リトライ" />
-                            </form>
-                        </div>
-                        <table style="width:100%;border-collapse:collapse;font-size:13px;">
-                            <thead>
-                                <tr style="background:#fee2e2;">
-                                    <th style="padding:6px 8px;border:1px solid #fca5a5;text-align:left;">エピソード</th>
-                                    <th style="padding:6px 8px;border:1px solid #fca5a5;text-align:left;">エラー内容</th>
-                                    <th style="padding:6px 8px;border:1px solid #fca5a5;width:60px;">操作</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($error_posts as $ep): ?>
-                                <tr>
-                                    <td style="padding:5px 8px;border:1px solid #fca5a5;"><?php echo esc_html($ep->post_title); ?></td>
-                                    <td style="padding:5px 8px;border:1px solid #fca5a5;color:#b91c1c;"><?php echo esc_html($ep->ai_error ?: '詳細不明'); ?></td>
-                                    <td style="padding:5px 8px;border:1px solid #fca5a5;text-align:center;">
-                                        <a href="<?php echo esc_url(get_edit_post_link($ep->ID)); ?>" class="button button-small">編集</a>
-                                    </td>
-                                </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    <?php endif; ?>
-                </div>
-            </div>
-
             <div class="postbox" style="margin-bottom: 20px;">
                 <h2 class="hndle">最新の同期情報</h2>
                 <div class="inside">
@@ -710,8 +610,175 @@ function contentfreaks_unified_admin_page() {
                 </div>
             </div>
 
+        <?php elseif ($current_tab === 'ai'): ?>
+            <!-- ===== AI記事化 ===== -->
+            <?php
+            $ai_stats = contentfreaks_get_ai_stats();
+            $ai_key_set = !empty(contentfreaks_get_gemini_api_key());
+            $gemini_paused = (bool) get_option('contentfreaks_gemini_paused', false);
+            ?>
+
+            <?php if (!$ai_key_set): ?>
+                <div class="notice notice-warning" style="margin-bottom:16px;">
+                    <p>⚠️ Gemini API Key が未設定です。<a href="<?php echo esc_url(add_query_arg('tab', 'settings', $page_url)); ?>">設定タブ</a>から入力してください。</p>
+                </div>
+            <?php endif; ?>
+
+            <!-- ステータスカード -->
+            <div class="postbox" style="margin-bottom: 20px;">
+                <h2 class="hndle">処理状況</h2>
+                <div class="inside">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin-bottom: 16px;">
+                        <div style="background:#f0f8ff;padding:12px;border-radius:6px;border-left:3px solid #2196F3;text-align:center;">
+                            <div style="font-size:11px;color:#666;margin-bottom:4px;">待機中</div>
+                            <div style="font-size:22px;font-weight:bold;color:#2196F3;"><?php echo esc_html($ai_stats['pending']); ?></div>
+                        </div>
+                        <div style="background:#fffbf0;padding:12px;border-radius:6px;border-left:3px solid #f59e0b;text-align:center;">
+                            <div style="font-size:11px;color:#666;margin-bottom:4px;">処理中</div>
+                            <div style="font-size:22px;font-weight:bold;color:#f59e0b;"><?php echo esc_html($ai_stats['processing']); ?></div>
+                        </div>
+                        <div style="background:#f0fff0;padding:12px;border-radius:6px;border-left:3px solid #4CAF50;text-align:center;">
+                            <div style="font-size:11px;color:#666;margin-bottom:4px;">完了</div>
+                            <div style="font-size:22px;font-weight:bold;color:#4CAF50;"><?php echo esc_html($ai_stats['done']); ?></div>
+                        </div>
+                        <div style="background:#fff0f0;padding:12px;border-radius:6px;border-left:3px solid #ef4444;text-align:center;">
+                            <div style="font-size:11px;color:#666;margin-bottom:4px;">エラー</div>
+                            <div style="font-size:22px;font-weight:bold;color:#ef4444;"><?php echo esc_html($ai_stats['error']); ?></div>
+                        </div>
+                        <div style="background:#f9f9f9;padding:12px;border-radius:6px;border-left:3px solid #aaa;text-align:center;">
+                            <div style="font-size:11px;color:#666;margin-bottom:4px;">未処理</div>
+                            <div style="font-size:22px;font-weight:bold;color:#888;"><?php echo esc_html($ai_stats['unprocessed']); ?></div>
+                        </div>
+                    </div>
+                    <?php if ($gemini_paused): ?>
+                        <div style="background:#fffbf0;padding:10px 15px;border-left:4px solid #f59e0b;border-radius:4px;">
+                            ⏸ Cron一時停止中 — 5分毎の自動処理は停止しています。
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- 操作パネル -->
+            <div class="postbox" style="margin-bottom: 20px;">
+                <h2 class="hndle">操作</h2>
+                <div class="inside">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;">
+                        <button type="button" id="gemini-run-btn" class="button-primary" style="cursor:pointer;">
+                            ▶ 今すぐ 1 件処理
+                        </button>
+                        <button type="button" id="gemini-stop-btn" class="button-secondary" style="cursor:pointer;display:none;background:#b91c1c;color:#fff;border-color:#991b1b;">
+                            ⏹ 停止
+                        </button>
+                        <button type="button" id="gemini-pause-btn" class="button-secondary" style="cursor:pointer;<?php echo $gemini_paused ? 'background:#15803d;color:#fff;border-color:#166534;' : 'background:#b45309;color:#fff;border-color:#92400e;'; ?>">
+                            <?php echo $gemini_paused ? '▶ Cron再開' : '⏸ Cron一時停止'; ?>
+                        </button>
+                        <span id="gemini-run-status" style="font-size:13px;"></span>
+                    </div>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                        <form method="post" style="display:inline;">
+                            <?php wp_nonce_field('contentfreaks_gemini_queue_all', 'gemini_queue_all_nonce'); ?>
+                            <input type="submit" name="gemini_queue_all" class="button-secondary" value="🤖 全件キュー登録" />
+                        </form>
+                        <form method="post" style="display:inline;">
+                            <?php wp_nonce_field('contentfreaks_gemini_retry_errors', 'gemini_retry_errors_nonce'); ?>
+                            <input type="submit" name="gemini_retry_errors" class="button-secondary" value="🔄 エラーを全件リトライ" <?php echo $ai_stats['error'] === 0 ? 'disabled' : ''; ?> />
+                        </form>
+                        <form method="post" style="display:inline;">
+                            <?php wp_nonce_field('contentfreaks_gemini_diagnose', 'gemini_diagnose_nonce'); ?>
+                            <input type="submit" name="gemini_diagnose" class="button-secondary" value="🔍 診断" />
+                        </form>
+                    </div>
+                    <p style="margin-top:10px;color:#666;font-size:13px;">
+                        Cron が有効な場合、5分毎に待機中のエピソードを1件ずつ自動処理します。<br>
+                        「今すぐ 1 件処理」は手動でAJAX実行します。429エラー時は自動で65秒待機後にリトライします。
+                    </p>
+                </div>
+            </div>
+
+            <?php
+            // エラー詳細テーブル
+            if ($ai_stats['error'] > 0):
+                global $wpdb;
+                $error_posts = $wpdb->get_results(
+                    "SELECT p.ID, p.post_title, pm2.meta_value AS ai_error
+                       FROM {$wpdb->posts} p
+                       INNER JOIN {$wpdb->postmeta} pm  ON p.ID = pm.post_id  AND pm.meta_key  = 'episode_ai_status' AND pm.meta_value = 'error'
+                       LEFT  JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = 'episode_ai_error'
+                      WHERE p.post_type = 'post'
+                      ORDER BY p.post_date DESC"
+                );
+            ?>
+            <div class="postbox" style="margin-bottom: 20px;">
+                <h2 class="hndle">❌ エラー詳細</h2>
+                <div class="inside">
+                    <table class="widefat" style="font-size:13px;">
+                        <thead>
+                            <tr>
+                                <th>エピソード</th>
+                                <th>エラー内容</th>
+                                <th style="width:60px;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($error_posts as $ep): ?>
+                            <tr>
+                                <td><?php echo esc_html($ep->post_title); ?></td>
+                                <td style="color:#b91c1c;"><?php echo esc_html($ep->ai_error ?: '詳細不明'); ?></td>
+                                <td><a href="<?php echo esc_url(get_edit_post_link($ep->ID)); ?>" class="button button-small">編集</a></td>
+                            </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <?php
+            // AI 診断結果
+            if (isset($_POST['gemini_diagnose']) && wp_verify_nonce($_POST['gemini_diagnose_nonce'] ?? '', 'contentfreaks_gemini_diagnose')) {
+                global $wpdb;
+                echo '<div class="postbox" style="margin-bottom:20px;"><h2 class="hndle">🔍 AI 診断結果</h2><div class="inside">';
+
+                $total_posts = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type='post' AND post_status IN ('publish','draft')");
+                echo "<p>📄 投稿(post)総数: <strong>{$total_posts}</strong></p>";
+
+                $podcast_count = (int) $wpdb->get_var("SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE meta_key='is_podcast_episode' AND meta_value='1'");
+                echo "<p>🎙️ is_podcast_episode=1: <strong>{$podcast_count}</strong></p>";
+
+                $audio_count = (int) $wpdb->get_var("SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE meta_key='episode_audio_url' AND meta_value != ''");
+                echo "<p>🎵 episode_audio_url 保有: <strong>{$audio_count}</strong></p>";
+
+                $status_rows = $wpdb->get_results("SELECT meta_value, COUNT(*) AS cnt FROM {$wpdb->postmeta} WHERE meta_key='episode_ai_status' GROUP BY meta_value");
+                echo "<p>🤖 episode_ai_status:</p><ul>";
+                if (empty($status_rows)) {
+                    echo "<li style='color:red;'>未登録（全件キュー登録がまだ）</li>";
+                } else {
+                    foreach ($status_rows as $r) {
+                        echo '<li><code>' . esc_html($r->meta_value) . '</code>: ' . (int)$r->cnt . '件</li>';
+                    }
+                }
+                echo '</ul>';
+
+                $cron_next = wp_next_scheduled('contentfreaks_gemini_transcription_batch');
+                echo '<p>⏱️ 次回Cron: ' . ($cron_next ? esc_html(date_i18n('Y-m-d H:i:s', $cron_next)) . '（' . human_time_diff($cron_next) . '後）' : '<strong style="color:red;">未登録</strong>') . '</p>';
+                echo '<p>⏸ 一時停止: ' . ($gemini_paused ? '<strong style="color:#b45309;">はい</strong>' : 'いいえ') . '</p>';
+
+                $sample = $wpdb->get_row("SELECT p.ID, p.post_title, pm.meta_value AS audio_url FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} pm ON p.ID=pm.post_id AND pm.meta_key='episode_audio_url' WHERE p.post_type='post' ORDER BY p.post_date DESC LIMIT 1");
+                if ($sample) {
+                    echo '<p>🔗 最新音声URL:<br><code style="word-break:break-all;font-size:11px;">' . esc_html($sample->audio_url) . '</code></p>';
+                }
+
+                if (!$cron_next) {
+                    wp_schedule_event(time(), 'contentfreaks_five_minutes', 'contentfreaks_gemini_transcription_batch');
+                    echo '<p style="color:green;">✅ Cron を登録しました。</p>';
+                }
+
+                echo '</div></div>';
+            }
+            ?>
+
         <?php elseif ($current_tab === 'settings'): ?>
-            <!-- ===== 基本設定 ===== -->
+            <!-- ===== 設定 ===== -->
             <div class="postbox">
                 <h2 class="hndle">ポッドキャスト基本情報</h2>
                 <div class="inside">
@@ -928,150 +995,60 @@ function contentfreaks_unified_admin_page() {
         <?php elseif ($current_tab === 'tools'): ?>
             <!-- ===== ツール ===== -->
 
-            <?php
-            // ツールタブでもAI統計をリアルタイムで表示
-            $ai_stats_tools = contentfreaks_get_ai_stats();
-            global $wpdb;
-            $ai_errors_tools = $wpdb->get_results(
-                "SELECT p.ID, p.post_title, pm2.meta_value AS ai_error
-                   FROM {$wpdb->posts} p
-                   INNER JOIN {$wpdb->postmeta} pm  ON p.ID = pm.post_id  AND pm.meta_key  = 'episode_ai_status' AND pm.meta_value = 'error'
-                   LEFT  JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = 'episode_ai_error'
-                  WHERE p.post_type = 'post'
-                  ORDER BY p.post_date DESC"
-            );
-            ?>
+            <!-- RSS・コンテンツ管理 -->
             <div class="postbox" style="margin-bottom: 20px;">
-                <h2 class="hndle">🤖 AI記事化 現在の状態</h2>
+                <h2 class="hndle">📡 RSS・コンテンツ管理</h2>
                 <div class="inside">
-                    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 10px;">
-                        <div style="background:#f0f8ff;padding:10px 16px;border-radius:6px;border-left:3px solid #2196F3;text-align:center;min-width:80px;">
-                            <div style="font-size:11px;color:#666;">待機中</div>
-                            <div style="font-size:22px;font-weight:bold;color:#2196F3;"><?php echo esc_html($ai_stats_tools['pending']); ?></div>
-                        </div>
-                        <div style="background:#fffbf0;padding:10px 16px;border-radius:6px;border-left:3px solid #f59e0b;text-align:center;min-width:80px;">
-                            <div style="font-size:11px;color:#666;">処理中</div>
-                            <div style="font-size:22px;font-weight:bold;color:#f59e0b;"><?php echo esc_html($ai_stats_tools['processing']); ?></div>
-                        </div>
-                        <div style="background:#f0fff0;padding:10px 16px;border-radius:6px;border-left:3px solid #4CAF50;text-align:center;min-width:80px;">
-                            <div style="font-size:11px;color:#666;">完了</div>
-                            <div style="font-size:22px;font-weight:bold;color:#4CAF50;"><?php echo esc_html($ai_stats_tools['done']); ?></div>
-                        </div>
-                        <div style="background:#fff0f0;padding:10px 16px;border-radius:6px;border-left:3px solid #ef4444;text-align:center;min-width:80px;">
-                            <div style="font-size:11px;color:#666;">エラー</div>
-                            <div style="font-size:22px;font-weight:bold;color:#ef4444;"><?php echo esc_html($ai_stats_tools['error']); ?></div>
-                        </div>
-                        <div style="background:#f9f9f9;padding:10px 16px;border-radius:6px;border-left:3px solid #aaa;text-align:center;min-width:80px;">
-                            <div style="font-size:11px;color:#666;">未処理</div>
-                            <div style="font-size:22px;font-weight:bold;color:#888;"><?php echo esc_html($ai_stats_tools['unprocessed']); ?></div>
-                        </div>
-                    </div>
-                    <?php if (!empty($ai_errors_tools)): ?>
-                    <div style="border:1px solid #fca5a5;border-radius:6px;padding:10px 12px;background:#fff5f5;">
-                        <strong style="color:#b91c1c;">エラー詳細:</strong>
-                        <ul style="margin:6px 0 0 16px;">
-                            <?php foreach ($ai_errors_tools as $ep): ?>
-                            <li style="margin-bottom:4px;">
-                                <a href="<?php echo esc_url(get_edit_post_link($ep->ID)); ?>"><?php echo esc_html($ep->post_title); ?></a>
-                                &nbsp;— <span style="color:#b91c1c;font-size:12px;"><?php echo esc_html($ep->ai_error ?: '詳細不明'); ?></span>
-                            </li>
-                            <?php endforeach; ?>
-                        </ul>
-                        <form method="post" style="margin-top:8px;">
-                            <?php wp_nonce_field('contentfreaks_gemini_retry_errors', 'gemini_retry_errors_nonce'); ?>
-                            <input type="submit" name="gemini_retry_errors" class="button button-small" value="🔄 エラーを全件リトライ" />
-                        </form>
-                    </div>
-                    <?php endif; ?>
-                    <?php if ($ai_stats_tools['pending'] === 0 && $ai_stats_tools['done'] === 0 && $ai_stats_tools['error'] === 0 && $ai_stats_tools['unprocessed'] === 0): ?>
-                    <p style="color:#666;font-size:13px;margin-top:8px;">⚠️ まだキューに登録されていません。下の「全件キュー登録」を押してください。</p>
-                    <?php elseif ($ai_stats_tools['pending'] > 0): ?>
-                    <p style="color:#666;font-size:13px;margin-top:8px;">⏱️ 5分毎のCronで自動処理されます。すぐ確認したい場合は「今すぐ 1 件処理」を押してページを再読み込みしてください。</p>
-                    <?php endif; ?>
-                </div>
-            </div>
-
-            <div class="postbox" style="margin-bottom: 20px;">
-                <h2 class="hndle">操作メニュー</h2>
-                <div class="inside">
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <form method="post" style="display: inline;">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <form method="post" style="display:inline;">
                             <?php wp_nonce_field('contentfreaks_sync', 'sync_nonce'); ?>
                             <input type="submit" name="manual_sync" class="button-primary" value="📥 手動同期実行" />
                         </form>
-                        <form method="post" style="display: inline;">
+                        <form method="post" style="display:inline;">
                             <?php wp_nonce_field('contentfreaks_re_extract_tags', 're_extract_tags_nonce'); ?>
                             <input type="submit" name="re_extract_tags" class="button-secondary" value="🏷️ タグ再抽出" />
                         </form>
-                        <form method="post" style="display: inline;">
+                        <form method="post" style="display:inline;">
                             <?php wp_nonce_field('contentfreaks_clear_cache', 'clear_cache_nonce'); ?>
                             <input type="submit" name="clear_cache" class="button-secondary" value="🗑️ キャッシュクリア" />
                         </form>
-                        <form method="post" style="display: inline;">
+                        <form method="post" style="display:inline;">
                             <?php wp_nonce_field('contentfreaks_flush_rewrite_rules', 'flush_rewrite_rules_nonce'); ?>
                             <input type="submit" name="flush_rewrite_rules" class="button-secondary" value="🔄 リライトルール更新" />
                         </form>
-                        <form method="post" style="display: inline;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- YouTube -->
+            <div class="postbox" style="margin-bottom: 20px;">
+                <h2 class="hndle">🎬 YouTube</h2>
+                <div class="inside">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                        <form method="post" style="display:inline;">
                             <?php wp_nonce_field('contentfreaks_sync_youtube_videos', 'sync_youtube_videos_nonce'); ?>
                             <input type="submit" name="sync_youtube_videos" class="button-secondary" value="🎬 YouTube動画紐付け" />
                         </form>
-                        <form method="post" style="display: inline;">
-                            <?php wp_nonce_field('contentfreaks_gemini_queue_all', 'gemini_queue_all_nonce'); ?>
-                            <input type="submit" name="gemini_queue_all" class="button-secondary" value="🤖 AI記事化：全件キュー登録" />
-                        </form>
-                        <?php $gemini_paused = (bool) get_option('contentfreaks_gemini_paused', false); ?>
-                        <button type="button" id="gemini-pause-btn" class="button-secondary" style="cursor:pointer;<?php echo $gemini_paused ? 'background:#15803d;color:#fff;border-color:#166534;' : 'background:#b45309;color:#fff;border-color:#92400e;'; ?>">
-                            <?php echo $gemini_paused ? '▶ Cron再開' : '⏸ Cron一時停止'; ?>
-                        </button>
-                        <button type="button" id="gemini-run-btn" class="button-primary" style="cursor:pointer;">
-                            ▶ AI記事化：今すぐ 1 件処理
-                        </button>
-                        <button type="button" id="gemini-stop-btn" class="button-secondary" style="cursor:pointer;display:none;background:#b91c1c;color:#fff;border-color:#991b1b;">
-                            ⏹ 停止
-                        </button>
-                        <span id="gemini-run-status" style="margin-left:10px;font-size:13px;"></span>
-                        <form method="post" style="display: inline;">
-                            <?php wp_nonce_field('contentfreaks_gemini_diagnose', 'gemini_diagnose_nonce'); ?>
-                            <input type="submit" name="gemini_diagnose" class="button-secondary" value="🔍 AI診断" />
-                        </form>
-                        <form method="post" style="display: inline;">
+                        <form method="post" style="display:inline;">
                             <?php wp_nonce_field('contentfreaks_debug_youtube_match', 'debug_youtube_match_nonce'); ?>
-                            <input type="submit" name="debug_youtube_match" class="button-secondary" value="🔎 YouTube紐付け診断" />
-                        </form>
-                        <form method="post" style="display: inline;">
-                            <?php wp_nonce_field('contentfreaks_test_rss', 'test_rss_nonce'); ?>
-                            <input type="submit" name="test_rss" class="button-secondary" value="🔍 RSS接続テスト" />
-                        </form>
-                        <form method="post" style="display: inline;">
-                            <?php wp_nonce_field('contentfreaks_test_url', 'test_url_nonce'); ?>
-                            <input type="submit" name="test_url" class="button-secondary" value="🌐 URL構造テスト" />
+                            <input type="submit" name="debug_youtube_match" class="button-secondary" value="🔎 紐付け診断" />
                         </form>
                     </div>
-
                     <?php if (function_exists('contentfreaks_get_youtube_sync_job_status')) : ?>
                         <?php $youtube_job_status = contentfreaks_get_youtube_sync_job_status(); ?>
-                        <div style="margin-top: 16px; padding: 12px 14px; border: 1px solid #dcdcde; border-radius: 8px; background: #fff;">
-                            <strong>YouTube紐付けの状態:</strong>
+                        <div style="padding:10px 14px;border:1px solid #dcdcde;border-radius:6px;background:#fafafa;">
+                            <strong>紐付け状態:</strong>
                             <?php if ($youtube_job_status['status'] === 'queued') : ?>
                                 <span style="color:#b45309;">実行待ち</span>
-                                <?php if (!empty($youtube_job_status['pending']['queued'])) : ?>
-                                    <span style="margin-left:8px; color:#666;">投入時刻: <?php echo esc_html($youtube_job_status['pending']['queued']); ?></span>
-                                <?php endif; ?>
                                 <?php if (!empty($youtube_job_status['next_run'])) : ?>
-                                    <span style="margin-left:8px; color:#666;">次回実行予定: <?php echo esc_html(date_i18n('Y-m-d H:i:s', $youtube_job_status['next_run'])); ?></span>
+                                    <span style="margin-left:8px;color:#666;">次回: <?php echo esc_html(date_i18n('H:i:s', $youtube_job_status['next_run'])); ?></span>
                                 <?php endif; ?>
                             <?php elseif ($youtube_job_status['status'] === 'done') : ?>
                                 <span style="color:#15803d;">完了</span>
-                                <?php if (!empty($youtube_job_status['last']['completed'])) : ?>
-                                    <span style="margin-left:8px; color:#666;">完了時刻: <?php echo esc_html($youtube_job_status['last']['completed']); ?></span>
-                                <?php endif; ?>
                                 <?php if (!empty($youtube_job_status['last']['result'])) : ?>
                                     <?php $last_result = $youtube_job_status['last']['result']; ?>
-                                    <span style="margin-left:8px; color:#666;">紐付け: <?php echo esc_html((string) ($last_result['synced'] ?? 0)); ?>件 / 未マッチ: <?php echo esc_html((string) ($last_result['skipped'] ?? 0)); ?>件</span>
+                                    <span style="margin-left:8px;color:#666;">紐付け: <?php echo esc_html((string) ($last_result['synced'] ?? 0)); ?>件 / 未マッチ: <?php echo esc_html((string) ($last_result['skipped'] ?? 0)); ?>件</span>
                                 <?php endif; ?>
-                            <?php elseif ($youtube_job_status['status'] === 'stale') : ?>
-                                <span style="color:#b91c1c;">待機情報あり</span>
-                                <span style="margin-left:8px; color:#666;">Cronの実行がまだ反映されていない可能性があります。</span>
                             <?php else : ?>
                                 <span style="color:#4b5563;">待機中ではありません</span>
                             <?php endif; ?>
@@ -1080,59 +1057,25 @@ function contentfreaks_unified_admin_page() {
                 </div>
             </div>
 
+            <!-- 診断 -->
+            <div class="postbox" style="margin-bottom: 20px;">
+                <h2 class="hndle">🔍 診断テスト</h2>
+                <div class="inside">
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <form method="post" style="display:inline;">
+                            <?php wp_nonce_field('contentfreaks_test_rss', 'test_rss_nonce'); ?>
+                            <input type="submit" name="test_rss" class="button-secondary" value="🔍 RSS接続テスト" />
+                        </form>
+                        <form method="post" style="display:inline;">
+                            <?php wp_nonce_field('contentfreaks_test_url', 'test_url_nonce'); ?>
+                            <input type="submit" name="test_url" class="button-secondary" value="🌐 URL構造テスト" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             <?php
-            // AI 診断
-            if (isset($_POST['gemini_diagnose']) && wp_verify_nonce($_POST['gemini_diagnose_nonce'] ?? '', 'contentfreaks_gemini_diagnose')) {
-                global $wpdb;
-                echo '<div class="postbox" style="margin-bottom:20px;"><h2 class="hndle">🔍 AI 診断結果</h2><div class="inside">';
-
-                // 1. 全投稿数
-                $total_posts = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type='post' AND post_status IN ('publish','draft')");
-                echo "<p>📄 投稿(post)総数: <strong>{$total_posts}</strong></p>";
-
-                // 2. is_podcast_episode=1 の数
-                $podcast_count = (int) $wpdb->get_var("SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE meta_key='is_podcast_episode' AND meta_value='1'");
-                echo "<p>🎙️ is_podcast_episode=1 の投稿数: <strong>{$podcast_count}</strong></p>";
-                if ($podcast_count === 0) {
-                    echo "<p style='color:red;'>⚠️ ポッドキャストエピソードが1件も見つかりません。RSS同期が正しく動作しているか確認してください。</p>";
-                }
-
-                // 3. episode_audio_url を持つ投稿数
-                $audio_count = (int) $wpdb->get_var("SELECT COUNT(DISTINCT post_id) FROM {$wpdb->postmeta} WHERE meta_key='episode_audio_url' AND meta_value != ''");
-                echo "<p>🎵 episode_audio_url 保有投稿数: <strong>{$audio_count}</strong></p>";
-
-                // 4. episode_ai_status の分布
-                $status_rows = $wpdb->get_results("SELECT meta_value, COUNT(*) AS cnt FROM {$wpdb->postmeta} WHERE meta_key='episode_ai_status' GROUP BY meta_value");
-                echo "<p>🤖 episode_ai_status の内訳:</p><ul>";
-                if (empty($status_rows)) {
-                    echo "<li style='color:red;'>meta が1件もありません（全件キュー登録がまだです）</li>";
-                } else {
-                    foreach ($status_rows as $r) {
-                        echo '<li><code>' . esc_html($r->meta_value) . '</code>: ' . (int)$r->cnt . '件</li>';
-                    }
-                }
-                echo '</ul>';
-
-                // 5. Cron スケジュール確認
-                $cron_next = wp_next_scheduled('contentfreaks_gemini_transcription_batch');
-                echo '<p>⏱️ 次回Gemini Cron実行: ' . ($cron_next ? esc_html(date_i18n('Y-m-d H:i:s', $cron_next)) . '（' . human_time_diff($cron_next) . '後）' : '<strong style="color:red;">登録されていません</strong>') . '</p>';
-
-                // 6. サンプルとして最新1件の音声URLを表示
-                $sample = $wpdb->get_row("SELECT p.ID, p.post_title, pm.meta_value AS audio_url FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} pm ON p.ID=pm.post_id AND pm.meta_key='episode_audio_url' WHERE p.post_type='post' ORDER BY p.post_date DESC LIMIT 1");
-                if ($sample) {
-                    echo '<p>🔗 最新エピソードの音声URL サンプル:<br><code style="word-break:break-all;font-size:11px;">' . esc_html($sample->audio_url) . '</code></p>';
-                }
-
-                // 7. Cron が未登録なら今すぐ登録する
-                if (!$cron_next) {
-                    wp_schedule_event(time(), 'contentfreaks_five_minutes', 'contentfreaks_gemini_transcription_batch');
-                    echo '<p style="color:green;">✅ Cron を今すぐ登録しました。</p>';
-                }
-
-                echo '</div></div>';
-            }
-
-            // YouTube紐付け診断
+            // YouTube紐付け診断結果
             if (isset($_POST['debug_youtube_match']) && wp_verify_nonce($_POST['debug_youtube_match_nonce'], 'contentfreaks_debug_youtube_match')) {
                 $api_key    = (defined('CONTENTFREAKS_YOUTUBE_API_KEY')    && CONTENTFREAKS_YOUTUBE_API_KEY    !== '')
                                 ? CONTENTFREAKS_YOUTUBE_API_KEY
@@ -1143,7 +1086,6 @@ function contentfreaks_unified_admin_page() {
 
                 echo '<div class="postbox" style="margin-bottom:20px;"><h2 class="hndle">🔎 YouTube紐付け診断</h2><div class="inside">';
 
-                // WP側: マッチキーの状況
                 $wp_episodes = get_posts(array('post_type'=>'post','posts_per_page'=>-1,'meta_key'=>'is_podcast_episode','meta_value'=>'1','fields'=>'ids'));
                 $wp_key_stats   = array('number' => 0, 'part1' => 0, 'part2' => 0, 'final' => 0, 'title' => 0);
                 $wp_key_samples = array('number' => array(), 'part1' => array(), 'part2' => array(), 'final' => array(), 'title' => array());
@@ -1151,212 +1093,113 @@ function contentfreaks_unified_admin_page() {
                 foreach ($wp_episodes as $pid) {
                     $title = get_the_title($pid);
                     $key = contentfreaks_make_title_episode_key($title);
-                    if (!$key) {
-                        $wp_no_key[] = $title;
-                        continue;
-                    }
-
+                    if (!$key) { $wp_no_key[] = $title; continue; }
                     $key_parts = explode('::', $key);
                     $key_kind = $key_parts[2] ?? ($key_parts[1] ?? 'unknown');
                     if (isset($wp_key_stats[$key_kind])) {
                         $wp_key_stats[$key_kind]++;
-                        if (count($wp_key_samples[$key_kind]) < 5) {
-                            $wp_key_samples[$key_kind][] = $title;
-                        }
+                        if (count($wp_key_samples[$key_kind]) < 5) $wp_key_samples[$key_kind][] = $title;
                     }
                 }
                 echo '<h4>WP投稿側 (マッチキー)</h4>';
-                echo '<p>✅ 話数あり: <strong>' . $wp_key_stats['number'] . '件</strong> / 🧩 前編: <strong>' . $wp_key_stats['part1'] . '件</strong> / 🧩 後編: <strong>' . $wp_key_stats['part2'] . '件</strong> / ⏳ 最終回: <strong>' . $wp_key_stats['final'] . '件</strong> / 🏷️ 作品名のみ: <strong>' . $wp_key_stats['title'] . '件</strong> / ❌ 抽出不可: <strong>' . count($wp_no_key) . '件</strong></p>';
+                echo '<p>話数あり: <strong>' . $wp_key_stats['number'] . '</strong> / 前編: <strong>' . $wp_key_stats['part1'] . '</strong> / 後編: <strong>' . $wp_key_stats['part2'] . '</strong> / 最終回: <strong>' . $wp_key_stats['final'] . '</strong> / 作品名のみ: <strong>' . $wp_key_stats['title'] . '</strong> / 抽出不可: <strong>' . count($wp_no_key) . '</strong></p>';
+                foreach (array('number'=>'話数あり','part1'=>'前編','part2'=>'後編','final'=>'最終回','title'=>'作品名のみ') as $sk => $sl) {
+                    if (!empty($wp_key_samples[$sk])) {
+                        echo '<details><summary>' . esc_html($sl) . 'サンプル</summary><ul>';
+                        foreach ($wp_key_samples[$sk] as $t) echo '<li>' . esc_html($t) . '</li>';
+                        echo '</ul></details>';
+                    }
+                }
                 if (!empty($wp_no_key)) {
-                    echo '<details><summary>抽出できなかった投稿タイトル（先頭5件）</summary><ul>';
-                    foreach (array_slice($wp_no_key, 0, 5) as $t) {
-                        echo '<li>' . esc_html($t) . '</li>';
-                    }
-                    echo '</ul></details>';
-                }
-                if (!empty($wp_key_samples['number'])) {
-                    echo '<details><summary>話数ありサンプル</summary><ul>';
-                    foreach ($wp_key_samples['number'] as $t) {
-                        echo '<li>' . esc_html($t) . '</li>';
-                    }
-                    echo '</ul></details>';
-                }
-                if (!empty($wp_key_samples['part1'])) {
-                    echo '<details><summary>前編サンプル</summary><ul>';
-                    foreach ($wp_key_samples['part1'] as $t) {
-                        echo '<li>' . esc_html($t) . '</li>';
-                    }
-                    echo '</ul></details>';
-                }
-                if (!empty($wp_key_samples['part2'])) {
-                    echo '<details><summary>後編サンプル</summary><ul>';
-                    foreach ($wp_key_samples['part2'] as $t) {
-                        echo '<li>' . esc_html($t) . '</li>';
-                    }
-                    echo '</ul></details>';
-                }
-                if (!empty($wp_key_samples['final'])) {
-                    echo '<details><summary>最終回サンプル</summary><ul>';
-                    foreach ($wp_key_samples['final'] as $t) {
-                        echo '<li>' . esc_html($t) . '</li>';
-                    }
-                    echo '</ul></details>';
-                }
-                if (!empty($wp_key_samples['title'])) {
-                    echo '<details><summary>作品名のみサンプル</summary><ul>';
-                    foreach ($wp_key_samples['title'] as $t) {
-                        echo '<li>' . esc_html($t) . '</li>';
-                    }
+                    echo '<details><summary>抽出不可タイトル（先頭5件）</summary><ul>';
+                    foreach (array_slice($wp_no_key, 0, 5) as $t) echo '<li>' . esc_html($t) . '</li>';
                     echo '</ul></details>';
                 }
 
                 if (!empty($api_key) && !empty($channel_id)) {
-                    // YouTube側: 最初の10件のタイトルと抽出結果を表示
                     $playlist_id = 'UU' . substr($channel_id, 2);
                     $resp = wp_remote_get(add_query_arg(array('part'=>'snippet','playlistId'=>$playlist_id,'maxResults'=>20,'key'=>$api_key), 'https://www.googleapis.com/youtube/v3/playlistItems'), array('timeout'=>15));
-                    echo '<h4>YouTube動画タイトルと抽出キー（最新20件）</h4>';
+                    echo '<h4>YouTube動画（最新20件）</h4>';
                     if (!is_wp_error($resp) && wp_remote_retrieve_response_code($resp) === 200) {
                         $data = json_decode(wp_remote_retrieve_body($resp), true);
-                        echo '<table style="border-collapse:collapse;width:100%;font-size:13px;">';
-                        echo '<tr style="background:#f0f0f0;"><th style="padding:6px;border:1px solid #ccc;text-align:left;">YouTubeタイトル</th><th style="padding:6px;border:1px solid #ccc;width:140px;">抽出キー</th><th style="padding:6px;border:1px solid #ccc;width:100px;">種別</th><th style="padding:6px;border:1px solid #ccc;width:80px;">WP紐付け</th></tr>';
-                        // WPキーのリスト
                         $wp_keys = array();
-                        foreach ($wp_episodes as $pid) {
-                            $k = contentfreaks_make_title_episode_key(get_the_title($pid));
-                            if ($k) $wp_keys[] = $k;
-                        }
+                        foreach ($wp_episodes as $pid) { $k = contentfreaks_make_title_episode_key(get_the_title($pid)); if ($k) $wp_keys[] = $k; }
+                        echo '<table class="widefat" style="font-size:13px;"><thead><tr><th>タイトル</th><th style="width:140px;">キー</th><th style="width:100px;">種別</th><th style="width:60px;">一致</th></tr></thead><tbody>';
                         foreach ($data['items'] as $item) {
                             $yt_title = $item['snippet']['title'] ?? '';
                             $yt_key   = contentfreaks_make_title_episode_key($yt_title);
                             $yt_kind = '';
                             if ($yt_key) {
                                 $yt_key_parts = explode('::', $yt_key);
-                                if (!empty($yt_key_parts[2])) {
-                                    $part_label = $yt_key_parts[2] === 'part1' ? '前編' : ($yt_key_parts[2] === 'part2' ? '後編' : $yt_key_parts[2]);
-                                    $yt_kind = $yt_key_parts[1] . ' / ' . $part_label;
-                                } else {
-                                    $yt_kind = $yt_key_parts[1] ?? '';
-                                }
+                                $yt_kind = (!empty($yt_key_parts[2]) ? ($yt_key_parts[2] === 'part1' ? '前編' : ($yt_key_parts[2] === 'part2' ? '後編' : $yt_key_parts[2])) : ($yt_key_parts[1] ?? ''));
                             }
-                            $matched  = ($yt_key && in_array($yt_key, $wp_keys));
-                            echo '<tr>';
-                            echo '<td style="padding:5px;border:1px solid #ddd;">' . esc_html($yt_title) . '</td>';
-                            echo '<td style="padding:5px;border:1px solid #ddd;font-family:monospace;">' . ($yt_key ? esc_html($yt_key) : '<span style="color:#aaa">抽出不可</span>') . '</td>';
-                            echo '<td style="padding:5px;border:1px solid #ddd;text-align:center;">' . ($yt_kind ? esc_html($yt_kind) : '—') . '</td>';
-                            echo '<td style="padding:5px;border:1px solid #ddd;text-align:center;">' . ($matched ? '✅' : ($yt_key ? '❌不一致' : '—')) . '</td>';
-                            echo '</tr>';
+                            $matched = ($yt_key && in_array($yt_key, $wp_keys));
+                            echo '<tr><td>' . esc_html($yt_title) . '</td><td style="font-family:monospace;">' . ($yt_key ? esc_html($yt_key) : '—') . '</td><td style="text-align:center;">' . ($yt_kind ?: '—') . '</td><td style="text-align:center;">' . ($matched ? '✅' : ($yt_key ? '❌' : '—')) . '</td></tr>';
                         }
-                        echo '</table><p style="margin-top:8px;color:#666;">✅=WP投稿と一致 / ❌=キーは取れたがWPにない / —=抽出できず</p>';
+                        echo '</tbody></table>';
                     } else {
-                        echo '<p style="color:red;">YouTube APIへの接続に失敗しました。APIキーとチャンネルIDを確認してください。</p>';
+                        echo '<p style="color:red;">YouTube API接続失敗</p>';
                     }
                 } else {
-                    echo '<p style="color:orange;">⚠️ APIキーまたはチャンネルIDが未設定です。</p>';
+                    echo '<p style="color:orange;">⚠️ APIキーまたはチャンネルIDが未設定</p>';
                 }
-
                 echo '</div></div>';
             }
 
             // URL構造テスト結果
             if (isset($_POST['test_url']) && wp_verify_nonce($_POST['test_url_nonce'], 'contentfreaks_test_url')) {
-                echo '<div class="postbox" style="margin-bottom: 20px;">';
-                echo '<h2 class="hndle">🌐 URL構造テスト結果</h2>';
-                echo '<div class="inside">';
-                echo '<h4>現在のURL設定</h4>';
+                echo '<div class="postbox" style="margin-bottom:20px;"><h2 class="hndle">🌐 URL構造テスト</h2><div class="inside">';
                 echo '<ul>';
                 echo '<li><strong>サイトURL:</strong> ' . esc_html(home_url()) . '</li>';
-                echo '<li><strong>エピソードURL:</strong> ' . esc_html(home_url('/episodes/')) . '</li>';
-                echo '<li><strong>パーマリンク構造:</strong> ' . esc_html(get_option('permalink_structure') ?: 'デフォルト') . '</li>';
+                echo '<li><strong>パーマリンク:</strong> ' . esc_html(get_option('permalink_structure') ?: 'デフォルト') . '</li>';
                 echo '</ul>';
-                echo '<h4>リライトルール状態</h4>';
                 $rewrite_rules = get_option('rewrite_rules', array());
                 $episodes_rules = array();
-                if (is_array($rewrite_rules)) {
-                    foreach ($rewrite_rules as $pattern => $rewrite) {
-                        if (strpos($pattern, 'episodes') !== false) {
-                            $episodes_rules[$pattern] = $rewrite;
-                        }
-                    }
-                }
-                if (!empty($episodes_rules)) {
-                    echo '<p style="color: green;">✅ エピソード関連のリライトルールが見つかりました:</p><ul>';
-                    foreach ($episodes_rules as $pattern => $rewrite) {
-                        echo '<li><code>' . esc_html($pattern) . '</code> → <code>' . esc_html($rewrite) . '</code></li>';
-                    }
-                    echo '</ul>';
-                } else {
-                    echo '<p style="color: red;">❌ エピソード関連のリライトルールが見つかりません。</p>';
-                }
-                echo '<h4>ファイル・ページ存在チェック</h4><ul>';
-                echo '<li><strong>page-episodes.php:</strong> ' . (file_exists(get_stylesheet_directory() . '/page-episodes.php') ? '✅ 存在' : '❌ 不存在') . '</li>';
-                echo '<li><strong>episodes固定ページ:</strong> ' . (get_page_by_path('episodes') ? '✅ 存在' : '❌ 不存在') . '</li>';
-                echo '</ul></div></div>';
+                if (is_array($rewrite_rules)) { foreach ($rewrite_rules as $p => $r) { if (strpos($p, 'episodes') !== false) $episodes_rules[$p] = $r; } }
+                if (!empty($episodes_rules)) { echo '<p style="color:green;">✅ エピソード用ルールあり</p>'; }
+                else { echo '<p style="color:red;">❌ エピソード用ルールなし</p>'; }
+                echo '<p>page-episodes.php: ' . (file_exists(get_stylesheet_directory() . '/page-episodes.php') ? '✅' : '❌') . ' / episodes固定ページ: ' . (get_page_by_path('episodes') ? '✅' : '❌') . '</p>';
+                echo '</div></div>';
             }
 
             // RSSフィードテスト結果
             if (isset($_POST['test_rss']) && wp_verify_nonce($_POST['test_rss_nonce'], 'contentfreaks_test_rss')) {
-                echo '<div class="postbox" style="margin-bottom: 20px;">';
-                echo '<h2 class="hndle">🔍 RSSフィードテスト結果</h2>';
-                echo '<div class="inside">';
+                echo '<div class="postbox" style="margin-bottom:20px;"><h2 class="hndle">🔍 RSSテスト</h2><div class="inside">';
                 contentfreaks_clear_rss_cache();
                 $episodes = contentfreaks_get_rss_episodes(5);
                 if (!empty($episodes)) {
-                    echo '<p style="color: green;">✅ RSS取得成功！ ' . count($episodes) . ' 件のエピソードを取得</p>';
-                    echo '<div style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background: #f9f9f9;">';
+                    echo '<p style="color:green;">✅ 取得成功: ' . count($episodes) . ' 件</p>';
+                    echo '<div style="max-height:300px;overflow-y:auto;border:1px solid #ddd;padding:10px;background:#f9f9f9;">';
                     foreach ($episodes as $episode) {
-                        echo '<div style="background: white; padding: 15px; margin-bottom: 10px; border-radius: 5px; border-left: 4px solid #2196F3;">';
-                        echo '<h4 style="margin: 0 0 10px 0;">' . esc_html($episode['title']) . '</h4>';
-                        if (!empty($episode['thumbnail'])) {
-                            echo '<p>🖼️ サムネイル: <a href="' . esc_url($episode['thumbnail']) . '" target="_blank">画像を確認</a></p>';
-                        } else {
-                            echo '<p>❌ サムネイル: 見つかりません</p>';
-                        }
-                        preg_match_all('/『([^』]+)』/', $episode['title'], $tag_matches);
-                        if (!empty($tag_matches[1])) {
-                            echo '<p>🏷️ タグ候補: <span style="color: #0073aa;">' . esc_html(implode(', ', $tag_matches[1])) . '</span></p>';
-                        }
-                        echo '<p>📅 日付: ' . esc_html($episode['formatted_date']) . '</p>';
-                        echo '<p>🎵 音声URL: ' . ($episode['audio_url'] ? '✅ あり' : '❌ なし') . '</p>';
-                        echo '<p>⏱️ 再生時間: ' . ($episode['duration'] ? esc_html($episode['duration']) : '不明') . '</p>';
-                        if (!empty($episode['guid'])) {
-                            echo '<p>🔗 GUID: <code>' . esc_html($episode['guid']) . '</code></p>';
-                        }
+                        echo '<div style="background:#fff;padding:12px;margin-bottom:8px;border-radius:4px;border-left:3px solid #2196F3;">';
+                        echo '<strong>' . esc_html($episode['title']) . '</strong>';
+                        echo '<br><small>📅 ' . esc_html($episode['formatted_date']) . ' | 🎵 ' . ($episode['audio_url'] ? 'あり' : 'なし') . ' | ⏱️ ' . ($episode['duration'] ?: '不明') . '</small>';
                         echo '</div>';
                     }
                     echo '</div>';
                 } else {
-                    echo '<p style="color: red;">❌ エラー: エピソードを取得できませんでした</p>';
+                    echo '<p style="color:red;">❌ 取得失敗</p>';
                 }
                 echo '</div></div>';
             }
             ?>
 
-            <!-- ヘルプ情報 -->
+            <!-- ヘルプ -->
             <div class="postbox">
-                <h2 class="hndle">ℹ️ 情報・ヘルプ</h2>
+                <h2 class="hndle">ℹ️ ヘルプ</h2>
                 <div class="inside">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px;">
-                        <div style="background: #f0f8ff; padding: 15px; border-left: 4px solid #2196F3;">
-                            <h4>🏷️ 自動タグ機能</h4>
-                            <p><strong>機能:</strong> タイトルの『』内テキストを自動でタグ追加</p>
-                            <p><strong>例:</strong> 「第1回『YouTube』について語る」 → 「YouTube」タグを自動作成</p>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;">
+                        <div style="background:#f0f8ff;padding:12px;border-left:3px solid #2196F3;">
+                            <h4 style="margin:0 0 6px;">🏷️ 自動タグ</h4>
+                            <p style="margin:0;font-size:13px;">タイトルの『』内を自動タグ化</p>
                         </div>
-                        <div style="background: #fff3cd; padding: 15px; border-left: 4px solid #ffc107;">
-                            <h4>🔧 コンテンツ分類</h4>
-                            <p><strong>方針:</strong> 手動分類のみ。自動分類は行いません</p>
-                            <p><strong>RSS同期:</strong> RSSから取得した投稿は自動でポッドキャストエピソードに設定</p>
+                        <div style="background:#f9f9f9;padding:12px;border-left:3px solid #0073aa;">
+                            <h4 style="margin:0 0 6px;">📡 RSS同期</h4>
+                            <p style="margin:0;font-size:13px;">1時間毎に自動実行</p>
                         </div>
-                        <div style="background: #f9f9f9; padding: 15px; border-left: 4px solid #0073aa;">
-                            <h4>📡 RSS同期情報</h4>
-                            <p><strong>RSS URL:</strong> https://anchor.fm/s/d8cfdc48/podcast/rss</p>
-                            <p><strong>スケジュール:</strong> 1時間毎の自動同期</p>
-                            <p><a href="<?php echo esc_url(home_url('/episodes/')); ?>" target="_blank">エピソード一覧ページ →</a></p>
-                        </div>
-                        <div style="background: #fffbf0; padding: 15px; border-left: 4px solid #ff9800;">
-                            <h4>🔧 トラブルシューティング</h4>
-                            <p><strong>404エラー:</strong> 「リライトルール更新」をクリック</p>
-                            <p><strong>キャッシュ:</strong> 「キャッシュクリア」でRSSキャッシュをリセット</p>
-                            <p><strong>その他:</strong> 設定 → パーマリンクで「変更を保存」</p>
+                        <div style="background:#fffbf0;padding:12px;border-left:3px solid #ff9800;">
+                            <h4 style="margin:0 0 6px;">🔧 トラブル</h4>
+                            <p style="margin:0;font-size:13px;">404 → リライトルール更新 / キャッシュ → クリア</p>
                         </div>
                     </div>
                 </div>
