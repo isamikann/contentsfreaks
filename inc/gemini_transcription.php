@@ -430,8 +430,17 @@ function contentfreaks_generate_episode_article( $post_id ) {
 // Cron バッチ処理
 // ============================================================
 
+function contentfreaks_gemini_is_paused() {
+    return (bool) get_option( 'contentfreaks_gemini_paused', false );
+}
+
 function contentfreaks_process_pending_transcriptions() {
     if ( empty( contentfreaks_get_gemini_api_key() ) ) {
+        return;
+    }
+
+    // 一時停止中はスキップ
+    if ( contentfreaks_gemini_is_paused() ) {
         return;
     }
 

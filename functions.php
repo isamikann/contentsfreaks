@@ -77,6 +77,19 @@ add_action('contentfreaks_daily_youtube_sync', 'contentfreaks_refresh_youtube_vi
 add_action('contentfreaks_gemini_transcription_batch', 'contentfreaks_process_pending_transcriptions');
 
 // ============================================================
+// AJAX: Gemini 一時停止 / 再開トグル
+// ============================================================
+add_action('wp_ajax_contentfreaks_gemini_toggle_pause', function() {
+    check_ajax_referer('contentfreaks_gemini_ajax', 'nonce');
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('権限がありません');
+    }
+    $paused = (bool) get_option('contentfreaks_gemini_paused', false);
+    update_option('contentfreaks_gemini_paused', !$paused);
+    wp_send_json_success(array('paused' => !$paused));
+});
+
+// ============================================================
 // AJAX: Gemini 1件処理（WP-Cron非依存・直接実行）
 // ============================================================
 add_action('wp_ajax_contentfreaks_run_gemini', function() {
@@ -238,6 +251,33 @@ add_action('admin_footer', function() {
             if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
             $(this).prop('disabled', true).text('停止中...');
             $('#gemini-run-status').css('color','#888').text('⏹ 停止しました。次のリクエストはキャンセルされます。');
+        });
+
+        $('#gemini-pause-btn').on('click', function(){
+            var $btn = $(this);
+            $btn.prop('disabled', true);
+            $.ajax({
+                url: ajaxurl,
+                method: 'POST',
+                data: { action: 'contentfreaks_gemini_toggle_pause', nonce: nonce },
+                success: function(res) {
+                    if (res.success) {
+                        var paused = res.data.paused;
+                        if (paused) {
+                            $btn.text('▶ Cron再開').css({'background':'#15803d','color':'#fff','border-color':'#166534'});
+                            $('#gemini-run-status').css('color','#b45309').text('⏸ Cron一時停止中：5分毎の自動処理を停止しました。');
+                        } else {
+                            $btn.text('⏸ Cron一時停止').css({'background':'#b45309','color':'#fff','border-color':'#92400e'});
+                            $('#gemini-run-status').css('color','#15803d').text('▶ Cron再開：5分毎の自動処理を再開しました。');
+                        }
+                    }
+                    $btn.prop('disabled', false);
+                },
+                error: function() {
+                    $('#gemini-run-status').css('color','red').text('❌ 通信エラー');
+                    $btn.prop('disabled', false);
+                }
+            });
         });
     })(jQuery);
     </script>
@@ -979,6 +1019,10 @@ function contentfreaks_unified_admin_page() {
                             <?php wp_nonce_field('contentfreaks_gemini_queue_all', 'gemini_queue_all_nonce'); ?>
                             <input type="submit" name="gemini_queue_all" class="button-secondary" value="🤖 AI記事化：全件キュー登録" />
                         </form>
+                        <?php $gemini_paused = (bool) get_option('contentfreaks_gemini_paused', false); ?>
+                        <button type="button" id="gemini-pause-btn" class="button-secondary" style="cursor:pointer;<?php echo $gemini_paused ? 'background:#15803d;color:#fff;border-color:#166534;' : 'background:#b45309;color:#fff;border-color:#92400e;'; ?>">
+                            <?php echo $gemini_paused ? '▶ Cron再開' : '⏸ Cron一時停止'; ?>
+                        </button>
                         <button type="button" id="gemini-run-btn" class="button-primary" style="cursor:pointer;">
                             ▶ AI記事化：今すぐ 1 件処理
                         </button>
