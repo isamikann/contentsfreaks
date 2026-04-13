@@ -243,7 +243,7 @@ PROMPT;
         ),
     );
 
-    $api_url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent'
+    $api_url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent'
               . '?key=' . rawurlencode( $api_key );
 
     $response = wp_remote_post( $api_url, array(
@@ -260,6 +260,17 @@ PROMPT;
     $http_code = wp_remote_retrieve_response_code( $response );
     $resp_body = wp_remote_retrieve_body( $response );
     $data      = json_decode( $resp_body, true );
+
+    // 429 レート制限: retry-delay を取得してエラーメッセージに含める
+    if ( $http_code === 429 ) {
+        $err = isset( $data['error']['message'] ) ? $data['error']['message'] : $resp_body;
+        // "retry in Xs" を抽出
+        $retry_sec = 60;
+        if ( preg_match( '/retry in ([0-9.]+)s/i', $err, $m ) ) {
+            $retry_sec = (int) ceil( (float) $m[1] );
+        }
+        return new WP_Error( 'rate_limit', "レート制限です。{$retry_sec}秒後に自動リトライされます。(429)" );
+    }
 
     if ( $http_code !== 200 ) {
         $err = isset( $data['error']['message'] ) ? $data['error']['message'] : $resp_body;
@@ -400,7 +411,16 @@ function contentfreaks_generate_episode_article( $post_id ) {
     contentfreaks_gemini_delete_file( $upload['name'] );
 
     if ( is_wp_error( $article_data ) ) {
-        $msg = $article_data->get_error_message();
+        $msg  = $article_data->get_error_message();
+        $code = $article_data->get_error_code();
+
+        // レート制限 (429) は error にせず pending に戻して次回 Cron で再試行
+        if ( $code === 'rate_limit' ) {
+            update_post_meta( $post_id, 'episode_ai_status', 'pending' );
+            error_log( "Gemini: レート制限 → pending に戻す Post ID={$post_id}: {$msg}" );
+            return false;
+        }
+
         update_post_meta( $post_id, 'episode_ai_status', 'error' );
         update_post_meta( $post_id, 'episode_ai_error', $msg );
         error_log( "Gemini: 生成エラー Post ID={$post_id}: {$msg}" );
