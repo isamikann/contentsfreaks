@@ -1,7 +1,7 @@
 <?php
 /**
  * Gemini AI 音声文字起こし・記事生成機能
- * Google Gemini 2.0 Flash Lite (無料枠) を使用してポッドキャスト音声を文字起こしし、ブログ記事化します。
+ * Google Gemini 2.5 Flash-Lite (無料枠) を使用してポッドキャスト音声を文字起こしし、ブログ記事化します。
  *
  * 使い方:
  *   wp-config.php に以下を追加してください（Git に含まれません）:
@@ -156,7 +156,8 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
 
     if ( $up_code !== 200 || empty( $up_data['file']['uri'] ) ) {
         $err = isset( $up_data['error']['message'] ) ? $up_data['error']['message'] : $up_body;
-        return new WP_Error( 'upload_api_error', "Files API エラー (HTTP {$up_code}): {$err}" );
+        error_log( "Gemini Files API error HTTP {$up_code}: {$err}" );
+        return new WP_Error( 'upload_api_error', "Files API エラー (HTTP {$up_code}): " . substr($err, 0, 300) );
     }
 
     return array(
@@ -225,7 +226,7 @@ PROMPT;
         ),
     );
 
-    $api_url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent'
+    $api_url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent'
               . '?key=' . rawurlencode( $api_key );
 
     $response = wp_remote_post( $api_url, array(
@@ -250,12 +251,14 @@ PROMPT;
         if ( preg_match( '/retry in ([0-9.]+)s/i', $err, $m ) ) {
             $retry_sec = (int) ceil( (float) $m[1] );
         }
-        return new WP_Error( 'rate_limit', "レート制限です。{$retry_sec}秒後に自動リトライされます。(429)" );
+        error_log( "Gemini 429 detail: {$err}" );
+        return new WP_Error( 'rate_limit', "レート制限です。{$retry_sec}秒後に自動リトライされます。(429: " . substr($err, 0, 200) . ")" );
     }
 
     if ( $http_code !== 200 ) {
         $err = isset( $data['error']['message'] ) ? $data['error']['message'] : $resp_body;
-        return new WP_Error( 'generate_api_error', "Gemini API エラー (HTTP {$http_code}): {$err}" );
+        error_log( "Gemini API error HTTP {$http_code}: {$err}" );
+        return new WP_Error( 'generate_api_error', "Gemini API エラー (HTTP {$http_code}): " . substr($err, 0, 300) );
     }
 
     $generated_text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
