@@ -1,7 +1,7 @@
 <?php
 /**
- * Gemini AI 文字起こし・記事生成機能
- * Google Gemini 1.5 Flash (無料枠) を使用してポッドキャスト音声を文字起こしし、ブログ記事化します。
+ * Gemini AI 音声文字起こし・記事生成機能
+ * Google Gemini 2.0 Flash Lite (無料枠) を使用してポッドキャスト音声を文字起こしし、ブログ記事化します。
  *
  * 使い方:
  *   wp-config.php に以下を追加してください（Git に含まれません）:
@@ -18,9 +18,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 // API キー取得
 // ============================================================
 
-/**
- * Gemini API キーを取得（wp-config.php 定義 > DB 設定 の優先順位）
- */
 function contentfreaks_get_gemini_api_key() {
     if ( defined( 'CONTENTFREAKS_GEMINI_API_KEY' ) && CONTENTFREAKS_GEMINI_API_KEY !== '' ) {
         return CONTENTFREAKS_GEMINI_API_KEY;
@@ -44,17 +41,7 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
         return new WP_Error( 'no_api_key', 'Gemini API Key が設定されていません。管理画面 → 設定 から入力してください。' );
     }
 
-    // URL の修正（ダブルエンコード等を解消）
-    if ( function_exists( 'contentfreaks_fix_audio_url' ) ) {
-        $audio_url = contentfreaks_fix_audio_url( $audio_url );
-    }
-
-    if ( empty( $audio_url ) ) {
-        return new WP_Error( 'invalid_url', '音声 URL が空です。' );
-    }
-
-    // ---- 音声ダウンロード ----
-    // Anchor.fm / CloudFront は User-Agent や Referer が空だと 403 を返す場合がある
+    // Anchor.fm / CloudFront は Referer なしを 403 で弾く
     $response = wp_remote_get( $audio_url, array(
         'timeout'     => 120,
         'sslverify'   => true,
@@ -91,7 +78,6 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
     }
 
     if ( $http_code === 403 ) {
-        error_log( "Gemini: 音声403（リトライ後も失敗） URL={$audio_url}" );
         return new WP_Error( 'download_http_error', "音声ファイルへのアクセスが拒否されました (HTTP 403)。Anchor.fm の配信 URL が期限切れか認証が必要な可能性があります。RSS 再同期後にリトライしてください。" );
     }
 
@@ -102,7 +88,7 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
     $audio_data = wp_remote_retrieve_body( $response );
     $file_size  = strlen( $audio_data );
 
-    // 150 MB を超えるファイルはスキップ（PHP メモリ保護）
+    // 150 MB を超えるファイルはスキップ
     if ( $file_size > 150 * 1024 * 1024 ) {
         return new WP_Error(
             'file_too_large',
@@ -123,7 +109,6 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
     );
     $mime_type = $ext_map[ $ext ] ?? 'audio/mpeg';
 
-    // Content-Type ヘッダーが audio/* の場合はそちらを優先
     $ct = trim( wp_remote_retrieve_header( $response, 'content-type' ) );
     if ( $ct && strpos( $ct, 'audio/' ) === 0 ) {
         $mime_type = trim( explode( ';', $ct )[0] );
@@ -131,7 +116,7 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
 
     error_log( sprintf( 'Gemini upload: %.1f MB, %s', $file_size / 1024 / 1024, $mime_type ) );
 
-    // ---- multipart/related ボディを構築 ----
+    // multipart/related ボディを構築
     $boundary  = 'gemini_' . bin2hex( random_bytes( 8 ) );
     $file_name = basename( wp_parse_url( $audio_url, PHP_URL_PATH ) ) ?: 'episode.mp3';
     $meta_json = wp_json_encode( array( 'file' => array( 'display_name' => $file_name ) ) );
@@ -144,9 +129,8 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
     $body .= $audio_data . "\r\n";
     $body .= "--{$boundary}--";
 
-    unset( $audio_data ); // メモリ解放
+    unset( $audio_data );
 
-    // ---- Gemini Files API にアップロード ----
     $upload_url = 'https://generativelanguage.googleapis.com/upload/v1beta/files'
                 . '?uploadType=multipart&key=' . rawurlencode( $api_key );
 
@@ -160,7 +144,7 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
         'sslverify' => true,
     ) );
 
-    unset( $body ); // メモリ解放
+    unset( $body );
 
     if ( is_wp_error( $upload_resp ) ) {
         return new WP_Error( 'upload_failed', 'Files API アップロード失敗: ' . $upload_resp->get_error_message() );
@@ -183,11 +167,11 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
 }
 
 // ============================================================
-// Gemini generateContent API — 記事生成
+// Gemini generateContent API — 音声から記事生成
 // ============================================================
 
 /**
- * Gemini 1.5 Flash に音声ファイルと指示を送り、構造化された記事データを返します。
+ * Gemini 2.0 Flash Lite に音声ファイルと指示を送り、ブログ記事を生成します。
  *
  * @param string $file_uri        Files API から取得した URI
  * @param string $mime_type       音声の MIME タイプ
@@ -202,7 +186,7 @@ function contentfreaks_gemini_generate_article( $file_uri, $mime_type, $episode_
     }
 
     $safe_title = wp_strip_all_tags( $episode_title );
-    $safe_desc  = wp_strip_all_tags( wp_trim_words( $episode_description, 150, '' ) );
+    $safe_desc  = wp_strip_all_tags( wp_trim_words( $episode_description, 200, '' ) );
 
     $prompt = <<<PROMPT
 このポッドキャスト音声を文字起こしして、読者向けのブログ記事として整形してください。
@@ -210,7 +194,7 @@ function contentfreaks_gemini_generate_article( $file_uri, $mime_type, $episode_
 エピソードタイトル: {$safe_title}
 RSS概要: {$safe_desc}
 
-必ず以下の JSON 形式だけで返してください（前後に余計なテキスト不要）:
+必ず以下の JSON 形式だけで返してください（前後に余計なテキスト・コードブロック不要）:
 {
   "transcription": "音声の全文テキスト（話し言葉のまま）",
   "article_title": "SEOを意識した日本語ブログ記事タイトル（30〜60文字）",
@@ -230,9 +214,7 @@ PROMPT;
                             'file_uri'  => $file_uri,
                         ),
                     ),
-                    array(
-                        'text' => $prompt,
-                    ),
+                    array( 'text' => $prompt ),
                 ),
             ),
         ),
@@ -261,10 +243,9 @@ PROMPT;
     $resp_body = wp_remote_retrieve_body( $response );
     $data      = json_decode( $resp_body, true );
 
-    // 429 レート制限: retry-delay を取得してエラーメッセージに含める
+    // 429 レート制限
     if ( $http_code === 429 ) {
         $err = isset( $data['error']['message'] ) ? $data['error']['message'] : $resp_body;
-        // "retry in Xs" を抽出
         $retry_sec = 60;
         if ( preg_match( '/retry in ([0-9.]+)s/i', $err, $m ) ) {
             $retry_sec = (int) ceil( (float) $m[1] );
@@ -282,9 +263,12 @@ PROMPT;
         return new WP_Error( 'empty_response', 'Gemini API から空のレスポンスが返されました。' );
     }
 
+    // コードブロック除去
+    $generated_text = preg_replace( '/^```(?:json)?\s*/i', '', trim( $generated_text ) );
+    $generated_text = preg_replace( '/\s*```$/', '', $generated_text );
+
     $article_data = json_decode( $generated_text, true );
 
-    // 前後に余計なテキストがある場合の修正
     if ( json_last_error() !== JSON_ERROR_NONE ) {
         if ( preg_match( '/\{.*\}/s', $generated_text, $m ) ) {
             $article_data = json_decode( $m[0], true );
@@ -292,7 +276,7 @@ PROMPT;
     }
 
     if ( json_last_error() !== JSON_ERROR_NONE || empty( $article_data ) ) {
-        return new WP_Error( 'json_parse_error', 'レスポンスの JSON パースに失敗しました。' );
+        return new WP_Error( 'json_parse_error', 'JSON パース失敗: ' . substr( $generated_text, 0, 200 ) );
     }
 
     return $article_data;
@@ -302,21 +286,14 @@ PROMPT;
 // Gemini Files API — ファイル削除（容量節約）
 // ============================================================
 
-/**
- * アップロード済みファイルを Gemini Files API から削除します。
- *
- * @param string $file_name files/{id} 形式のファイル名
- */
 function contentfreaks_gemini_delete_file( $file_name ) {
     if ( empty( $file_name ) ) {
         return false;
     }
-
     $api_key = contentfreaks_get_gemini_api_key();
     if ( empty( $api_key ) ) {
         return false;
     }
-
     wp_remote_request(
         'https://generativelanguage.googleapis.com/v1beta/' . $file_name . '?key=' . rawurlencode( $api_key ),
         array(
@@ -325,7 +302,6 @@ function contentfreaks_gemini_delete_file( $file_name ) {
             'sslverify' => true,
         )
     );
-
     return true;
 }
 
@@ -333,12 +309,6 @@ function contentfreaks_gemini_delete_file( $file_name ) {
 // メインオーケストレーター — 1 エピソード処理
 // ============================================================
 
-/**
- * 指定された投稿 ID のエピソードを文字起こし・記事化します。
- *
- * @param int $post_id
- * @return bool 成功 / 失敗
- */
 function contentfreaks_generate_episode_article( $post_id ) {
     $audio_url = get_post_meta( $post_id, 'episode_audio_url', true );
     if ( empty( $audio_url ) ) {
@@ -359,7 +329,7 @@ function contentfreaks_generate_episode_article( $post_id ) {
         return false;
     }
 
-    // 処理中フラグ（タイムアウト検出用タイムスタンプも保存）
+    // 処理中フラグ
     update_post_meta( $post_id, 'episode_ai_status', 'processing' );
     update_post_meta( $post_id, 'episode_ai_started_at', current_time( 'mysql' ) );
     delete_post_meta( $post_id, 'episode_ai_error' );
@@ -369,7 +339,7 @@ function contentfreaks_generate_episode_article( $post_id ) {
     $description = $post->post_excerpt ?: wp_strip_all_tags( $post->post_content );
 
     // Step 1: 音声アップロード
-    error_log( "Gemini: アップロード開始 Post ID={$post_id}" );
+    error_log( "Gemini: アップロード開始 Post ID={$post_id} URL={$audio_url}" );
     $upload = contentfreaks_gemini_upload_audio( $audio_url );
 
     if ( is_wp_error( $upload ) ) {
@@ -397,10 +367,9 @@ function contentfreaks_generate_episode_article( $post_id ) {
         $msg  = $article_data->get_error_message();
         $code = $article_data->get_error_code();
 
-        // レート制限 (429): Cronから呼ばれた場合はpendingに戻す、AJAXからは error として返す
+        // 429: AJAXではerrorとして表示、Cronではpendingに戻す
         if ( $code === 'rate_limit' ) {
-            $is_ajax = defined( 'DOING_AJAX' ) && DOING_AJAX;
-            if ( $is_ajax ) {
+            if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
                 update_post_meta( $post_id, 'episode_ai_status', 'error' );
                 update_post_meta( $post_id, 'episode_ai_error', $msg );
             } else {
@@ -434,24 +403,20 @@ function contentfreaks_generate_episode_article( $post_id ) {
         'post_content' => wp_kses_post( $article_body ),
     );
 
-    // タイトルは生成された場合のみ上書き
     if ( ! empty( $article_title ) && $article_title !== $post->post_title ) {
         $update['post_title'] = sanitize_text_field( $article_title );
     }
 
-    // 概要は空の場合のみ設定
     if ( ! empty( $summary ) && empty( trim( $post->post_excerpt ) ) ) {
         $update['post_excerpt'] = sanitize_textarea_field( $summary );
     }
 
     wp_update_post( $update );
 
-    // タグを追加（既存タグは保持）
     if ( ! empty( $tags ) && is_array( $tags ) ) {
         wp_add_post_tags( $post_id, array_map( 'sanitize_text_field', $tags ) );
     }
 
-    // AI 処理結果のメタデータ保存
     update_post_meta( $post_id, 'episode_ai_status', 'done' );
     update_post_meta( $post_id, 'episode_ai_generated_at', current_time( 'mysql' ) );
     update_post_meta( $post_id, 'episode_ai_transcription', sanitize_textarea_field( $transcription ) );
@@ -465,9 +430,6 @@ function contentfreaks_generate_episode_article( $post_id ) {
 // Cron バッチ処理
 // ============================================================
 
-/**
- * pending なエピソードを 1 件処理します（Cron から呼ばれます）。
- */
 function contentfreaks_process_pending_transcriptions() {
     if ( empty( contentfreaks_get_gemini_api_key() ) ) {
         return;
@@ -492,7 +454,6 @@ function contentfreaks_process_pending_transcriptions() {
         error_log( 'Gemini: スタックリセット Post ID=' . $stuck_id );
     }
 
-    // pending 投稿を新しい順に 1 件取得
     $posts = get_posts( array(
         'post_type'   => 'post',
         'post_status' => array( 'publish', 'draft' ),
@@ -514,11 +475,6 @@ function contentfreaks_process_pending_transcriptions() {
 // 統計情報・ユーティリティ
 // ============================================================
 
-/**
- * AI 処理ステータスの集計を返します。
- *
- * @return array ( pending, processing, done, error, unprocessed )
- */
 function contentfreaks_get_ai_stats() {
     global $wpdb;
 
@@ -543,7 +499,6 @@ function contentfreaks_get_ai_stats() {
         }
     }
 
-    // AI ステータスが存在しないポッドキャストエピソード
     $counts['unprocessed'] = (int) $wpdb->get_var(
         "SELECT COUNT(p.ID)
            FROM {$wpdb->posts} p
@@ -562,11 +517,6 @@ function contentfreaks_get_ai_stats() {
     return $counts;
 }
 
-/**
- * 全ポッドキャストエピソードを pending キューに登録します（done はスキップ）。
- *
- * @return int キューに追加した件数
- */
 function contentfreaks_queue_all_episodes_for_transcription() {
     $posts = get_posts( array(
         'post_type'   => 'post',
