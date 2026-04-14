@@ -198,8 +198,9 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
  */
 function contentfreaks_get_transcription_model_fallback_list() {
     return array(
-        'gemini-3.1-flash-lite-preview', // Gemini 3.1 FL Lite : RPM=15, TPM=250K, RPD=500 ← 文字起こし専用・RPD圧倒的
-        'gemini-2.5-flash-lite',         // Gemini 2.5 FL Lite : RPM=10, TPM=250K, RPD=20  ← フォールバック
+        'gemini-3.1-flash-lite-preview', // Gemini 3.1 FL Lite : RPM=15, TPM=250K, RPD=500 ← 文字起こし専用・RPD圧倒的（503多め）
+        'gemini-2.5-flash',              // Gemini 2.5 Flash   : RPM=10, TPM=250K, RPD=20  ← Lite系共倒れ時の非Lite保険
+        'gemini-2.5-flash-lite',         // Gemini 2.5 FL Lite : RPM=10, TPM=250K, RPD=20  ← 最終フォールバック
     );
 }
 
