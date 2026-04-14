@@ -150,6 +150,7 @@ add_action('wp_ajax_contentfreaks_requeue_episodes', function() {
 
 // ============================================================
 // AJAX: Gemini 1件処理（WP-Cron非依存・直接実行）
+// post_id を指定した場合はその投稿のみ処理。省略時は pending から1件取得。
 // ============================================================
 add_action('wp_ajax_contentfreaks_run_gemini', function() {
     check_ajax_referer('contentfreaks_gemini_ajax', 'nonce');
@@ -159,22 +160,37 @@ add_action('wp_ajax_contentfreaks_run_gemini', function() {
 
     @set_time_limit(600);
 
-    $posts = get_posts(array(
-        'post_type'   => 'post',
-        'post_status' => array('publish', 'draft'),
-        'meta_key'    => 'episode_ai_status',
-        'meta_value'  => 'pending',
-        'orderby'     => 'date',
-        'order'       => 'DESC',
-        'numberposts' => 1,
-    ));
+    $target_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
 
-    if (empty($posts)) {
-        wp_send_json_success(array('status' => 'no_pending', 'message' => 'pending なエピソードがありません'));
+    if ( $target_id > 0 ) {
+        // 指定された投稿IDのみ処理
+        $post = get_post( $target_id );
+        if ( ! $post ) {
+            wp_send_json_error( '投稿が見つかりません (ID: ' . $target_id . ')' );
+        }
+        $post_id    = $post->ID;
+        $post_title = $post->post_title;
+        // pending に設定してから処理（ステータスが何であれ上書き実行）
+        update_post_meta( $post_id, 'episode_ai_status', 'pending' );
+    } else {
+        // 従来通り: pending から日付降順で1件取得
+        $posts = get_posts(array(
+            'post_type'   => 'post',
+            'post_status' => array('publish', 'draft'),
+            'meta_key'    => 'episode_ai_status',
+            'meta_value'  => 'pending',
+            'orderby'     => 'date',
+            'order'       => 'DESC',
+            'numberposts' => 1,
+        ));
+
+        if (empty($posts)) {
+            wp_send_json_success(array('status' => 'no_pending', 'message' => 'pending なエピソードがありません'));
+        }
+
+        $post_id    = $posts[0]->ID;
+        $post_title = $posts[0]->post_title;
     }
-
-    $post_id = $posts[0]->ID;
-    $post_title = $posts[0]->post_title;
 
     // PHP出力バッファでWarning/Noticeも捕捉
     ob_start();
@@ -366,15 +382,119 @@ add_action('admin_footer', function() {
         // エピソード一覧: 全選択/解除
         $('#ep-select-all').on('change', function(){
             $('.ep-checkbox').prop('checked', this.checked);
-            updateRequeueBtn();
+            updateSelectionBtns();
         });
-        $(document).on('change', '.ep-checkbox', function(){ updateRequeueBtn(); });
-        function updateRequeueBtn(){
+        $(document).on('change', '.ep-checkbox', function(){ updateSelectionBtns(); });
+        function updateSelectionBtns(){
             var cnt = $('.ep-checkbox:checked').length;
-            $('#requeue-selected-btn').prop('disabled', cnt === 0).text('🔄 選択したエピソードを再キュー' + (cnt > 0 ? '（' + cnt + '件）' : ''));
+            var dis = cnt === 0;
+            var label = cnt > 0 ? '（' + cnt + '件）' : '';
+            $('#run-selected-btn').prop('disabled', dis).text('▶ 選択してAI記事化' + label);
+            $('#requeue-selected-btn').prop('disabled', dis).text('🔄 再キューのみ' + label);
         }
 
-        // 選択再キュー
+        // ── 選択してAI記事化（直接実行） ──────────────────────
+        var selQueue = [];
+        var selIndex = 0;
+        var selStop  = false;
+        var selCdTimer = null;
+
+        function runGeminiForId(postId, progress, onDone, retryCount) {
+            retryCount = retryCount || 0;
+            var $status = $('#requeue-status');
+            var $runBtn = $('#run-selected-btn');
+            var $stopBtn = $('#run-selected-stop-btn');
+            $runBtn.prop('disabled', true).text('⏳ 処理中 [' + progress + ']...');
+            $stopBtn.show();
+            $status.css('color','#888').text('[' + progress + '] 音声ダウンロード〜AI処理中（最大2〜3分）...');
+            $.ajax({
+                url: ajaxurl,
+                method: 'POST',
+                timeout: 360000,
+                data: { action: 'contentfreaks_run_gemini', nonce: nonce, post_id: postId },
+                success: function(res) {
+                    if (!res.success) {
+                        $status.css('color','red').text('[' + progress + '] ❌ AJAXエラー: ' + (res.data || '不明'));
+                        onDone('ajax_error'); return;
+                    }
+                    var d = res.data;
+                    if (d.status === 'done') {
+                        $status.css('color','#059669').text('[' + progress + '] ✅ 完了: ' + d.post_title);
+                        onDone('done');
+                    } else if (d.status === 'error' && d.error && d.error.indexOf('429') !== -1) {
+                        if (selStop) { onDone('stopped'); return; }
+                        var sec = 65;
+                        var m = d.error.match(/(\d+)秒後/);
+                        if (m) sec = Math.max(parseInt(m[1], 10) + 10, 65);
+                        var countdown = sec;
+                        $status.css('color','#b45309').text('[' + progress + '] ⏳ レート制限 → ' + sec + '秒後リトライ: ' + d.post_title);
+                        selCdTimer = setInterval(function(){
+                            if (selStop) { clearInterval(selCdTimer); onDone('stopped'); return; }
+                            countdown--;
+                            $runBtn.text('⏳ ' + countdown + '秒後リトライ [' + progress + ']...');
+                            if (countdown <= 0) {
+                                clearInterval(selCdTimer);
+                                runGeminiForId(postId, progress, onDone, retryCount + 1);
+                            }
+                        }, 1000);
+                    } else if (d.status === 'error') {
+                        var errMsg = d.error || d.php_output || '詳細不明';
+                        $status.css('color','#b91c1c').text('[' + progress + '] ❌ エラー: ' + d.post_title + ' — ' + errMsg);
+                        onDone('error');
+                    } else {
+                        $status.css('color','#888').text('[' + progress + '] ⚠️ ' + d.status + ': ' + (d.post_title || ''));
+                        onDone(d.status);
+                    }
+                },
+                error: function(xhr, st) {
+                    $('#requeue-status').css('color','red').text('[' + progress + '] ❌ 通信エラー: ' + st);
+                    onDone('network_error');
+                }
+            });
+        }
+
+        function runNextSelected() {
+            if (selStop || selIndex >= selQueue.length) {
+                var total = selIndex;
+                $('#run-selected-btn').prop('disabled', false).text('▶ 選択してAI記事化');
+                $('#run-selected-stop-btn').hide().prop('disabled', false).text('⏹ 停止');
+                selStop = false;
+                if (selIndex > 0 && !selStop) {
+                    $('#requeue-status').css('color','#059669').text('✅ ' + total + '件の処理が完了しました。2秒後にリロードします。');
+                    setTimeout(function(){ location.reload(); }, 2000);
+                } else {
+                    $('#requeue-status').css('color','#888').text('⏹ 停止しました。');
+                }
+                return;
+            }
+            var postId   = selQueue[selIndex];
+            var progress = (selIndex + 1) + '/' + selQueue.length;
+            selIndex++;
+            runGeminiForId(postId, progress, function(result) {
+                if (result === 'stopped') {
+                    selStop = true;
+                }
+                runNextSelected();
+            });
+        }
+
+        $('#run-selected-btn').on('click', function(){
+            selQueue = [];
+            $('.ep-checkbox:checked').each(function(){ selQueue.push(parseInt($(this).val(), 10)); });
+            if (selQueue.length === 0) return;
+            selIndex = 0;
+            selStop  = false;
+            runNextSelected();
+        });
+
+        $('#run-selected-stop-btn').on('click', function(){
+            selStop = true;
+            if (selCdTimer) { clearInterval(selCdTimer); selCdTimer = null; }
+            $(this).prop('disabled', true).text('停止中...');
+            $('#requeue-status').css('color','#888').text('⏹ 停止リクエスト済み。現在の処理後に停止します。');
+        });
+
+        // ── 再キューのみ ──────────────────────────────────────
         $('#requeue-selected-btn').on('click', function(){
             var ids = [];
             $('.ep-checkbox:checked').each(function(){ ids.push($(this).val()); });
@@ -880,8 +1000,10 @@ function contentfreaks_unified_admin_page() {
             <div class="postbox" style="margin-bottom: 20px;">
                 <h2 class="hndle">📋 エピソード一覧</h2>
                 <div class="inside">
-                    <div style="margin-bottom:10px;display:flex;gap:10px;align-items:center;">
-                        <button type="button" id="requeue-selected-btn" class="button-secondary" disabled>🔄 選択したエピソードを再キュー</button>
+                    <div style="margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                        <button type="button" id="run-selected-btn" class="button-primary" disabled style="cursor:pointer;">▶ 選択してAI記事化</button>
+                        <button type="button" id="run-selected-stop-btn" class="button-secondary" style="display:none;cursor:pointer;background:#b91c1c;color:#fff;border-color:#991b1b;">⏹ 停止</button>
+                        <button type="button" id="requeue-selected-btn" class="button-secondary" disabled style="cursor:pointer;">🔄 再キューのみ</button>
                         <span id="requeue-status" style="font-size:13px;"></span>
                     </div>
                     <table class="widefat striped" style="font-size:13px;">
