@@ -1197,7 +1197,7 @@ function contentfreaks_build_gemini_proper_noun_context( $post_id ) {
     }
 
     $lines = [];
-    $lines[] = '■ 固有名詞（必ずこの表記を使うこと）';
+    $lines[] = '■ 固有名詞の正しい表記（表記ゆれ修正の参照用）';
     $lines[] = '- 作品名: ' . $meta['canonical_title'];
 
     if ( ! empty( $meta['aliases'] ) ) {
@@ -1205,18 +1205,18 @@ function contentfreaks_build_gemini_proper_noun_context( $post_id ) {
     }
 
     if ( ! empty( $meta['cast_names'] ) ) {
-        $lines[] = '- 出演俳優名: ' . implode( '、', $meta['cast_names'] );
+        $lines[] = '- 俳優名の正しい表記（音声で言及された場合のみ使用すること）: ' . implode( '、', $meta['cast_names'] );
     }
 
     if ( ! empty( $meta['character_names'] ) ) {
-        $lines[] = '- 登場キャラクター名: ' . implode( '、', $meta['character_names'] );
+        $lines[] = '- キャラクター名の正しい表記（音声で言及された場合のみ使用すること）: ' . implode( '、', $meta['character_names'] );
     }
 
     if ( ! empty( $meta['wikipedia_url'] ) ) {
         $lines[] = '- 参考（Wikipedia）: ' . $meta['wikipedia_url'];
     }
 
-    $lines[] = '- 上記以外の固有名詞は、文字起こしに明記されているものだけ使うこと';
+    $lines[] = '- この一覧は表記チェック用。音声・文字起こしで話されていない人名・キャラクター名は絶対に記載しないこと';
     $lines[] = '- 不明な場合は推測せず、記載しないこと';
 
     return implode( "\n", $lines );
