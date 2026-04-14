@@ -160,16 +160,18 @@ add_action('wp_ajax_contentfreaks_get_key_points', function() {
     if ($post_id <= 0) {
         wp_send_json_error('無効なpost_idです');
     }
-    $post       = get_post($post_id);
-    $key_points = get_post_meta($post_id, 'episode_ai_key_points', true);
+    $post          = get_post($post_id);
+    $key_points    = get_post_meta($post_id, 'episode_ai_key_points', true);
+    $transcription = get_post_meta($post_id, 'episode_ai_transcription', true);
 
-    if (empty($key_points)) {
-        wp_send_json_error('key_pointsが見つかりません（未処理の可能性があります）');
+    if (empty($key_points) && empty($transcription)) {
+        wp_send_json_error('key_points・transcriptionが見つかりません（未処理の可能性があります）');
     }
 
     wp_send_json_success(array(
-        'post_title' => $post ? $post->post_title : '',
-        'key_points' => $key_points,
+        'post_title'    => $post ? $post->post_title : '',
+        'key_points'    => $key_points    ?: '（key_pointsなし）',
+        'transcription' => $transcription ?: '（transcriptionなし）',
     ));
 });
 
@@ -560,30 +562,82 @@ add_action('admin_footer', function() {
             });
         });
 
+        // ── key_pointsモーダル: タブ切り替え ─────────────────
+        var kpCurrentTab = 'keypoints';
+        var kpData = {};
+
+        function kpHighlight(selector, keyword) {
+            var original = $(selector).data('original') || '';
+            if (!keyword) {
+                $(selector).text(original);
+                return;
+            }
+            var escaped = original.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            var re = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
+            $(selector).html(escaped.replace(re, '<mark style="background:#fef08a;padding:0 2px;">'+keyword+'</mark>'));
+            var $first = $(selector+' mark').first();
+            if ($first.length) $(selector).scrollTop($first.position().top - 20);
+        }
+
+        function kpSwitchTab(tab) {
+            kpCurrentTab = tab;
+            if (tab === 'keypoints') {
+                $('#kp-tab-keypoints').css({'font-weight':'bold','border-bottom':'2px solid #2563eb','color':'#2563eb'});
+                $('#kp-tab-transcription').css({'font-weight':'normal','border-bottom':'2px solid transparent','color':'#666'});
+                $('#ep-keypoints-body').data('original', kpData.key_points || '').text(kpData.key_points || '');
+            } else {
+                $('#kp-tab-transcription').css({'font-weight':'bold','border-bottom':'2px solid #2563eb','color':'#2563eb'});
+                $('#kp-tab-keypoints').css({'font-weight':'normal','border-bottom':'2px solid transparent','color':'#666'});
+                $('#ep-keypoints-body').data('original', kpData.transcription || '').text(kpData.transcription || '');
+            }
+            var keyword = $.trim($('#ep-keypoints-search').val());
+            if (keyword) kpHighlight('#ep-keypoints-body', keyword);
+        }
+
+        $(document).on('click', '.ep-keypoints-btn', function(){
+            var postId = $(this).data('post-id');
+            kpData = {};
+            kpCurrentTab = 'keypoints';
+            $('#ep-keypoints-title').text('読み込み中...');
+            $('#ep-keypoints-body').text('');
+            $('#ep-keypoints-search').val('');
+            $('#kp-tab-keypoints').css({'font-weight':'bold','border-bottom':'2px solid #2563eb','color':'#2563eb'});
+            $('#kp-tab-transcription').css({'font-weight':'normal','border-bottom':'2px solid transparent','color':'#666'});
+            $('#ep-keypoints-modal').show();
+
+            $.ajax({
+                url: ajaxurl,
+                method: 'POST',
+                data: { action: 'contentfreaks_get_key_points', nonce: nonce, post_id: postId },
+                success: function(res) {
+                    if (res.success) {
+                        kpData = res.data;
+                        $('#ep-keypoints-title').text(res.data.post_title);
+                        kpSwitchTab('keypoints');
+                    } else {
+                        $('#ep-keypoints-title').text('エラー');
+                        $('#ep-keypoints-body').text(res.data || '不明なエラー');
+                    }
+                },
+                error: function() {
+                    $('#ep-keypoints-title').text('通信エラー');
+                    $('#ep-keypoints-body').text('AJAXリクエストに失敗しました');
+                }
+            });
+        });
+
+        $('#kp-tab-keypoints').on('click', function(){ kpSwitchTab('keypoints'); });
+        $('#kp-tab-transcription').on('click', function(){ kpSwitchTab('transcription'); });
+
         // モーダルを閉じる
         $('#ep-keypoints-close').on('click', function(){ $('#ep-keypoints-modal').hide(); });
         $('#ep-keypoints-modal').on('click', function(e){
             if ($(e.target).is('#ep-keypoints-modal')) $(this).hide();
         });
 
-        // key_points内テキスト検索・ハイライト
+        // 検索・ハイライト
         $('#ep-keypoints-search').on('input', function(){
-            var keyword  = $.trim($(this).val());
-            var original = $('#ep-keypoints-body').data('original') || '';
-            if (!keyword) {
-                $('#ep-keypoints-body').text(original);
-                return;
-            }
-            // ハイライト（HTMLエスケープしてからマーク）
-            var escaped  = original.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-            var re       = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
-            var highlighted = escaped.replace(re, '<mark style="background:#fef08a;padding:0 2px;">'+keyword+'</mark>');
-            $('#ep-keypoints-body').html(highlighted);
-            // 最初のヒットまでスクロール
-            var $first = $('#ep-keypoints-body mark').first();
-            if ($first.length) {
-                $('#ep-keypoints-body').scrollTop($first.position().top - 20);
-            }
+            kpHighlight('#ep-keypoints-body', $.trim($(this).val()));
         });
 
         // ── 再キューのみ ──────────────────────────────────────
@@ -1150,14 +1204,24 @@ function contentfreaks_unified_admin_page() {
 
             <!-- key_points確認モーダル -->
             <div id="ep-keypoints-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;overflow-y:auto;">
-                <div style="background:#fff;margin:40px auto;max-width:800px;border-radius:8px;padding:24px;position:relative;">
+                <div style="background:#fff;margin:40px auto;max-width:860px;border-radius:8px;padding:24px;position:relative;">
                     <button type="button" id="ep-keypoints-close" style="position:absolute;top:12px;right:16px;font-size:20px;background:none;border:none;cursor:pointer;color:#666;">✕</button>
-                    <h2 id="ep-keypoints-title" style="margin:0 0 12px 0;font-size:16px;padding-right:32px;"></h2>
-                    <div style="margin-bottom:12px;">
-                        <input type="text" id="ep-keypoints-search" placeholder="名前で検索（例: 及川光博）" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px;" />
+                    <h2 id="ep-keypoints-title" style="margin:0 0 12px 0;font-size:15px;padding-right:32px;color:#333;"></h2>
+
+                    <!-- タブ -->
+                    <div style="display:flex;gap:0;border-bottom:1px solid #e5e5e5;margin-bottom:12px;">
+                        <button type="button" id="kp-tab-keypoints" style="padding:8px 18px;background:none;border:none;cursor:pointer;font-size:13px;font-weight:bold;border-bottom:2px solid #2563eb;color:#2563eb;">📝 key_points（要点）</button>
+                        <button type="button" id="kp-tab-transcription" style="padding:8px 18px;background:none;border:none;cursor:pointer;font-size:13px;font-weight:normal;border-bottom:2px solid transparent;color:#666;">🎙 全文字起こし</button>
+                    </div>
+
+                    <div style="margin-bottom:10px;">
+                        <input type="text" id="ep-keypoints-search" placeholder="名前で検索してハイライト（例: 及川光博）" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px;" />
                     </div>
                     <div id="ep-keypoints-body" style="white-space:pre-wrap;font-size:13px;line-height:1.7;max-height:60vh;overflow-y:auto;background:#f9f9f9;padding:16px;border-radius:4px;border:1px solid #e5e5e5;"></div>
-                    <p style="margin-top:8px;color:#888;font-size:12px;">※ この内容がGeminiへのインプットになります。ここに名前があれば記事に出る可能性があります。</p>
+                    <p style="margin-top:8px;color:#888;font-size:12px;">
+                        💡 key_points（要点）は音声から抽出したもので、Geminiへの記事生成インプットになります。<br>
+                        全文字起こしにある名前 → 音声で実際に言及された可能性あり。key_pointsのみにある名前 → 要点抽出時に混入した可能性あり。
+                    </p>
                 </div>
             </div>
             <?php endif; ?>
