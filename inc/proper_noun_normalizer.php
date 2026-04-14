@@ -691,6 +691,60 @@ function contentfreaks_find_work_in_cache( $raw_title ) {
  * @param array $work_data 保存する作品データ
  * @return array 保存された作品データ
  */
+/**
+ * 指定した raw_title に紐づくキャッシュエントリを削除する。
+ * source_titles、canonical_title、aliases のいずれかに一致するエントリをすべて除去する。
+ *
+ * @param string $raw_title 削除対象の作品名（生）
+ */
+function contentfreaks_delete_work_from_cache( $raw_title ) {
+    $normalized = contentfreaks_normalize_string( $raw_title );
+    if ( $normalized === '' ) {
+        return;
+    }
+
+    $dict    = contentfreaks_get_work_dict();
+    $new_dict = [];
+
+    foreach ( $dict as $entry ) {
+        $hit = false;
+
+        // canonical_title
+        if ( isset( $entry['canonical_title'] ) && contentfreaks_normalize_string( $entry['canonical_title'] ) === $normalized ) {
+            $hit = true;
+        }
+
+        // aliases
+        if ( ! $hit && isset( $entry['aliases'] ) && is_array( $entry['aliases'] ) ) {
+            foreach ( $entry['aliases'] as $alias ) {
+                if ( contentfreaks_normalize_string( $alias ) === $normalized ) {
+                    $hit = true;
+                    break;
+                }
+            }
+        }
+
+        // source_titles
+        if ( ! $hit && isset( $entry['source_titles'] ) && is_array( $entry['source_titles'] ) ) {
+            foreach ( $entry['source_titles'] as $src ) {
+                if ( contentfreaks_normalize_string( $src ) === $normalized ) {
+                    $hit = true;
+                    break;
+                }
+            }
+        }
+
+        if ( ! $hit ) {
+            $new_dict[] = $entry;
+        }
+    }
+
+    if ( count( $new_dict ) !== count( $dict ) ) {
+        contentfreaks_save_work_dict( $new_dict );
+        error_log( '[CF ProperNoun] キャッシュ削除完了: ' . $raw_title . ' (' . ( count( $dict ) - count( $new_dict ) ) . '件)' );
+    }
+}
+
 function contentfreaks_upsert_work_to_cache( $work_data ) {
     $dict             = contentfreaks_get_work_dict();
     $found_index      = null;
@@ -760,11 +814,12 @@ function contentfreaks_upsert_work_to_cache( $work_data ) {
  * キャッシュ検索→Wikipedia検索→Wikidata取得の順で処理し、
  * 結果をキャッシュに保存して返す。
  *
- * @param string $raw_title 解決する作品名（生）
+ * @param string $raw_title     解決する作品名（生）
+ * @param bool   $force_refresh trueのときキャッシュをスキップして再取得し、古いエントリを削除する
  * @return array 作品データ
  */
-function contentfreaks_resolve_work_meta( $raw_title ) {
-    error_log( '[CF ProperNoun] resolve_work_meta 開始: ' . $raw_title );
+function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false ) {
+    error_log( '[CF ProperNoun] resolve_work_meta 開始: ' . $raw_title . ( $force_refresh ? ' [force_refresh]' : '' ) );
 
     // デフォルト work_data
     $work_data = [
@@ -780,11 +835,16 @@ function contentfreaks_resolve_work_meta( $raw_title ) {
         'updated_at'      => current_time( 'mysql' ),
     ];
 
-    // 1. キャッシュから検索
-    $cached = contentfreaks_find_work_in_cache( $raw_title );
-    if ( $cached !== null ) {
-        error_log( '[CF ProperNoun] キャッシュヒット: ' . $cached['canonical_title'] );
-        return $cached;
+    // 1. キャッシュから検索（force_refresh 時はスキップ＋古いエントリ削除）
+    if ( $force_refresh ) {
+        contentfreaks_delete_work_from_cache( $raw_title );
+        error_log( '[CF ProperNoun] キャッシュ削除（force_refresh）: ' . $raw_title );
+    } else {
+        $cached = contentfreaks_find_work_in_cache( $raw_title );
+        if ( $cached !== null ) {
+            error_log( '[CF ProperNoun] キャッシュヒット: ' . $cached['canonical_title'] );
+            return $cached;
+        }
     }
 
     // 2. Wikipedia検索
@@ -994,10 +1054,11 @@ function contentfreaks_verify_and_fix_proper_nouns( $article_html, $work_data ) 
  *
  * @param int    $post_id       投稿ID
  * @param string $episode_title エピソードタイトル
+ * @param bool   $force_refresh trueのときキャッシュをスキップして再取得する
  * @return array|null 作品データ、または抽出失敗時はnull
  */
-function contentfreaks_resolve_and_save_work_meta_for_post( $post_id, $episode_title ) {
-    error_log( '[CF ProperNoun] resolve_and_save 開始 post_id=' . $post_id . ' title=' . $episode_title );
+function contentfreaks_resolve_and_save_work_meta_for_post( $post_id, $episode_title, $force_refresh = false ) {
+    error_log( '[CF ProperNoun] resolve_and_save 開始 post_id=' . $post_id . ' title=' . $episode_title . ( $force_refresh ? ' [force_refresh]' : '' ) );
 
     $extracted_titles = contentfreaks_extract_work_titles_from_episode( $episode_title );
 
@@ -1009,7 +1070,7 @@ function contentfreaks_resolve_and_save_work_meta_for_post( $post_id, $episode_t
     $raw_title = $extracted_titles[0];
     error_log( '[CF ProperNoun] 抽出された作品名: ' . $raw_title );
 
-    $work_data = contentfreaks_resolve_work_meta( $raw_title );
+    $work_data = contentfreaks_resolve_work_meta( $raw_title, $force_refresh );
 
     contentfreaks_save_work_meta_to_post( $post_id, $work_data );
 
@@ -1235,7 +1296,8 @@ add_action( 'wp_ajax_cf_resolve_work_meta', function () {
     }
 
     $episode_title = $post->post_title;
-    $work_data     = contentfreaks_resolve_and_save_work_meta_for_post( $post_id, $episode_title );
+    // 手動再取得なのでキャッシュを強制的にスキップ
+    $work_data     = contentfreaks_resolve_and_save_work_meta_for_post( $post_id, $episode_title, true );
 
     if ( $work_data === null ) {
         wp_send_json_error( 'タイトルから作品名を抽出できませんでした: ' . $episode_title );
