@@ -440,7 +440,7 @@ function contentfreaks_gemini_call( array $parts, array $generation_config = arr
  * @param string $mime_type
  * @return array|WP_Error  ['transcription' => string, 'key_points' => string]
  */
-function contentfreaks_gemini_transcribe_and_extract( $file_uri, $mime_type ) {
+function contentfreaks_gemini_transcribe_and_extract( $file_uri, $mime_type, $transcription_model = null ) {
     $parts = array(
         array(
             'file_data' => array(
@@ -481,13 +481,23 @@ PROMPT
         ),
     );
 
-    // 文字起こしは機械的変換なので Lite モデル専用リストを使用（RPD=500 を有効活用）
-    $transcription_models = contentfreaks_get_transcription_model_fallback_list();
-    $result = contentfreaks_gemini_call( $parts, array(
-        'temperature'      => 0.1,
-        'maxOutputTokens'  => 65536,
-        'responseMimeType' => 'application/json',
-    ), null, $transcription_models );
+    if ( $transcription_model !== null ) {
+        // モデル指定あり: そのモデルのみ使用
+        $result = contentfreaks_gemini_call( $parts, array(
+            'temperature'      => 0.1,
+            'maxOutputTokens'  => 65536,
+            'responseMimeType' => 'application/json',
+        ), $transcription_model );
+        error_log( "Gemini: 文字起こしモデル指定: {$transcription_model}" );
+    } else {
+        // モデル指定なし: フォールバックリストを使用
+        $transcription_models = contentfreaks_get_transcription_model_fallback_list();
+        $result = contentfreaks_gemini_call( $parts, array(
+            'temperature'      => 0.1,
+            'maxOutputTokens'  => 65536,
+            'responseMimeType' => 'application/json',
+        ), null, $transcription_models );
+    }
 
     if ( is_wp_error( $result ) ) {
         return $result;
@@ -540,7 +550,7 @@ function contentfreaks_gemini_transcribe( $file_uri, $mime_type ) {
  * @param int    $post_id
  * @return array|WP_Error
  */
-function contentfreaks_gemini_generate_from_transcript( $key_points, $episode_title, $episode_description, $post_id = 0 ) {
+function contentfreaks_gemini_generate_from_transcript( $key_points, $episode_title, $episode_description, $post_id = 0, $article_model = null ) {
     $safe_title  = wp_strip_all_tags( $episode_title );
     $safe_desc   = wp_strip_all_tags( wp_trim_words( $episode_description, 200, '' ) );
     $safe_points = mb_substr( $key_points, 0, 8000 ); // 要点なので8,000字で十分
@@ -591,13 +601,22 @@ function contentfreaks_gemini_generate_from_transcript( $key_points, $episode_ti
 PROMPT;
 
     $parts = array( array( 'text' => $prompt ) );
-    // 記事生成は品質重視モデル専用リストを使用（3.1 Flash Lite は除外）
-    $article_models = contentfreaks_get_article_model_fallback_list();
-    $result = contentfreaks_gemini_call( $parts, array(
-        'temperature'      => 0.7,
-        'maxOutputTokens'  => 32768,
-        'responseMimeType' => 'application/json',
-    ), null, $article_models );
+    if ( $article_model !== null ) {
+        $result = contentfreaks_gemini_call( $parts, array(
+            'temperature'      => 0.7,
+            'maxOutputTokens'  => 65536,
+            'responseMimeType' => 'application/json',
+        ), $article_model );
+        error_log( "Gemini: 記事生成モデル指定: {$article_model}" );
+    } else {
+        // 記事生成は品質重視モデル専用リストを使用（3.1 Flash Lite は除外）
+        $article_models = contentfreaks_get_article_model_fallback_list();
+        $result = contentfreaks_gemini_call( $parts, array(
+            'temperature'      => 0.7,
+            'maxOutputTokens'  => 65536,
+            'responseMimeType' => 'application/json',
+        ), null, $article_models );
+    }
 
     if ( is_wp_error( $result ) ) {
         return $result;
@@ -853,9 +872,9 @@ function contentfreaks_gemini_delete_file( $file_name ) {
 // メインオーケストレーター — 1 エピソード処理
 // ============================================================
 
-function contentfreaks_generate_episode_article( $post_id ) {
+function contentfreaks_generate_episode_article( $post_id, $transcription_model = null, $article_model = null ) {
     try {
-        return contentfreaks_generate_episode_article_inner( $post_id );
+        return contentfreaks_generate_episode_article_inner( $post_id, $transcription_model, $article_model );
     } catch ( \Throwable $e ) {
         $msg = 'PHP例外: ' . $e->getMessage() . ' (' . basename($e->getFile()) . ':' . $e->getLine() . ')';
         $prev_debug = get_post_meta( $post_id, 'episode_ai_debug', true );
@@ -867,7 +886,7 @@ function contentfreaks_generate_episode_article( $post_id ) {
     }
 }
 
-function contentfreaks_generate_episode_article_inner( $post_id ) {
+function contentfreaks_generate_episode_article_inner( $post_id, $transcription_model = null, $article_model = null ) {
     // デバッグ: 各ステップの到達記録
     update_post_meta( $post_id, 'episode_ai_debug', 'step0:start' );
 
@@ -939,7 +958,7 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
         update_post_meta( $post_id, 'episode_ai_debug', 'step2:transcribing+extracting uri=' . substr( $upload['uri'], 0, 60 ) );
         error_log( "Gemini: 文字起こし＋要点抽出開始 Post ID={$post_id}" );
 
-        $extract_result = contentfreaks_gemini_transcribe_and_extract( $upload['uri'], $upload['mime_type'] );
+        $extract_result = contentfreaks_gemini_transcribe_and_extract( $upload['uri'], $upload['mime_type'], $transcription_model );
 
         // アップロードファイルを即削除
         contentfreaks_gemini_delete_file( $upload['name'] );
@@ -987,7 +1006,7 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
     error_log( "Gemini: 記事生成開始 Post ID={$post_id} 要点文字数=" . mb_strlen( $key_points ) );
 
     // Step 3: 要点 → 記事生成（固有名詞コンテキスト付き）
-    $article_data = contentfreaks_gemini_generate_from_transcript( $key_points, $title, $description, $post_id );
+    $article_data = contentfreaks_gemini_generate_from_transcript( $key_points, $title, $description, $post_id, $article_model );
 
     update_post_meta( $post_id, 'episode_ai_debug', 'step4:article_done is_error=' . (is_wp_error($article_data) ? 'yes:' . $article_data->get_error_code() : 'no') );
 

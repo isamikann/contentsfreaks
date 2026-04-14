@@ -212,6 +212,10 @@ add_action('wp_ajax_contentfreaks_run_gemini', function() {
     @set_time_limit(600);
 
     $target_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    $transcription_model = isset($_POST['transcription_model']) && $_POST['transcription_model'] !== ''
+        ? sanitize_text_field($_POST['transcription_model']) : null;
+    $article_model = isset($_POST['article_model']) && $_POST['article_model'] !== ''
+        ? sanitize_text_field($_POST['article_model']) : null;
 
     if ( $target_id > 0 ) {
         // 指定された投稿IDのみ処理
@@ -245,7 +249,7 @@ add_action('wp_ajax_contentfreaks_run_gemini', function() {
 
     // PHP出力バッファでWarning/Noticeも捕捉
     ob_start();
-    $result = contentfreaks_generate_episode_article($post_id);
+    $result = contentfreaks_generate_episode_article($post_id, $transcription_model, $article_model);
     $php_output = ob_get_clean();
 
     $status = get_post_meta($post_id, 'episode_ai_status', true);
@@ -328,7 +332,9 @@ add_action('admin_footer', function() {
                 url: ajaxurl,
                 method: 'POST',
                 timeout: 360000,
-                data: { action: 'contentfreaks_run_gemini', nonce: nonce },
+                data: { action: 'contentfreaks_run_gemini', nonce: nonce,
+                        transcription_model: $('#transcription-model-select').val() || '',
+                        article_model:       $('#article-model-select').val() || '' },
                 success: function(res) {
                     if (res.success) {
                         var d = res.data;
@@ -465,7 +471,9 @@ add_action('admin_footer', function() {
                 url: ajaxurl,
                 method: 'POST',
                 timeout: 360000,
-                data: { action: 'contentfreaks_run_gemini', nonce: nonce, post_id: postId },
+                data: { action: 'contentfreaks_run_gemini', nonce: nonce, post_id: postId,
+                        transcription_model: $('#transcription-model-select').val() || '',
+                        article_model:       $('#article-model-select').val() || '' },
                 success: function(res) {
                     if (!res.success) {
                         $status.css('color','red').text('[' + progress + '] ❌ AJAXエラー: ' + (res.data || '不明'));
@@ -1132,6 +1140,30 @@ function contentfreaks_unified_admin_page() {
                             <input type="submit" name="gemini_diagnose" class="button-secondary" value="🔍 診断" />
                         </form>
                     </div>
+                    <details style="margin-top:12px;border:1px solid #e5e5e5;border-radius:6px;padding:10px 14px;">
+                        <summary style="cursor:pointer;font-size:13px;color:#444;font-weight:bold;user-select:none;">⚙️ モデルを手動指定（レート制限時など）</summary>
+                        <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+                            <div>
+                                <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">🎙 文字起こしモデル</label>
+                                <select id="transcription-model-select" style="font-size:13px;padding:4px 8px;border:1px solid #ccc;border-radius:4px;">
+                                    <option value="">自動（フォールバック）</option>
+                                    <?php foreach ( contentfreaks_get_transcription_model_fallback_list() as $m ): ?>
+                                        <option value="<?php echo esc_attr($m); ?>"><?php echo esc_html($m); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">✍️ 記事生成モデル</label>
+                                <select id="article-model-select" style="font-size:13px;padding:4px 8px;border:1px solid #ccc;border-radius:4px;">
+                                    <option value="">自動（フォールバック）</option>
+                                    <?php foreach ( contentfreaks_get_article_model_fallback_list() as $m ): ?>
+                                        <option value="<?php echo esc_attr($m); ?>"><?php echo esc_html($m); ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <p style="margin-top:8px;color:#888;font-size:12px;">選択したモデルで「今すぐ1件処理」および「選択してAI記事化」が実行されます。「自動」はデフォルトのフォールバックリストを使用します。</p>
+                    </details>
                     <p style="margin-top:10px;color:#666;font-size:13px;">
                         Cron が有効な場合、5分毎に待機中のエピソードを1件ずつ自動処理します。<br>
                         「今すぐ 1 件処理」は手動でAJAX実行します。429エラー時は自動で65秒待機後にリトライします。
