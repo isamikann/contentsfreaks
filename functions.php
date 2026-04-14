@@ -288,18 +288,20 @@ add_action('admin_footer', function() {
                             $status.css('color','#15803d').text('✅ 完了: ' + d.post_title);
                             resetRunBtn();
                             location.reload();
-                        } else if (d.status === 'error' && d.error && d.error.indexOf('429') !== -1) {
+                        } else if (d.status === 'error' && d.error && (d.error.indexOf('429') !== -1 || d.error.indexOf('503') !== -1)) {
                             if (stopRequested) {
                                 $status.css('color','#888').text('⏹ 停止しました。');
                                 resetRunBtn();
                                 return;
                             }
-                            // レート制限 → 秒数を取得して自動リトライ（最低65秒待機でTPM1分窓リセット）
-                            var sec = 65;
+                            // 429: レート制限（最低65秒）/ 503: 一時過負荷（最低30秒）
+                            var is503 = d.error.indexOf('503') !== -1;
+                            var sec = is503 ? 30 : 65;
                             var m = d.error.match(/(\d+)秒後/);
-                            if (m) sec = Math.max(parseInt(m[1], 10) + 10, 65);
+                            if (m) sec = Math.max(parseInt(m[1], 10) + (is503 ? 5 : 10), sec);
+                            var waitLabel = is503 ? 'モデル過負荷のため' : 'レート制限のため';
                             $status.css('color','#b45309').text(
-                                '⏳ レート制限のため ' + sec + ' 秒後に自動リトライします... (' + d.post_title + ')'
+                                '⏳ ' + waitLabel + ' ' + sec + ' 秒後に自動リトライします... (' + d.post_title + ')'
                             );
                             $btn.text('⏳ ' + sec + '秒後にリトライ...');
                             var countdown = sec;
@@ -421,13 +423,16 @@ add_action('admin_footer', function() {
                     if (d.status === 'done') {
                         $status.css('color','#059669').text('[' + progress + '] ✅ 完了: ' + d.post_title);
                         onDone('done');
-                    } else if (d.status === 'error' && d.error && d.error.indexOf('429') !== -1) {
+                    } else if (d.status === 'error' && d.error && (d.error.indexOf('429') !== -1 || d.error.indexOf('503') !== -1)) {
                         if (selStop) { onDone('stopped'); return; }
-                        var sec = 65;
+                        // 429: レート制限（最低65秒）/ 503: 一時過負荷（最低30秒）
+                        var is503 = d.error.indexOf('503') !== -1;
+                        var sec = is503 ? 30 : 65;
                         var m = d.error.match(/(\d+)秒後/);
-                        if (m) sec = Math.max(parseInt(m[1], 10) + 10, 65);
+                        if (m) sec = Math.max(parseInt(m[1], 10) + (is503 ? 5 : 10), sec);
                         var countdown = sec;
-                        $status.css('color','#b45309').text('[' + progress + '] ⏳ レート制限 → ' + sec + '秒後リトライ: ' + d.post_title);
+                        var waitLabel = is503 ? '⏳ 過負荷' : '⏳ レート制限';
+                        $status.css('color','#b45309').text('[' + progress + '] ' + waitLabel + ' → ' + sec + '秒後リトライ: ' + d.post_title);
                         selCdTimer = setInterval(function(){
                             if (selStop) { clearInterval(selCdTimer); onDone('stopped'); return; }
                             countdown--;

@@ -233,6 +233,15 @@ function contentfreaks_mark_model_rate_limited( $model ) {
 }
 
 /**
+ * 指定モデルを一時過負荷としてマークする（10分）。
+ * 503 Service Unavailable 時に使用。429 より短い期間だけ除外する。
+ */
+function contentfreaks_mark_model_overloaded( $model ) {
+    set_transient( 'cf_model_rl_' . sanitize_key( $model ), 1, 10 * MINUTE_IN_SECONDS );
+    error_log( "Gemini: モデル [{$model}] を過負荷としてマーク（10分）" );
+}
+
+/**
  * 指定モデルが現在使用可能かどうかを返す。
  */
 function contentfreaks_is_model_available( $model ) {
@@ -354,6 +363,20 @@ function contentfreaks_gemini_call( array $parts, array $generation_config = arr
             $last_error = new WP_Error(
                 'rate_limit',
                 "レート制限です。{$retry_sec}秒後に自動リトライされます。(429: " . substr( $err, 0, 200 ) . ")"
+            );
+            continue; // 次のモデルを試す
+        }
+
+        if ( $http_code === 503 ) {
+            $err = isset( $data['error']['message'] ) ? $data['error']['message'] : $resp_body;
+            error_log( "Gemini 503 [{$current_model}]: {$err}" );
+
+            // 一時過負荷のため10分間このモデルを除外して次のモデルへ
+            contentfreaks_mark_model_overloaded( $current_model );
+
+            $last_error = new WP_Error(
+                'rate_limit',
+                "モデルが過負荷です。30秒後に自動リトライされます。(503: " . substr( $err, 0, 200 ) . ")"
             );
             continue; // 次のモデルを試す
         }
