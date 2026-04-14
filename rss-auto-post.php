@@ -6,15 +6,15 @@
 // RSSエピソードを投稿として自動作成（タグ抽出・サムネイル設定機能付き）
 function contentfreaks_sync_rss_to_posts() {
     error_log('RSS自動同期開始');
-    
+
     // RSS同期フラグを設定（ポッドキャストエピソード自動設定のため）
     if (!defined('CONTENTFREAKS_RSS_SYNC')) {
         define('CONTENTFREAKS_RSS_SYNC', true);
     }
-    
+
     $episodes = contentfreaks_get_rss_episodes(0); // 全エピソード取得
     error_log('RSS取得完了: ' . count($episodes) . '件のエピソード');
-    
+
     $synced_count = 0;
     $errors = array();
     // ポッドキャストカテゴリーを作成（存在しない場合）
@@ -26,7 +26,7 @@ function contentfreaks_sync_rss_to_posts() {
     foreach ($episodes as $episode) {
         // 既存投稿チェック（GUIDまたは音声URLで重複確認）
         $existing_post = contentfreaks_find_existing_episode_post($episode);
-        
+
         if (empty($existing_post)) {
             // 新規投稿作成
             $post_data = array(
@@ -42,7 +42,7 @@ function contentfreaks_sync_rss_to_posts() {
             if (!is_wp_error($post_id) && $post_id > 0) {
                 // RSS同期関数からポッドキャストエピソード設定を呼び出し
                 contentfreaks_mark_rss_posts_as_podcast($post_id);
-                
+
                 // カスタムフィールド保存
                 update_post_meta($post_id, 'episode_audio_url', $episode['audio_url']);
                 update_post_meta($post_id, 'episode_number', $episode['episode_number']);
@@ -65,6 +65,10 @@ function contentfreaks_sync_rss_to_posts() {
                 }
                 // タイトルから『』内のテキストを抽出してタグ作成
                 contentfreaks_extract_and_create_tags_from_title($post_id, $episode['title']);
+                // 作品名を正規化してpost_metaに保存（固有名詞正規化）
+                if (function_exists('contentfreaks_resolve_and_save_work_meta_for_post')) {
+                    contentfreaks_resolve_and_save_work_meta_for_post($post_id, $episode['title']);
+                }
                 // Gemini AI 文字起こし・記事化のキューに追加
                 update_post_meta($post_id, 'episode_ai_status', 'pending');
                 $synced_count++;
@@ -84,9 +88,9 @@ function contentfreaks_sync_rss_to_posts() {
     update_option('contentfreaks_last_sync_time', current_time('mysql'));
     update_option('contentfreaks_last_sync_count', $synced_count);
     update_option('contentfreaks_last_sync_errors', $errors);
-    
+
     error_log('RSS自動同期完了: 同期数=' . $synced_count . ', エラー数=' . count($errors));
-    
+
     return array(
         'synced' => $synced_count,
         'errors' => $errors
@@ -108,7 +112,7 @@ function contentfreaks_find_existing_episode_post($episode) {
             return $posts;
         }
     }
-    
+
     // 2. 音声URLで検索
     if (!empty($episode['audio_url'])) {
         $posts = get_posts(array(
@@ -122,7 +126,7 @@ function contentfreaks_find_existing_episode_post($episode) {
             return $posts;
         }
     }
-    
+
     // 3. タイトルで検索（フォールバック）
     $posts = get_posts(array(
         'title' => $episode['title'],
@@ -130,7 +134,7 @@ function contentfreaks_find_existing_episode_post($episode) {
         'post_status' => array('publish', 'draft', 'private'),
         'numberposts' => 1
     ));
-    
+
     return $posts;
 }
 
@@ -146,25 +150,25 @@ function contentfreaks_generate_episode_hash($episode) {
         'category' => $episode['category'],
         'pub_date' => $episode['pub_date']
     );
-    
+
     return md5(serialize($hash_data));
 }
 
 // 既存エピソードの更新処理
 function contentfreaks_update_existing_episode($post_id, $episode) {
     $updated = false;
-    
+
     // 現在のハッシュと比較
     $current_hash = get_post_meta($post_id, 'episode_rss_hash', true);
     $new_hash = contentfreaks_generate_episode_hash($episode);
-    
+
     if ($current_hash === $new_hash) {
         // 変更がない場合は何もしない
         return false;
     }
-    
+
     error_log('エピソードの更新を検出: Post ID ' . $post_id . ', Title: ' . $episode['title']);
-    
+
     // 投稿データの更新
     $post_data = array(
         'ID' => $post_id,
@@ -173,27 +177,27 @@ function contentfreaks_update_existing_episode($post_id, $episode) {
         'post_excerpt' => $episode['description'],
         'post_date' => $episode['pub_date']
     );
-    
+
     $current_post = get_post($post_id);
     $title_changed = ($current_post->post_title !== $episode['title']);
     $content_changed = ($current_post->post_content !== $episode['full_description']);
     $excerpt_changed = ($current_post->post_excerpt !== $episode['description']);
-    
+
     $result = wp_update_post($post_data);
     if (!is_wp_error($result)) {
         $updated = true;
-        
+
         // 変更内容をログに記録
         $changes = array();
         if ($title_changed) $changes[] = "タイトル: '{$current_post->post_title}' → '{$episode['title']}'";
         if ($content_changed) $changes[] = "コンテンツ更新";
         if ($excerpt_changed) $changes[] = "概要更新";
-        
+
         if (!empty($changes)) {
             contentfreaks_log_episode_update($post_id, 'content_updated', implode(', ', $changes));
         }
     }
-    
+
     // メタデータの更新
     $meta_updates = array(
         'episode_duration' => $episode['duration'],
@@ -203,7 +207,7 @@ function contentfreaks_update_existing_episode($post_id, $episode) {
         'episode_guid' => $episode['guid'],
         'episode_rss_hash' => $new_hash
     );
-    
+
     foreach ($meta_updates as $key => $value) {
         $current_value = get_post_meta($post_id, $key, true);
         if ($current_value !== $value) {
@@ -212,29 +216,29 @@ function contentfreaks_update_existing_episode($post_id, $episode) {
             $updated = true;
         }
     }
-    
+
     // 画像の更新（URLが変更された場合）
     if (contentfreaks_update_featured_image_if_changed($post_id, $episode['thumbnail'])) {
         $updated = true;
     }
-    
+
     // タグの更新（タイトルが変更された場合）
     if ($title_changed) {
         // 既存のタグを削除
         wp_set_post_tags($post_id, '', false);
-        
+
         // 新しいタイトルからタグを抽出
         contentfreaks_extract_and_create_tags_from_title($post_id, $episode['title']);
         contentfreaks_log_episode_update($post_id, 'tags_updated', "タグを再生成: '{$episode['title']}'");
         $updated = true;
     }
-    
+
     if ($updated) {
         // 更新日時を記録
         update_post_meta($post_id, 'episode_last_updated', current_time('mysql'));
         contentfreaks_log_episode_update($post_id, 'sync_completed', "エピソード同期完了");
     }
-    
+
     return $updated;
 }
 
@@ -247,13 +251,13 @@ function contentfreaks_set_featured_image_from_url($post_id, $image_url, $force_
     if ($force_replace && has_post_thumbnail($post_id)) {
         delete_post_thumbnail($post_id);
     }
-    
+
     // 画像URLの有効性チェック
     if (empty($image_url) || !filter_var($image_url, FILTER_VALIDATE_URL)) {
         error_log('無効な画像URL (Post ID: ' . $post_id . '): ' . $image_url);
         return false;
     }
-    
+
     // HTTPSに変換（可能な場合）
     $image_url = str_replace('http://', 'https://', $image_url);
 
@@ -281,19 +285,19 @@ function contentfreaks_set_featured_image_from_url($post_id, $image_url, $force_
             $image_url,
         );
     }
-    
+
     // media_sideload_image関数を使用するために必要なファイルをインクルード
     if (!function_exists('media_sideload_image')) {
         require_once(ABSPATH . 'wp-admin/includes/media.php');
         require_once(ABSPATH . 'wp-admin/includes/file.php');
         require_once(ABSPATH . 'wp-admin/includes/image.php');
     }
-    
+
     // タイムアウト設定を追加
     add_filter('http_request_timeout', function($timeout) {
         return 30; // 30秒のタイムアウト
     });
-    
+
     foreach ($candidate_urls as $candidate_url) {
         $image_id = media_sideload_image($candidate_url, $post_id, null, 'id');
 
@@ -364,21 +368,21 @@ function contentfreaks_log_episode_update($post_id, $update_type, $details) {
         'details' => $details,
         'timestamp' => current_time('mysql')
     );
-    
+
     // 既存のログを取得
     $existing_logs = get_option('contentfreaks_update_logs', array());
-    
+
     // 新しいログを先頭に追加
     array_unshift($existing_logs, $log_entry);
-    
+
     // 最大100件まで保持
     if (count($existing_logs) > 100) {
         $existing_logs = array_slice($existing_logs, 0, 100);
     }
-    
+
     // ログを保存
     update_option('contentfreaks_update_logs', $existing_logs);
-    
+
     // エラーログにも記録
     error_log("RSS更新: {$update_type} - Post ID: {$post_id} - {$details}");
 }
@@ -386,17 +390,17 @@ function contentfreaks_log_episode_update($post_id, $update_type, $details) {
 // 画像更新の改良版
 function contentfreaks_update_featured_image_if_changed($post_id, $new_image_url) {
     $current_image_url = get_post_meta($post_id, 'episode_image_url', true);
-    
+
     if ($new_image_url && $current_image_url !== $new_image_url) {
         // 古い画像の削除
         $current_thumbnail_id = get_post_thumbnail_id($post_id);
         if ($current_thumbnail_id) {
             delete_post_thumbnail($post_id);
         }
-        
+
         // 新しい画像の設定
         update_post_meta($post_id, 'episode_image_url', $new_image_url);
-        
+
         if (function_exists('contentfreaks_set_featured_image_from_url')) {
             $image_result = contentfreaks_set_featured_image_from_url($post_id, $new_image_url);
             if ($image_result) {
@@ -408,7 +412,7 @@ function contentfreaks_update_featured_image_if_changed($post_id, $new_image_url
             }
         }
     }
-    
+
     return false;
 }
 
@@ -430,23 +434,23 @@ function contentfreaks_apply_rss_featured_images_for_unset_posts() {
         ),
         'fields' => 'ids',
     ));
-    
+
     if (empty($unset_posts)) {
         return 0;
     }
-    
+
     $updated_count = 0;
     foreach ($unset_posts as $post_id) {
         // アイキャッチが存在しない場合のみ処理
         if (has_post_thumbnail($post_id)) {
             continue;
         }
-        
+
         $image_url = get_post_meta($post_id, 'episode_image_url', true);
         if (empty($image_url)) {
             continue;
         }
-        
+
         // RSSの画像が設定できるか試す（YouTubeがなければ、RSSを設定）
         if (function_exists('contentfreaks_set_featured_image_from_url')) {
             $result = contentfreaks_set_featured_image_from_url($post_id, $image_url, false);
@@ -456,11 +460,11 @@ function contentfreaks_apply_rss_featured_images_for_unset_posts() {
             }
         }
     }
-    
+
     if ($updated_count > 0) {
         error_log('RSS画像アイキャッチ設定完了: ' . $updated_count . '件更新');
     }
-    
+
     return $updated_count;
 }
 

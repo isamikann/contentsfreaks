@@ -310,10 +310,17 @@ PROMPT
  * @param string $episode_description
  * @return array|WP_Error
  */
-function contentfreaks_gemini_generate_from_transcript( $transcription, $episode_title, $episode_description ) {
+function contentfreaks_gemini_generate_from_transcript( $transcription, $episode_title, $episode_description, $post_id = 0 ) {
     $safe_title = wp_strip_all_tags( $episode_title );
     $safe_desc  = wp_strip_all_tags( wp_trim_words( $episode_description, 200, '' ) );
     $safe_trans = mb_substr( $transcription, 0, 30000 ); // 長すぎる場合に切り詰め
+
+    // 固有名詞コンテキストを取得
+    $proper_noun_context = '';
+    if ( $post_id > 0 && function_exists( 'contentfreaks_build_gemini_proper_noun_context' ) ) {
+        $proper_noun_context = contentfreaks_build_gemini_proper_noun_context( $post_id );
+    }
+    $proper_noun_section = ! empty( $proper_noun_context ) ? "\n" . $proper_noun_context . "\n" : '';
 
     $prompt = <<<PROMPT
 あなたはエンタメ系ブログ「コンテンツフリークス」のライターです。
@@ -325,7 +332,7 @@ function contentfreaks_gemini_generate_from_transcript( $transcription, $episode
 - ジャンル: 映画・ドラマの感想・考察
 - エピソードタイトル: {$safe_title}
 - RSS概要: {$safe_desc}
-
+{$proper_noun_section}
 ■ 文字起こし
 {$safe_trans}
 
@@ -712,8 +719,8 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
     update_post_meta( $post_id, 'episode_ai_debug', 'step3:generating_article len=' . mb_strlen($transcription) );
     error_log( "Gemini: 記事生成開始 Post ID={$post_id} 文字起こし文字数=" . mb_strlen($transcription) );
 
-    // Step 4: 文字起こし → 記事生成
-    $article_data = contentfreaks_gemini_generate_from_transcript( $transcription, $title, $description );
+    // Step 4: 文字起こし → 記事生成（固有名詞コンテキスト付き）
+    $article_data = contentfreaks_gemini_generate_from_transcript( $transcription, $title, $description, $post_id );
 
     update_post_meta( $post_id, 'episode_ai_debug', 'step4:article_done is_error=' . (is_wp_error($article_data) ? 'yes:' . $article_data->get_error_code() : 'no') );
 
@@ -747,6 +754,12 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
     $article_body  = $article_data['article_body']  ?? '';
     $summary       = $article_data['summary']       ?? '';
     $tags          = $article_data['tags']          ?? array();
+
+    // 固有名詞の後処理修正
+    if ( ! empty( $article_body ) && function_exists( 'contentfreaks_verify_and_fix_proper_nouns' ) ) {
+        $work_data    = function_exists( 'contentfreaks_get_work_meta_from_post' ) ? contentfreaks_get_work_meta_from_post( $post_id ) : null;
+        $article_body = contentfreaks_verify_and_fix_proper_nouns( $article_body, $work_data );
+    }
 
     if ( empty( $article_body ) ) {
         update_post_meta( $post_id, 'episode_ai_status', 'error' );
