@@ -192,16 +192,36 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
 // ============================================================
 
 /**
- * フォールバック順のモデルリストを返す。
- * 各モデルは独立した無料枠クォータを持つ。
+ * 文字起こし用モデルリスト。
+ * 文字起こしは機械的な変換作業なので Lite モデルで十分。
+ * 3.1 Flash Lite は RPD=500 と圧倒的に多く、文字起こし専用に最適。
  */
-function contentfreaks_get_model_fallback_list() {
+function contentfreaks_get_transcription_model_fallback_list() {
     return array(
-        'gemini-3-flash-preview',        // Gemini 3 Flash     : RPM=5,  TPM=250K, RPD=20  ← 最高性能
-        'gemini-2.5-flash',              // Gemini 2.5 Flash   : RPM=5,  TPM=250K, RPD=20
-        'gemini-3.1-flash-lite-preview', // Gemini 3.1 FL Lite : RPM=15, TPM=250K, RPD=500 ← RPD圧倒的
+        'gemini-3.1-flash-lite-preview', // Gemini 3.1 FL Lite : RPM=15, TPM=250K, RPD=500 ← 文字起こし専用・RPD圧倒的
+        'gemini-2.5-flash-lite',         // Gemini 2.5 FL Lite : RPM=10, TPM=250K, RPD=20  ← フォールバック
+    );
+}
+
+/**
+ * 記事生成用モデルリスト。
+ * 記事生成は創造的な文章・感想の言語化が必要なので品質重視。
+ * 3.1 Flash Lite は単純タスク向けのため除外。
+ */
+function contentfreaks_get_article_model_fallback_list() {
+    return array(
+        'gemini-3-flash-preview',        // Gemini 3 Flash     : RPM=5,  TPM=250K, RPD=20  ← 最高品質
+        'gemini-2.5-flash',              // Gemini 2.5 Flash   : RPM=5,  TPM=250K, RPD=20  ← Thinking対応
         'gemini-2.5-flash-lite',         // Gemini 2.5 FL Lite : RPM=10, TPM=250K, RPD=20  ← 最終フォールバック
     );
+}
+
+/**
+ * 後方互換: contentfreaks_gemini_call() のデフォルトとして使用するリスト。
+ * 記事生成用リストと同一。
+ */
+function contentfreaks_get_model_fallback_list() {
+    return contentfreaks_get_article_model_fallback_list();
 }
 
 /**
@@ -258,22 +278,24 @@ function contentfreaks_get_model_status() {
  * @param string|null $model  指定がなければ自動選択
  * @return string|WP_Error
  */
-function contentfreaks_gemini_call( array $parts, array $generation_config = array(), $model = null ) {
+function contentfreaks_gemini_call( array $parts, array $generation_config = array(), $model = null, array $model_list = array() ) {
     // モデル未指定なら使用可能な最優先モデルを選ぶ
     $models_to_try = array();
     if ( $model !== null ) {
         // 明示指定されたモデルのみ試す
         $models_to_try = array( $model );
     } else {
+        // 呼び出し元指定のリスト、なければデフォルトリストを使う
+        $fallback_list = ! empty( $model_list ) ? $model_list : contentfreaks_get_model_fallback_list();
         // 使用可能なモデルを優先順に全部用意しておく
-        foreach ( contentfreaks_get_model_fallback_list() as $m ) {
+        foreach ( $fallback_list as $m ) {
             if ( contentfreaks_is_model_available( $m ) ) {
                 $models_to_try[] = $m;
             }
         }
         if ( empty( $models_to_try ) ) {
             // 全制限中でも先頭だけは試す
-            $models_to_try = array( contentfreaks_get_model_fallback_list()[0] );
+            $models_to_try = array( $fallback_list[0] );
         }
     }
 
@@ -433,11 +455,13 @@ PROMPT
         ),
     );
 
+    // 文字起こしは機械的変換なので Lite モデル専用リストを使用（RPD=500 を有効活用）
+    $transcription_models = contentfreaks_get_transcription_model_fallback_list();
     $result = contentfreaks_gemini_call( $parts, array(
         'temperature'      => 0.1,
         'maxOutputTokens'  => 65536,
         'responseMimeType' => 'application/json',
-    ) );
+    ), null, $transcription_models );
 
     if ( is_wp_error( $result ) ) {
         return $result;
@@ -541,11 +565,13 @@ function contentfreaks_gemini_generate_from_transcript( $key_points, $episode_ti
 PROMPT;
 
     $parts = array( array( 'text' => $prompt ) );
+    // 記事生成は品質重視モデル専用リストを使用（3.1 Flash Lite は除外）
+    $article_models = contentfreaks_get_article_model_fallback_list();
     $result = contentfreaks_gemini_call( $parts, array(
         'temperature'      => 0.7,
         'maxOutputTokens'  => 32768,
         'responseMimeType' => 'application/json',
-    ) );
+    ), null, $article_models );
 
     if ( is_wp_error( $result ) ) {
         return $result;
