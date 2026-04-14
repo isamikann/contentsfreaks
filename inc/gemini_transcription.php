@@ -114,6 +114,14 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
         $mime_type = trim( explode( ';', $ct )[0] );
     }
 
+    // ② 40MB 上限: 長時間エピソードの音声トークンを削減（約40分相当）
+    $max_audio_bytes = (int) get_option( 'contentfreaks_audio_max_mb', 40 ) * 1024 * 1024;
+    if ( $max_audio_bytes > 0 && $file_size > $max_audio_bytes ) {
+        $audio_data = substr( $audio_data, 0, $max_audio_bytes );
+        $file_size  = strlen( $audio_data );
+        error_log( sprintf( 'Gemini upload: 音声を %.1f MB に切り詰めました（トークン削減）', $file_size / 1024 / 1024 ) );
+    }
+
     error_log( sprintf( 'Gemini upload: %.1f MB, %s', $file_size / 1024 / 1024, $mime_type ) );
 
     // multipart/related ボディを構築
@@ -261,17 +269,19 @@ function contentfreaks_gemini_call( array $parts, array $generation_config = arr
 }
 
 // ============================================================
-// Step 1: 音声 → 文字起こし
+// Step 1: 音声 → 文字起こし＋要点抽出（① 1回のAPI呼び出しに統合）
 // ============================================================
 
 /**
- * 音声ファイルを文字起こしして日本語テキストを返す。
+ * 音声ファイルを文字起こしし、同時に議論の要点も抽出する。
+ * 文字起こしと要点抽出を1回のAPI呼び出しに統合することで
+ * API呼び出し回数とテキスト入力トークンを削減する。
  *
  * @param string $file_uri  Files API URI
  * @param string $mime_type
- * @return string|WP_Error
+ * @return array|WP_Error  ['transcription' => string, 'key_points' => string]
  */
-function contentfreaks_gemini_transcribe( $file_uri, $mime_type ) {
+function contentfreaks_gemini_transcribe_and_extract( $file_uri, $mime_type ) {
     $parts = array(
         array(
             'file_data' => array(
@@ -281,77 +291,81 @@ function contentfreaks_gemini_transcribe( $file_uri, $mime_type ) {
         ),
         array(
             'text' => <<<PROMPT
-この音声ファイルは日本語のポッドキャストです。
-音声の内容を日本語で正確に文字起こしてください。
+この音声ファイルは日本語のポッドキャスト「コンテンツフリークス」です。
+ホストはみっくんとあっきーの2人で、映画・ドラマの感想・考察をしています。
 
-ルール:
+以下の2つのタスクを同時に行い、JSON形式で出力してください。
+
+【タスク1: 文字起こし】
 - 話者の発言をそのまま書き起こすこと（話し言葉のまま）
 - 聞き取れない部分は「（聞き取れず）」と書くこと
 - 音声にない内容を補完・追加しないこと
-- 話者が2人いる場合、発言が変わったら改行すること
+- 話者が変わったら改行すること
 - 余計な注釈や説明を加えないこと
 - 日本語以外（韓国語等）で出力しないこと
+
+【タスク2: 要点抽出】
+文字起こし内容からブログ記事作成に必要な要点を抽出してください。
+- 話し合ったトピックを3〜8個まとめること
+- 各トピックでの話者の印象的な発言・意見を「」で引用すること
+- 作品名・俳優名・キャラクター名は音声に出てきたものだけ記載すること
+- 推測や補完をしないこと
+
+■ 出力（以下のJSONのみ返すこと。前後に余計なテキスト不要）
+{
+  "transcription": "文字起こし全文",
+  "key_points": "【トピック1: タイトル】\n- 要点\n- 「引用」（みっくん）\n\n【トピック2: タイトル】\n..."
+}
 PROMPT
         ),
     );
 
-    return contentfreaks_gemini_call( $parts, array( 'temperature' => 0.1, 'maxOutputTokens' => 65536 ) );
-}
+    $result = contentfreaks_gemini_call( $parts, array(
+        'temperature'      => 0.1,
+        'maxOutputTokens'  => 65536,
+        'responseMimeType' => 'application/json',
+    ) );
 
-// ============================================================
-// Step 2.5: 文字起こしテキスト → 要点抽出（トークン削減）
-// ============================================================
+    if ( is_wp_error( $result ) ) {
+        return $result;
+    }
+
+    // JSONパース
+    $text = trim( $result );
+    $text = preg_replace( '/^```(?:json)?\s*/i', '', $text );
+    $text = preg_replace( '/\s*```$/', '', $text );
+
+    $data = json_decode( $text, true );
+
+    if ( json_last_error() === JSON_ERROR_NONE && ! empty( $data['transcription'] ) ) {
+        return array(
+            'transcription' => $data['transcription'],
+            'key_points'    => $data['key_points'] ?? mb_substr( $data['transcription'], 0, 8000 ),
+        );
+    }
+
+    // JSONパース失敗 → テキスト全体を文字起こしとして扱う
+    error_log( 'Gemini: transcribe_and_extract JSONパース失敗、テキストとして処理' );
+    return array(
+        'transcription' => $text,
+        'key_points'    => mb_substr( $text, 0, 8000 ),
+    );
+}
 
 /**
- * 文字起こしテキストから議論の要点を抽出し、コンパクトな構造化テキストに圧縮する。
- * 記事生成への入力トークンを大幅に削減するための中間ステップ。
- *
- * @param string $transcription  文字起こし済みテキスト
- * @param string $episode_title
- * @return string|WP_Error  要点テキスト（3,000〜5,000字程度）
+ * 後方互換: 旧 contentfreaks_gemini_transcribe() のラッパー。
+ * 新規コードは contentfreaks_gemini_transcribe_and_extract() を使うこと。
  */
-function contentfreaks_gemini_extract_key_points( $transcription, $episode_title ) {
-    $safe_title = wp_strip_all_tags( $episode_title );
-    // 要点抽出は全文を使う（出力が短いので入力が長くても安い）
-    $safe_trans = mb_substr( $transcription, 0, 60000 );
-
-    $prompt = <<<PROMPT
-以下は日本語ポッドキャスト「コンテンツフリークス」のエピソード「{$safe_title}」の文字起こしです。
-ホストはみっくんとあっきーの2人で、映画・ドラマの感想・考察をしています。
-
-この文字起こしから、ブログ記事を書くために必要な情報だけを抽出してください。
-
-■ 抽出ルール
-- 話された内容だけを抽出すること。推測や補完をしないこと
-- 各トピックで実際に発言された内容を要約すること
-- みっくん・あっきーの印象的な発言・意見はそのまま引用すること（「」で囲む）
-- 作品名・俳優名・キャラクター名は文字起こしに出てきたものだけ記載すること
-
-■ 出力フォーマット（このフォーマットで出力すること）
-【トピック1: トピック名】
-- 内容の要点
-- 「印象的な発言の引用」（みっくん）
-- 「印象的な発言の引用」（あっきー）
-
-【トピック2: トピック名】
-...
-
-【まとめ・全体の印象】
-- 2人の総評や締めのコメント
-
-■ 文字起こし
-{$safe_trans}
-PROMPT;
-
-    $parts = array( array( 'text' => $prompt ) );
-    return contentfreaks_gemini_call( $parts, array(
-        'temperature'     => 0.2,
-        'maxOutputTokens' => 4096,
-    ) );
+function contentfreaks_gemini_transcribe( $file_uri, $mime_type ) {
+    $result = contentfreaks_gemini_transcribe_and_extract( $file_uri, $mime_type );
+    if ( is_wp_error( $result ) ) {
+        return $result;
+    }
+    return $result['transcription'];
 }
 
 // ============================================================
-// Step 3: 要点テキスト → 記事生成
+// Step 2: 要点テキスト → 記事生成
 // ============================================================
 
 /**
@@ -717,92 +731,82 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
     update_post_meta( $post_id, 'episode_ai_status', 'processing' );
     update_post_meta( $post_id, 'episode_ai_started_at', current_time( 'mysql' ) );
     delete_post_meta( $post_id, 'episode_ai_error' );
-    update_post_meta( $post_id, 'episode_ai_debug', 'step1:uploading url=' . substr($audio_url, 0, 80) );
 
     $post        = get_post( $post_id );
     $title       = $post->post_title;
     $description = $post->post_excerpt ?: wp_strip_all_tags( $post->post_content );
 
-    // Step 1: 音声アップロード
+    update_post_meta( $post_id, 'episode_ai_debug', 'step1:uploading url=' . substr( $audio_url, 0, 80 ) );
     error_log( "Gemini: アップロード開始 Post ID={$post_id} URL={$audio_url}" );
-    $upload = contentfreaks_gemini_upload_audio( $audio_url );
 
-    if ( is_wp_error( $upload ) ) {
-        $msg = $upload->get_error_message();
-        update_post_meta( $post_id, 'episode_ai_status', 'error' );
-        update_post_meta( $post_id, 'episode_ai_error', $msg );
-        update_post_meta( $post_id, 'episode_ai_debug', 'step1:upload_error: ' . substr($msg, 0, 100) );
-        error_log( "Gemini: アップロードエラー Post ID={$post_id}: {$msg}" );
-        return false;
-    }
+    // ③ 文字起こしキャッシュ確認: 既に文字起こし済みなら音声処理をスキップ
+    $cached_transcription = get_post_meta( $post_id, 'episode_ai_transcription', true );
+    $cached_key_points    = get_post_meta( $post_id, 'episode_ai_key_points', true );
 
-    update_post_meta( $post_id, 'episode_ai_debug', 'step2:transcribing uri=' . substr($upload['uri'], 0, 60) );
-    error_log( "Gemini: 文字起こし開始 Post ID={$post_id}" );
+    if ( ! empty( $cached_transcription ) && ! empty( $cached_key_points ) ) {
+        // 文字起こし・要点ともにキャッシュあり → 音声処理を完全スキップ
+        error_log( "Gemini: キャッシュ使用（音声処理スキップ） Post ID={$post_id}" );
+        update_post_meta( $post_id, 'episode_ai_debug', 'step2:cache_hit transcription+key_points' );
+        $transcription = $cached_transcription;
+        $key_points    = $cached_key_points;
 
-    // Step 2: 音声 → 文字起こし
-    $transcription = contentfreaks_gemini_transcribe( $upload['uri'], $upload['mime_type'] );
+    } else {
+        // 初回処理: 音声アップロード → 文字起こし＋要点抽出（① 1回のAPI呼び出し）
+        $upload = contentfreaks_gemini_upload_audio( $audio_url );
 
-    // Step 3: ファイル削除（文字起こし後すぐ削除）
-    contentfreaks_gemini_delete_file( $upload['name'] );
-
-    if ( is_wp_error( $transcription ) ) {
-        $msg  = $transcription->get_error_message();
-        $code = $transcription->get_error_code();
-        $msg = mb_convert_encoding( $msg, 'UTF-8', 'UTF-8' );
-        $msg = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $msg );
-        if ( empty( $msg ) ) { $msg = "文字起こしエラー (code: {$code})"; }
-        update_post_meta( $post_id, 'episode_ai_debug', 'step2:transcribe_error' );
-        if ( $code === 'rate_limit' ) {
-            if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-                update_post_meta( $post_id, 'episode_ai_status', 'error' );
-                update_post_meta( $post_id, 'episode_ai_error', $msg );
-            } else {
-                update_post_meta( $post_id, 'episode_ai_status', 'pending' );
-            }
-            error_log( "Gemini: レート制限(文字起こし) Post ID={$post_id}: {$msg}" );
+        if ( is_wp_error( $upload ) ) {
+            $msg = $upload->get_error_message();
+            update_post_meta( $post_id, 'episode_ai_status', 'error' );
+            update_post_meta( $post_id, 'episode_ai_error', $msg );
+            update_post_meta( $post_id, 'episode_ai_debug', 'step1:upload_error: ' . substr( $msg, 0, 100 ) );
+            error_log( "Gemini: アップロードエラー Post ID={$post_id}: {$msg}" );
             return false;
         }
-        update_post_meta( $post_id, 'episode_ai_status', 'error' );
-        update_post_meta( $post_id, 'episode_ai_error', $msg );
-        error_log( "Gemini: 文字起こしエラー Post ID={$post_id}: {$msg}" );
-        return false;
-    }
 
-    update_post_meta( $post_id, 'episode_ai_transcription', sanitize_textarea_field( $transcription ) );
-    update_post_meta( $post_id, 'episode_ai_debug', 'step3:extracting_key_points len=' . mb_strlen( $transcription ) );
-    error_log( "Gemini: 要点抽出開始 Post ID={$post_id} 文字起こし文字数=" . mb_strlen( $transcription ) );
+        update_post_meta( $post_id, 'episode_ai_debug', 'step2:transcribing+extracting uri=' . substr( $upload['uri'], 0, 60 ) );
+        error_log( "Gemini: 文字起こし＋要点抽出開始 Post ID={$post_id}" );
 
-    // Step 3: 文字起こし → 要点抽出（トークン削減）
-    $key_points = contentfreaks_gemini_extract_key_points( $transcription, $title );
+        $extract_result = contentfreaks_gemini_transcribe_and_extract( $upload['uri'], $upload['mime_type'] );
 
-    if ( is_wp_error( $key_points ) ) {
-        $msg  = $key_points->get_error_message();
-        $code = $key_points->get_error_code();
-        $msg  = mb_convert_encoding( $msg, 'UTF-8', 'UTF-8' );
-        $msg  = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $msg );
-        if ( empty( $msg ) ) { $msg = "要点抽出エラー (code: {$code})"; }
-        update_post_meta( $post_id, 'episode_ai_debug', 'step3:key_points_error' );
-        if ( $code === 'rate_limit' ) {
-            if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
-                update_post_meta( $post_id, 'episode_ai_status', 'error' );
-                update_post_meta( $post_id, 'episode_ai_error', $msg );
-            } else {
-                update_post_meta( $post_id, 'episode_ai_status', 'pending' );
+        // アップロードファイルを即削除
+        contentfreaks_gemini_delete_file( $upload['name'] );
+
+        if ( is_wp_error( $extract_result ) ) {
+            $msg  = $extract_result->get_error_message();
+            $code = $extract_result->get_error_code();
+            $msg  = mb_convert_encoding( $msg, 'UTF-8', 'UTF-8' );
+            $msg  = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $msg );
+            if ( empty( $msg ) ) { $msg = "文字起こしエラー (code: {$code})"; }
+            update_post_meta( $post_id, 'episode_ai_debug', 'step2:transcribe_error' );
+            if ( $code === 'rate_limit' ) {
+                if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+                    update_post_meta( $post_id, 'episode_ai_status', 'error' );
+                    update_post_meta( $post_id, 'episode_ai_error', $msg );
+                } else {
+                    update_post_meta( $post_id, 'episode_ai_status', 'pending' );
+                }
+                error_log( "Gemini: レート制限(文字起こし) Post ID={$post_id}: {$msg}" );
+                return false;
             }
-            error_log( "Gemini: レート制限(要点抽出) Post ID={$post_id}: {$msg}" );
+            update_post_meta( $post_id, 'episode_ai_status', 'error' );
+            update_post_meta( $post_id, 'episode_ai_error', $msg );
+            error_log( "Gemini: 文字起こしエラー Post ID={$post_id}: {$msg}" );
             return false;
         }
-        // 要点抽出失敗時は文字起こしの先頭8,000字で代替
-        error_log( "Gemini: 要点抽出失敗、文字起こし先頭8000字で代替 Post ID={$post_id}: {$msg}" );
-        $key_points = mb_substr( $transcription, 0, 8000 );
+
+        $transcription = $extract_result['transcription'];
+        $key_points    = $extract_result['key_points'];
+
+        // キャッシュ保存
+        update_post_meta( $post_id, 'episode_ai_transcription', sanitize_textarea_field( $transcription ) );
+        update_post_meta( $post_id, 'episode_ai_key_points',    sanitize_textarea_field( $key_points ) );
+        error_log( "Gemini: 文字起こし完了 Post ID={$post_id} 文字数=" . mb_strlen( $transcription ) . " 要点文字数=" . mb_strlen( $key_points ) );
     }
 
-    // 要点をpost_metaに保存（デバッグ・再利用用）
-    update_post_meta( $post_id, 'episode_ai_key_points', sanitize_textarea_field( $key_points ) );
-    update_post_meta( $post_id, 'episode_ai_debug', 'step4:generating_article key_points_len=' . mb_strlen( $key_points ) );
+    update_post_meta( $post_id, 'episode_ai_debug', 'step3:generating_article key_points_len=' . mb_strlen( $key_points ) );
     error_log( "Gemini: 記事生成開始 Post ID={$post_id} 要点文字数=" . mb_strlen( $key_points ) );
 
-    // Step 4: 要点 → 記事生成（固有名詞コンテキスト付き）
+    // Step 3: 要点 → 記事生成（固有名詞コンテキスト付き）
     $article_data = contentfreaks_gemini_generate_from_transcript( $key_points, $title, $description, $post_id );
 
     update_post_meta( $post_id, 'episode_ai_debug', 'step4:article_done is_error=' . (is_wp_error($article_data) ? 'yes:' . $article_data->get_error_code() : 'no') );
