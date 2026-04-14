@@ -78,6 +78,41 @@ add_action('contentfreaks_daily_youtube_sync', 'contentfreaks_refresh_youtube_vi
 add_action('contentfreaks_gemini_transcription_batch', 'contentfreaks_process_pending_transcriptions');
 
 // ============================================================
+// RSS新規投稿ごとのAI処理即時トリガー
+// ============================================================
+
+/**
+ * RSS同期で新規エピソード投稿が1件作成された際、その投稿だけを対象に
+ * AI記事化をすぐにトリガーする。バッチ全体は起動せず、指定した post_id のみ処理する。
+ *
+ * @param int $post_id 新規作成されたエピソードの投稿ID
+ */
+add_action( 'contentfreaks_new_episode_created', 'contentfreaks_trigger_ai_for_new_episode' );
+
+function contentfreaks_trigger_ai_for_new_episode( $post_id ) {
+    if ( empty( contentfreaks_get_gemini_api_key() ) ) {
+        error_log( 'Gemini: API Key未設定のためAI処理即時トリガーをスキップ (Post ID: ' . $post_id . ')' );
+        return;
+    }
+    if ( contentfreaks_gemini_is_paused() ) {
+        error_log( 'Gemini: 一時停止中のためAI処理即時トリガーをスキップ (Post ID: ' . $post_id . ')' );
+        return;
+    }
+
+    // この投稿IDだけを引数に持つ単発Cronイベントをスケジュール
+    // 過去時刻（time()-1）にすることで spawn_cron() 直後に即実行対象になる
+    wp_schedule_single_event( time() - 1, 'contentfreaks_ai_process_single_episode', array( $post_id ) );
+
+    // 非同期でWP-Cronを即時起動（ページ訪問を待たずに処理開始）
+    spawn_cron();
+
+    error_log( 'Gemini: RSS新規投稿のAI処理を即時トリガーしました (Post ID: ' . $post_id . ')' );
+}
+
+// 単発Cronイベントのフック: 指定した投稿IDのみAI記事化を実行
+add_action( 'contentfreaks_ai_process_single_episode', 'contentfreaks_generate_episode_article' );
+
+// ============================================================
 // AJAX: Gemini 一時停止 / 再開トグル
 // ============================================================
 add_action('wp_ajax_contentfreaks_gemini_toggle_pause', function() {

@@ -71,6 +71,8 @@ function contentfreaks_sync_rss_to_posts() {
                 }
                 // Gemini AI 文字起こし・記事化のキューに追加
                 update_post_meta($post_id, 'episode_ai_status', 'pending');
+                // この投稿のみを対象にAI処理を即時トリガー
+                do_action('contentfreaks_new_episode_created', $post_id);
                 $synced_count++;
             } else {
                 $errors[] = '投稿作成エラー: ' . $episode['title'];
@@ -90,6 +92,8 @@ function contentfreaks_sync_rss_to_posts() {
     update_option('contentfreaks_last_sync_errors', $errors);
 
     error_log('RSS自動同期完了: 同期数=' . $synced_count . ', エラー数=' . count($errors));
+
+
 
     return array(
         'synced' => $synced_count,
