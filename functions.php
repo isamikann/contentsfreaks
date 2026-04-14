@@ -149,6 +149,31 @@ add_action('wp_ajax_contentfreaks_requeue_episodes', function() {
 });
 
 // ============================================================
+// AJAX: key_points・transcription取得（デバッグ用）
+// ============================================================
+add_action('wp_ajax_contentfreaks_get_key_points', function() {
+    check_ajax_referer('contentfreaks_gemini_ajax', 'nonce');
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('権限がありません');
+    }
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    if ($post_id <= 0) {
+        wp_send_json_error('無効なpost_idです');
+    }
+    $post       = get_post($post_id);
+    $key_points = get_post_meta($post_id, 'episode_ai_key_points', true);
+
+    if (empty($key_points)) {
+        wp_send_json_error('key_pointsが見つかりません（未処理の可能性があります）');
+    }
+
+    wp_send_json_success(array(
+        'post_title' => $post ? $post->post_title : '',
+        'key_points' => $key_points,
+    ));
+});
+
+// ============================================================
 // AJAX: Gemini 1件処理（WP-Cron非依存・直接実行）
 // post_id を指定した場合はその投稿のみ処理。省略時は pending から1件取得。
 // ============================================================
@@ -499,6 +524,66 @@ add_action('admin_footer', function() {
             if (selCdTimer) { clearInterval(selCdTimer); selCdTimer = null; }
             $(this).prop('disabled', true).text('停止中...');
             $('#requeue-status').css('color','#888').text('⏹ 停止リクエスト済み。現在の処理後に停止します。');
+        });
+
+        // ── key_points確認モーダル ──────────────────────────────
+        $(document).on('click', '.ep-keypoints-btn', function(){
+            var postId = $(this).data('post-id');
+            var $modal = $('#ep-keypoints-modal');
+            var $body  = $('#ep-keypoints-body');
+            var $title = $('#ep-keypoints-title');
+            var $search = $('#ep-keypoints-search');
+
+            $title.text('読み込み中...');
+            $body.text('');
+            $search.val('');
+            $modal.show();
+
+            $.ajax({
+                url: ajaxurl,
+                method: 'POST',
+                data: { action: 'contentfreaks_get_key_points', nonce: nonce, post_id: postId },
+                success: function(res) {
+                    if (res.success) {
+                        $title.text('📝 key_points: ' + res.data.post_title);
+                        $body.data('original', res.data.key_points);
+                        $body.text(res.data.key_points);
+                    } else {
+                        $title.text('エラー');
+                        $body.text(res.data || '不明なエラー');
+                    }
+                },
+                error: function() {
+                    $title.text('通信エラー');
+                    $body.text('AJAXリクエストに失敗しました');
+                }
+            });
+        });
+
+        // モーダルを閉じる
+        $('#ep-keypoints-close').on('click', function(){ $('#ep-keypoints-modal').hide(); });
+        $('#ep-keypoints-modal').on('click', function(e){
+            if ($(e.target).is('#ep-keypoints-modal')) $(this).hide();
+        });
+
+        // key_points内テキスト検索・ハイライト
+        $('#ep-keypoints-search').on('input', function(){
+            var keyword  = $.trim($(this).val());
+            var original = $('#ep-keypoints-body').data('original') || '';
+            if (!keyword) {
+                $('#ep-keypoints-body').text(original);
+                return;
+            }
+            // ハイライト（HTMLエスケープしてからマーク）
+            var escaped  = original.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            var re       = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'), 'g');
+            var highlighted = escaped.replace(re, '<mark style="background:#fef08a;padding:0 2px;">'+keyword+'</mark>');
+            $('#ep-keypoints-body').html(highlighted);
+            // 最初のヒットまでスクロール
+            var $first = $('#ep-keypoints-body mark').first();
+            if ($first.length) {
+                $('#ep-keypoints-body').scrollTop($first.position().top - 20);
+            }
         });
 
         // ── 再キューのみ ──────────────────────────────────────
@@ -1047,6 +1132,9 @@ function contentfreaks_unified_admin_page() {
                                     <?php if ($status === 'error' && $ep->ai_error): ?>
                                         <br><small style="color:#dc2626;"><?php echo esc_html(mb_strimwidth($ep->ai_error, 0, 80, '…')); ?></small>
                                     <?php endif; ?>
+                                    <?php if ($status === 'done'): ?>
+                                        <br><button type="button" class="button button-small ep-keypoints-btn" data-post-id="<?php echo (int)$ep->ID; ?>" style="margin-top:4px;font-size:11px;">📝 key_points確認</button>
+                                    <?php endif; ?>
                                 </td>
                                 <td><span style="color:<?php echo $badge_color; ?>;font-weight:bold;font-size:12px;"><?php echo $badge_label; ?></span></td>
                                 <td style="font-size:12px;color:#666;"><?php echo esc_html(date_i18n('Y/m/d', strtotime($ep->post_date))); ?></td>
@@ -1057,6 +1145,19 @@ function contentfreaks_unified_admin_page() {
                     <p style="margin-top:8px;color:#666;font-size:12px;">
                         ✅完了済みを含め、チェックを入れたエピソードを「待機中(pending)」に戻して再処理できます。
                     </p>
+                </div>
+            </div>
+
+            <!-- key_points確認モーダル -->
+            <div id="ep-keypoints-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:99999;overflow-y:auto;">
+                <div style="background:#fff;margin:40px auto;max-width:800px;border-radius:8px;padding:24px;position:relative;">
+                    <button type="button" id="ep-keypoints-close" style="position:absolute;top:12px;right:16px;font-size:20px;background:none;border:none;cursor:pointer;color:#666;">✕</button>
+                    <h2 id="ep-keypoints-title" style="margin:0 0 12px 0;font-size:16px;padding-right:32px;"></h2>
+                    <div style="margin-bottom:12px;">
+                        <input type="text" id="ep-keypoints-search" placeholder="名前で検索（例: 及川光博）" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;font-size:13px;" />
+                    </div>
+                    <div id="ep-keypoints-body" style="white-space:pre-wrap;font-size:13px;line-height:1.7;max-height:60vh;overflow-y:auto;background:#f9f9f9;padding:16px;border-radius:4px;border:1px solid #e5e5e5;"></div>
+                    <p style="margin-top:8px;color:#888;font-size:12px;">※ この内容がGeminiへのインプットになります。ここに名前があれば記事に出る可能性があります。</p>
                 </div>
             </div>
             <?php endif; ?>
