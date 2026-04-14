@@ -367,11 +367,33 @@ function contentfreaks_wikipedia_get_cast_from_page( $page_title ) {
     }
 
     // 5. キャラクター名を抽出: 「; キャラクター名（ふりがな）」形式
-    //    例:「; 早瀬陸（はやせ りく）」→「早瀬陸」
+    //    例:「; 早瀬陸（はやせ りく）」→「早瀬陸（はやせ りく）」
+    //    ふりがなも保持することで、文字起こしの読み仮名→正しい漢字のマッピングに使える
     $character_names = [];
-    if ( preg_match_all( '/^;\s*([^（\n\r〔\[]+)/mu', $wikitext, $char_matches ) ) {
-        foreach ( $char_matches[1] as $name ) {
-            $name = trim( $name );
+    if ( preg_match_all( '/^;\s*([^\n\r〔\[]+)/mu', $wikitext, $char_matches ) ) {
+        foreach ( $char_matches[1] as $raw_name ) {
+            $raw_name = trim( $raw_name );
+            if ( $raw_name === '' ) continue;
+
+            // 「名前（ふりがな）」を抽出
+            if ( preg_match( '/^([^（]+)（([^）]+)）/u', $raw_name, $nm ) ) {
+                $kanji   = trim( $nm[1] );
+                $reading = trim( $nm[2] );
+                // ふりがなが平仮名・片仮名のみの場合は「漢字（よみ）」形式で保存
+                if ( preg_match( '/^[\x{3040}-\x{30FF}\x{FF65}-\x{FF9F}\s　]+$/u', $reading ) ) {
+                    // 読みをひらがなに統一（スペース除去して先頭部分だけ使う）
+                    $short_reading = preg_replace( '/[\s　]+/u', '', $reading );
+                    $name = $kanji . '（' . $short_reading . '）';
+                } else {
+                    $name = $kanji;
+                }
+            } else {
+                // ふりがななし → 名前部分だけ取得（「[[」や注釈除去）
+                $name = preg_replace( '/\[\[.*?\]\]/u', '', $raw_name );
+                $name = preg_replace( '/{{.*?}}/u', '', $name );
+                $name = trim( $name );
+            }
+
             if ( $name !== '' && mb_strlen( $name, 'UTF-8' ) >= 2 ) {
                 $character_names[] = $name;
             }
@@ -1371,11 +1393,13 @@ function contentfreaks_build_gemini_proper_noun_context( $post_id ) {
         $lines[] = '- 俳優名の正しい表記: ' . implode( '、', $meta['cast_names'] );
         $lines[] = '  ※ 音声でこのリスト内の俳優が言及された場合は、必ずこの表記（漢字）を使うこと';
         $lines[] = '  ※ このリストにない俳優でも、文字起こしに明記されていれば記載してよい（サプライズゲスト等）';
+        $lines[] = '  ※ 【禁止】文字起こしに出てこない俳優名を学習データや推測で補完すること';
     }
 
     if ( ! empty( $meta['character_names'] ) ) {
-        $lines[] = '- キャラクター名の正しい表記: ' . implode( '、', $meta['character_names'] );
-        $lines[] = '  ※ 音声でこのリスト内のキャラクターが言及された場合は、必ずこの表記（漢字）を使うこと';
+        $lines[] = '- キャラクター名の正しい表記（括弧内は読み仮名）: ' . implode( '、', $meta['character_names'] );
+        $lines[] = '  ※ 文字起こしで読み仮名が出てきた場合は、括弧内の読みと照合して正しい漢字を使うこと';
+        $lines[] = '  ※ 例: 文字起こしに「まきた」→ リストの「真北正親（まきた）」が正解、「牧田」等の別漢字は誤り';
         $lines[] = '  ※ このリストにないキャラクターでも、文字起こしに明記されていれば記載してよい';
     }
 
@@ -1383,7 +1407,7 @@ function contentfreaks_build_gemini_proper_noun_context( $post_id ) {
         $lines[] = '- 参考（Wikipedia）: ' . $meta['wikipedia_url'];
     }
 
-    $lines[] = '- 【絶対禁止】文字起こし・音声で話されていない人名・キャラクター名を推測・補完・追加すること';
+    $lines[] = '- 【絶対禁止】文字起こし・音声で話されていない人名・キャラクター名を推測・補完・追加すること（学習データからの引用も禁止）';
     $lines[] = '- 【絶対禁止】上記リストの表記と異なる漢字・当て字でリスト内の名前を書くこと';
     $lines[] = '- 不明・聞き取れない場合は記載しないこと';
 
