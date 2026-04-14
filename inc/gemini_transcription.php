@@ -913,6 +913,14 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
         $transcription = $cached_transcription;
         $key_points    = $cached_key_points;
 
+        // キャッシュヒット時も作品情報を再解決（key_points付きで精度向上）
+        if ( function_exists( 'contentfreaks_resolve_and_save_work_meta_for_post' ) ) {
+            update_post_meta( $post_id, 'episode_ai_debug', 'step2b:re_resolving_work_meta(cache)' );
+            contentfreaks_resolve_and_save_work_meta_for_post( $post_id, $title, true );
+            error_log( "Gemini: 作品情報を key_points 付きで再解決（キャッシュ使用） Post ID={$post_id}" );
+        }
+
+
     } else {
         // 初回処理: 音声アップロード → 文字起こし＋要点抽出（① 1回のAPI呼び出し）
         $upload = contentfreaks_gemini_upload_audio( $audio_url );
