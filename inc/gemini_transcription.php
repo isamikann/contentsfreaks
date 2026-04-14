@@ -197,9 +197,10 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
  */
 function contentfreaks_get_model_fallback_list() {
     return array(
-        'gemini-2.5-flash-lite', // 最軽量・最安（デフォルト）
-        'gemini-2.5-flash',      // 中間（独立した無料枠）
-        'gemini-2.5-pro',        // 高性能（独立した無料枠）
+        'gemini-3-flash-preview',        // Gemini 3 Flash     : RPM=5,  TPM=250K, RPD=20  ← 最高性能
+        'gemini-2.5-flash',              // Gemini 2.5 Flash   : RPM=5,  TPM=250K, RPD=20
+        'gemini-3.1-flash-lite-preview', // Gemini 3.1 FL Lite : RPM=15, TPM=250K, RPD=500 ← RPD圧倒的
+        'gemini-2.5-flash-lite',         // Gemini 2.5 FL Lite : RPM=10, TPM=250K, RPD=20  ← 最終フォールバック
     );
 }
 
