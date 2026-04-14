@@ -875,9 +875,23 @@ function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false ) {
                 $entity_details = contentfreaks_wikidata_get_entity_details( $page_detail['wikidata_id'] );
 
                 if ( $entity_details !== null ) {
-                    // 6. work_data構築（Wikidataラベル優先→Wikipediaタイトル→$raw_title）
+                    // 6. work_data構築
+                    // Wikidataラベルはraw_titleと包含関係がある場合のみ採用。
+                    // 例: raw="リブート", label="再起動" → 採用しない（Wikipediaタイトルを維持）
                     if ( ! empty( $entity_details['label'] ) ) {
-                        $work_data['canonical_title'] = $entity_details['label'];
+                        $norm_raw   = contentfreaks_normalize_string( $raw_title );
+                        $norm_label = contentfreaks_normalize_string( $entity_details['label'] );
+                        $label_has_containment = (
+                            mb_strpos( $norm_label, $norm_raw,   0, 'UTF-8' ) !== false ||
+                            mb_strpos( $norm_raw,   $norm_label, 0, 'UTF-8' ) !== false ||
+                            $norm_label === $norm_raw
+                        );
+                        if ( $label_has_containment ) {
+                            $work_data['canonical_title'] = $entity_details['label'];
+                            error_log( '[CF ProperNoun] Wikidataラベル採用: ' . $entity_details['label'] );
+                        } else {
+                            error_log( '[CF ProperNoun] Wikidataラベル不採用（包含なし）: raw=' . $raw_title . ' label=' . $entity_details['label'] . ' → Wikipediaタイトルを維持: ' . $work_data['canonical_title'] );
+                        }
                     }
                     $work_data['aliases']         = $entity_details['aliases'];
                     $work_data['official_url']    = $entity_details['official_url'];
@@ -892,7 +906,21 @@ function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false ) {
         error_log( '[CF ProperNoun] Wikipedia候補なし (threshold=0.6未満): ' . $raw_title );
     }
 
-    // 7. キャッシュ保存
+    // 7. 最終バリデーション: どのステップを経ても canonical_title が raw_title と
+    //    無関係な文字列になっていたら raw_title にフォールバックする。
+    $norm_final = contentfreaks_normalize_string( $work_data['canonical_title'] );
+    $norm_raw   = contentfreaks_normalize_string( $raw_title );
+    if (
+        $norm_final !== $norm_raw &&
+        mb_strpos( $norm_final, $norm_raw, 0, 'UTF-8' ) === false &&
+        mb_strpos( $norm_raw, $norm_final, 0, 'UTF-8' ) === false
+    ) {
+        error_log( '[CF ProperNoun] 最終バリデーション: canonical_title をフォールバック "' . $work_data['canonical_title'] . '" → "' . $raw_title . '"' );
+        $work_data['canonical_title'] = $raw_title;
+        $work_data['confidence']      = 0.0;
+    }
+
+    // 8. キャッシュ保存
     $work_data = contentfreaks_upsert_work_to_cache( $work_data );
 
     error_log( '[CF ProperNoun] resolve_work_meta 完了: ' . $work_data['canonical_title'] . ' (confidence=' . $work_data['confidence'] . ')' );
