@@ -1360,27 +1360,30 @@ function contentfreaks_build_gemini_proper_noun_context( $post_id ) {
     }
 
     $lines = [];
-    $lines[] = '■ 固有名詞の正しい表記（表記ゆれ修正の参照用）';
+    $lines[] = '■ 固有名詞ホワイトリスト（厳守）';
     $lines[] = '- 作品名: ' . $meta['canonical_title'];
 
     if ( ! empty( $meta['aliases'] ) ) {
-        $lines[] = '- 別名・略称（使用禁止、正式名に統一すること）: ' . implode( '、', $meta['aliases'] );
+        $lines[] = '- 別名・略称（使用禁止、必ず正式名に統一すること）: ' . implode( '、', $meta['aliases'] );
     }
 
     if ( ! empty( $meta['cast_names'] ) ) {
-        $lines[] = '- 俳優名の正しい表記（音声で言及された場合のみ使用すること）: ' . implode( '、', $meta['cast_names'] );
+        $lines[] = '- 俳優名ホワイトリスト: ' . implode( '、', $meta['cast_names'] );
+        $lines[] = '  ※ 俳優名はこのリストが唯一の正解。音声で言及された場合は必ずこの表記を使うこと。このリストにない俳優名は絶対に書かないこと（知っていても・推測できても禁止）';
     }
 
     if ( ! empty( $meta['character_names'] ) ) {
-        $lines[] = '- キャラクター名の正しい表記（音声で言及された場合のみ使用すること）: ' . implode( '、', $meta['character_names'] );
+        $lines[] = '- キャラクター名ホワイトリスト: ' . implode( '、', $meta['character_names'] );
+        $lines[] = '  ※ キャラクター名はこのリストが唯一の正解。音声で言及された場合は必ずこの表記（漢字・読み）を使うこと。このリストにないキャラクター名は絶対に書かないこと';
     }
 
     if ( ! empty( $meta['wikipedia_url'] ) ) {
         $lines[] = '- 参考（Wikipedia）: ' . $meta['wikipedia_url'];
     }
 
-    $lines[] = '- この一覧は表記チェック用。音声・文字起こしで話されていない人名・キャラクター名は絶対に記載しないこと';
-    $lines[] = '- 不明な場合は推測せず、記載しないこと';
+    $lines[] = '- 【絶対禁止】このリストにない俳優名・キャラクター名を記事に含めること（ハルシネーション防止）';
+    $lines[] = '- 【絶対禁止】音声・文字起こしで話されていない人名を推測・補完すること';
+    $lines[] = '- 不明・聞き取れない場合は記載しないこと';
 
     return implode( "\n", $lines );
 }
