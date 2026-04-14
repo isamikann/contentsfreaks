@@ -611,6 +611,61 @@ function contentfreaks_find_best_match( $query, $candidates, $threshold = 0.7 ) 
     return $best_candidate;
 }
 
+/**
+ * スコア順に並べた全候補を返す（threshold以上のものだけ）。
+ * find_best_match の複数候補版。
+ *
+ * @param string $query      検索クエリ
+ * @param array  $candidates 候補配列
+ * @param float  $threshold  最低スコア
+ * @return array  _scoreキー付き候補の配列（スコア降順）
+ */
+function contentfreaks_find_sorted_matches( $query, $candidates, $threshold = 0.6 ) {
+    if ( empty( $candidates ) ) {
+        return [];
+    }
+
+    $norm_query = contentfreaks_normalize_string( $query );
+    $scored     = [];
+
+    foreach ( $candidates as $candidate ) {
+        if ( is_string( $candidate ) ) {
+            $candidate = [ 'title' => $candidate ];
+        }
+
+        $title = isset( $candidate['title'] ) ? (string) $candidate['title'] : '';
+        if ( $title === '' ) {
+            continue;
+        }
+
+        $score      = contentfreaks_fuzzy_score( $query, $title );
+        $norm_title = contentfreaks_normalize_string( $title );
+
+        $has_containment = (
+            mb_strpos( $norm_title, $norm_query, 0, 'UTF-8' ) !== false ||
+            mb_strpos( $norm_query, $norm_title, 0, 'UTF-8' ) !== false
+        );
+
+        if ( ! $has_containment && $score < 0.85 ) {
+            continue;
+        }
+
+        if ( $score < $threshold ) {
+            continue;
+        }
+
+        $candidate['_score'] = $score;
+        $scored[]            = $candidate;
+    }
+
+    // スコア降順でソート
+    usort( $scored, function ( $a, $b ) {
+        return $b['_score'] <=> $a['_score'];
+    } );
+
+    return $scored;
+}
+
 // ============================================================
 // 10. キャッシュ管理（WordPress options）
 // ============================================================
@@ -851,75 +906,85 @@ function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false ) {
     error_log( '[CF ProperNoun] Wikipedia検索: ' . $raw_title );
     $search_results = contentfreaks_wikipedia_search( $raw_title, 5 );
 
-    // 3. 最良候補選択（threshold=0.6）
-    $best_match = contentfreaks_find_best_match( $raw_title, $search_results, 0.6 );
+    // 3. 候補をスコア順に取得してページ検証が通るまで順番に試す
+    // 「リブート」→1位「リブート」(リダイレクト→再起動)が弾かれても
+    // 2位「リブート (テレビドラマ)」にフォールスルーできるようにする
+    $sorted_matches = contentfreaks_find_sorted_matches( $raw_title, $search_results, 0.4 );
+    $page_detail    = null;
+    $confidence     = 0.0;
 
-    if ( $best_match !== null ) {
-        $confidence = $best_match['_score'];
-        error_log( '[CF ProperNoun] Wikipedia最良マッチ: ' . $best_match['title'] . ' (score=' . $confidence . ')' );
+    foreach ( $sorted_matches as $candidate ) {
+        $candidate_title = $candidate['title'];
+        error_log( '[CF ProperNoun] Wikipedia候補を試行: ' . $candidate_title . ' (score=' . $candidate['_score'] . ')' );
 
         // 4. Wikipediaページ詳細取得
-        $page_detail = contentfreaks_wikipedia_get_page( $best_match['title'] );
-
-        if ( $page_detail !== null ) {
-            error_log( '[CF ProperNoun] Wikipediaページ取得成功: ' . $page_detail['canonical_title'] );
-
-            // ページタイトル自体が raw_title と無関係なら丸ごと捨てる
-            // 例: 「リブート」で検索 → リダイレクトで「再起動」ページが返る場合
-            $norm_page  = contentfreaks_normalize_string( $page_detail['canonical_title'] );
-            $norm_raw_p = contentfreaks_normalize_string( $raw_title );
-            $page_has_containment = (
-                $norm_page === $norm_raw_p ||
-                mb_strpos( $norm_page,  $norm_raw_p, 0, 'UTF-8' ) !== false ||
-                mb_strpos( $norm_raw_p, $norm_page,  0, 'UTF-8' ) !== false
-            );
-            if ( ! $page_has_containment ) {
-                error_log( '[CF ProperNoun] Wikipediaページ不採用（包含なし）: raw=' . $raw_title . ' page=' . $page_detail['canonical_title'] );
-                $page_detail = null;
-            }
+        $try_page = contentfreaks_wikipedia_get_page( $candidate_title );
+        if ( $try_page === null ) {
+            error_log( '[CF ProperNoun] Wikipediaページ取得失敗: ' . $candidate_title );
+            continue;
         }
 
-        if ( $page_detail !== null ) {
-            $work_data['canonical_title'] = $page_detail['canonical_title'];
-            $work_data['wikipedia_url']   = $page_detail['wikipedia_url'];
-            $work_data['wikidata_id']     = $page_detail['wikidata_id'];
-            $work_data['confidence']      = $confidence;
+        // ページタイトル（リダイレクト後）がraw_titleと無関係なら次の候補へ
+        $norm_page  = contentfreaks_normalize_string( $try_page['canonical_title'] );
+        $norm_raw_p = contentfreaks_normalize_string( $raw_title );
+        $page_has_containment = (
+            $norm_page === $norm_raw_p ||
+            mb_strpos( $norm_page,  $norm_raw_p, 0, 'UTF-8' ) !== false ||
+            mb_strpos( $norm_raw_p, $norm_page,  0, 'UTF-8' ) !== false
+        );
 
-            // 5. Wikidata IDがあればエンティティ詳細取得
-            if ( ! empty( $page_detail['wikidata_id'] ) ) {
-                error_log( '[CF ProperNoun] Wikidata取得: ' . $page_detail['wikidata_id'] );
-                $entity_details = contentfreaks_wikidata_get_entity_details( $page_detail['wikidata_id'] );
+        if ( ! $page_has_containment ) {
+            error_log( '[CF ProperNoun] Wikipediaページ不採用（包含なし）: raw=' . $raw_title . ' page=' . $try_page['canonical_title'] . ' → 次候補へ' );
+            continue;
+        }
 
-                if ( $entity_details !== null ) {
-                    // 6. work_data構築
-                    // Wikidataラベルはraw_titleと包含関係がある場合のみ採用。
-                    // 例: raw="リブート", label="再起動" → 採用しない（Wikipediaタイトルを維持）
-                    if ( ! empty( $entity_details['label'] ) ) {
-                        $norm_raw   = contentfreaks_normalize_string( $raw_title );
-                        $norm_label = contentfreaks_normalize_string( $entity_details['label'] );
-                        $label_has_containment = (
-                            mb_strpos( $norm_label, $norm_raw,   0, 'UTF-8' ) !== false ||
-                            mb_strpos( $norm_raw,   $norm_label, 0, 'UTF-8' ) !== false ||
-                            $norm_label === $norm_raw
-                        );
-                        if ( $label_has_containment ) {
-                            $work_data['canonical_title'] = $entity_details['label'];
-                            error_log( '[CF ProperNoun] Wikidataラベル採用: ' . $entity_details['label'] );
-                        } else {
-                            error_log( '[CF ProperNoun] Wikidataラベル不採用（包含なし）: raw=' . $raw_title . ' label=' . $entity_details['label'] . ' → Wikipediaタイトルを維持: ' . $work_data['canonical_title'] );
-                        }
+        // 有効なページが見つかった
+        $page_detail = $try_page;
+        $confidence  = $candidate['_score'];
+        error_log( '[CF ProperNoun] Wikipediaページ採用: ' . $page_detail['canonical_title'] . ' (score=' . $confidence . ')' );
+        break;
+    }
+
+    if ( $page_detail !== null ) {
+        $work_data['canonical_title'] = $page_detail['canonical_title'];
+        $work_data['wikipedia_url']   = $page_detail['wikipedia_url'];
+        $work_data['wikidata_id']     = $page_detail['wikidata_id'];
+        $work_data['confidence']      = $confidence;
+
+        // 5. Wikidata IDがあればエンティティ詳細取得
+        if ( ! empty( $page_detail['wikidata_id'] ) ) {
+            error_log( '[CF ProperNoun] Wikidata取得: ' . $page_detail['wikidata_id'] );
+            $entity_details = contentfreaks_wikidata_get_entity_details( $page_detail['wikidata_id'] );
+
+            if ( $entity_details !== null ) {
+                // 6. work_data構築
+                // Wikidataラベルはraw_titleと包含関係がある場合のみ採用。
+                // 例: raw="リブート", label="再起動" → 採用しない（Wikipediaタイトルを維持）
+                if ( ! empty( $entity_details['label'] ) ) {
+                    $norm_raw   = contentfreaks_normalize_string( $raw_title );
+                    $norm_label = contentfreaks_normalize_string( $entity_details['label'] );
+                    $label_has_containment = (
+                        mb_strpos( $norm_label, $norm_raw,   0, 'UTF-8' ) !== false ||
+                        mb_strpos( $norm_raw,   $norm_label, 0, 'UTF-8' ) !== false ||
+                        $norm_label === $norm_raw
+                    );
+                    if ( $label_has_containment ) {
+                        $work_data['canonical_title'] = $entity_details['label'];
+                        error_log( '[CF ProperNoun] Wikidataラベル採用: ' . $entity_details['label'] );
+                    } else {
+                        error_log( '[CF ProperNoun] Wikidataラベル不採用（包含なし）: raw=' . $raw_title . ' label=' . $entity_details['label'] . ' → Wikipediaタイトルを維持: ' . $work_data['canonical_title'] );
                     }
-                    $work_data['aliases']         = $entity_details['aliases'];
-                    $work_data['official_url']    = $entity_details['official_url'];
-                    $work_data['cast_names']      = $entity_details['cast_names'];
-                    $work_data['character_names'] = $entity_details['character_names'];
-
-                    error_log( '[CF ProperNoun] キャスト数: ' . count( $entity_details['cast_names'] ) . ', キャラ数: ' . count( $entity_details['character_names'] ) );
                 }
+                $work_data['aliases']         = $entity_details['aliases'];
+                $work_data['official_url']    = $entity_details['official_url'];
+                $work_data['cast_names']      = $entity_details['cast_names'];
+                $work_data['character_names'] = $entity_details['character_names'];
+
+                error_log( '[CF ProperNoun] キャスト数: ' . count( $entity_details['cast_names'] ) . ', キャラ数: ' . count( $entity_details['character_names'] ) );
             }
         }
     } else {
-        error_log( '[CF ProperNoun] Wikipedia候補なし (threshold=0.6未満): ' . $raw_title );
+        error_log( '[CF ProperNoun] 有効なWikipediaページなし: ' . $raw_title );
     }
 
     // 7. 最終バリデーション: どのステップを経ても canonical_title が raw_title と
