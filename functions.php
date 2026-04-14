@@ -927,6 +927,18 @@ function contentfreaks_unified_admin_page() {
                 echo '<p>⏱️ 次回Cron: ' . ($cron_next ? esc_html(date_i18n('Y-m-d H:i:s', $cron_next)) . '（' . human_time_diff($cron_next) . '後）' : '<strong style="color:red;">未登録</strong>') . '</p>';
                 echo '<p>⏸ 一時停止: ' . ($gemini_paused ? '<strong style="color:#b45309;">はい</strong>' : 'いいえ') . '</p>';
 
+                // Gemini モデル使用状況
+                if ( function_exists( 'contentfreaks_get_model_status' ) ) {
+                    echo '<p>🤖 <strong>Geminiモデル状況:</strong></p><ul>';
+                    foreach ( contentfreaks_get_model_status() as $ms ) {
+                        $icon  = $ms['available'] ? '✅' : '🔴';
+                        $label = $ms['available'] ? '利用可能' : 'レート制限中（最大1時間）';
+                        $color = $ms['available'] ? 'green' : '#b45309';
+                        echo '<li>' . $icon . ' <code>' . esc_html( $ms['model'] ) . '</code>: <span style="color:' . $color . ';">' . $label . '</span></li>';
+                    }
+                    echo '</ul>';
+                }
+
                 $sample = $wpdb->get_row("SELECT p.ID, p.post_title, pm.meta_value AS audio_url FROM {$wpdb->posts} p INNER JOIN {$wpdb->postmeta} pm ON p.ID=pm.post_id AND pm.meta_key='episode_audio_url' WHERE p.post_type='post' ORDER BY p.post_date DESC LIMIT 1");
                 if ($sample) {
                     echo '<p>🔗 最新音声URL:<br><code style="word-break:break-all;font-size:11px;">' . esc_html($sample->audio_url) . '</code></p>';

@@ -187,85 +187,197 @@ function contentfreaks_gemini_upload_audio( $audio_url ) {
  * @param array  $generation_config
  * @return string|WP_Error
  */
-function contentfreaks_gemini_call( array $parts, array $generation_config = array() ) {
-    $api_key = contentfreaks_get_gemini_api_key();
-    if ( empty( $api_key ) ) {
-        return new WP_Error( 'no_api_key', 'Gemini API Key が設定されていません。' );
-    }
+// ============================================================
+// モデルローテーション（レート制限・クォータ超過フォールバック）
+// ============================================================
 
-    $defaults = array(
-        'temperature'     => 0.3,
-        'maxOutputTokens' => 65536,
+/**
+ * フォールバック順のモデルリストを返す。
+ * 各モデルは独立した無料枠クォータを持つ。
+ */
+function contentfreaks_get_model_fallback_list() {
+    return array(
+        'gemini-2.5-flash-lite', // 最軽量・最安（デフォルト）
+        'gemini-2.5-flash',      // 中間（独立した無料枠）
+        'gemini-2.5-pro',        // 高性能（独立した無料枠）
     );
-    $config = array_merge( $defaults, $generation_config );
+}
 
-    $request_body = array(
-        'contents'         => array( array( 'parts' => $parts ) ),
-        'generationConfig' => $config,
-    );
+/**
+ * 指定モデルをレート制限済みとしてマークする（1時間）。
+ */
+function contentfreaks_mark_model_rate_limited( $model ) {
+    set_transient( 'cf_model_rl_' . sanitize_key( $model ), 1, HOUR_IN_SECONDS );
+    error_log( "Gemini: モデル [{$model}] をレート制限としてマーク（1時間）" );
+}
 
-    $api_url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent'
-              . '?key=' . rawurlencode( $api_key );
+/**
+ * 指定モデルが現在使用可能かどうかを返す。
+ */
+function contentfreaks_is_model_available( $model ) {
+    return ! get_transient( 'cf_model_rl_' . sanitize_key( $model ) );
+}
 
-    $response = wp_remote_post( $api_url, array(
-        'timeout'   => 300,
-        'headers'   => array( 'Content-Type' => 'application/json' ),
-        'body'      => wp_json_encode( $request_body ),
-        'sslverify' => true,
-    ) );
-
-    if ( is_wp_error( $response ) ) {
-        return new WP_Error( 'generate_failed', 'Gemini API 呼び出し失敗: ' . $response->get_error_message() );
-    }
-
-    $http_code = wp_remote_retrieve_response_code( $response );
-    $resp_body = wp_remote_retrieve_body( $response );
-    $data      = json_decode( $resp_body, true );
-
-    if ( $http_code === 429 ) {
-        $err = isset( $data['error']['message'] ) ? $data['error']['message'] : $resp_body;
-        $retry_sec = 60;
-        if ( preg_match( '/retry in ([0-9.]+)s/i', $err, $m ) ) {
-            $retry_sec = (int) ceil( (float) $m[1] );
-        }
-        error_log( "Gemini 429 detail: {$err}" );
-        return new WP_Error( 'rate_limit', "レート制限です。{$retry_sec}秒後に自動リトライされます。(429: " . substr( $err, 0, 200 ) . ")" );
-    }
-
-    if ( $http_code !== 200 ) {
-        $err = isset( $data['error']['message'] ) ? $data['error']['message'] : $resp_body;
-        error_log( "Gemini API error HTTP {$http_code}: {$err}" );
-        return new WP_Error( 'generate_api_error', "Gemini API エラー (HTTP {$http_code}): " . substr( $err, 0, 300 ) );
-    }
-
-    // 思考モデル対策: thought=true のパートを除いた最後のテキストを取得
-    $generated_text = '';
-    $parts_resp = $data['candidates'][0]['content']['parts'] ?? array();
-    foreach ( array_reverse( $parts_resp ) as $part ) {
-        if ( ! empty( $part['text'] ) && empty( $part['thought'] ) ) {
-            $generated_text = $part['text'];
-            break;
+/**
+ * 現在使用可能な最優先モデルを返す。
+ */
+function contentfreaks_get_available_model() {
+    foreach ( contentfreaks_get_model_fallback_list() as $model ) {
+        if ( contentfreaks_is_model_available( $model ) ) {
+            return $model;
         }
     }
-    if ( empty( $generated_text ) ) {
-        foreach ( $parts_resp as $part ) {
-            if ( ! empty( $part['text'] ) ) {
+    // 全モデル制限中 → 先頭モデルを返す（次のリセットを待つ）
+    $first = contentfreaks_get_model_fallback_list()[0];
+    error_log( 'Gemini: 全モデルがレート制限中。先頭モデルを使用します: ' . $first );
+    return $first;
+}
+
+/**
+ * モデルのレート制限状態を管理画面用に取得する。
+ *
+ * @return array [ 'model' => string, 'available' => bool ][]
+ */
+function contentfreaks_get_model_status() {
+    return array_map( function ( $model ) {
+        return array(
+            'model'     => $model,
+            'available' => contentfreaks_is_model_available( $model ),
+        );
+    }, contentfreaks_get_model_fallback_list() );
+}
+
+/**
+ * Gemini API を呼び出して text を返す汎用ヘルパー。
+ * $model を省略すると使用可能な最優先モデルを自動選択する。
+ * レート制限 (429) 時はそのモデルをマークして次のモデルへ自動フォールバックする。
+ *
+ * @param array  $parts
+ * @param array  $generation_config
+ * @param string|null $model  指定がなければ自動選択
+ * @return string|WP_Error
+ */
+function contentfreaks_gemini_call( array $parts, array $generation_config = array(), $model = null ) {
+    // モデル未指定なら使用可能な最優先モデルを選ぶ
+    $models_to_try = array();
+    if ( $model !== null ) {
+        // 明示指定されたモデルのみ試す
+        $models_to_try = array( $model );
+    } else {
+        // 使用可能なモデルを優先順に全部用意しておく
+        foreach ( contentfreaks_get_model_fallback_list() as $m ) {
+            if ( contentfreaks_is_model_available( $m ) ) {
+                $models_to_try[] = $m;
+            }
+        }
+        if ( empty( $models_to_try ) ) {
+            // 全制限中でも先頭だけは試す
+            $models_to_try = array( contentfreaks_get_model_fallback_list()[0] );
+        }
+    }
+
+    $last_error = null;
+
+    foreach ( $models_to_try as $current_model ) {
+        $api_key = contentfreaks_get_gemini_api_key();
+        if ( empty( $api_key ) ) {
+            return new WP_Error( 'no_api_key', 'Gemini API Key が設定されていません。' );
+        }
+
+        $defaults = array(
+            'temperature'     => 0.3,
+            'maxOutputTokens' => 65536,
+        );
+        $config = array_merge( $defaults, $generation_config );
+
+        $request_body = array(
+            'contents'         => array( array( 'parts' => $parts ) ),
+            'generationConfig' => $config,
+        );
+
+        $api_url = 'https://generativelanguage.googleapis.com/v1beta/models/'
+                 . $current_model . ':generateContent'
+                 . '?key=' . rawurlencode( $api_key );
+
+        error_log( "Gemini: モデル [{$current_model}] で呼び出し" );
+
+        $response = wp_remote_post( $api_url, array(
+            'timeout'   => 300,
+            'headers'   => array( 'Content-Type' => 'application/json' ),
+            'body'      => wp_json_encode( $request_body ),
+            'sslverify' => true,
+        ) );
+
+        if ( is_wp_error( $response ) ) {
+            $last_error = new WP_Error( 'generate_failed', 'Gemini API 呼び出し失敗: ' . $response->get_error_message() );
+            continue;
+        }
+
+        $http_code = wp_remote_retrieve_response_code( $response );
+        $resp_body = wp_remote_retrieve_body( $response );
+        $data      = json_decode( $resp_body, true );
+
+        if ( $http_code === 429 ) {
+            $err = isset( $data['error']['message'] ) ? $data['error']['message'] : $resp_body;
+            $retry_sec = 60;
+            if ( preg_match( '/retry in ([0-9.]+)s/i', $err, $m ) ) {
+                $retry_sec = (int) ceil( (float) $m[1] );
+            }
+            error_log( "Gemini 429 [{$current_model}]: {$err}" );
+
+            // このモデルをレート制限としてマークして次のモデルへ
+            contentfreaks_mark_model_rate_limited( $current_model );
+
+            $last_error = new WP_Error(
+                'rate_limit',
+                "レート制限です。{$retry_sec}秒後に自動リトライされます。(429: " . substr( $err, 0, 200 ) . ")"
+            );
+            continue; // 次のモデルを試す
+        }
+
+        if ( $http_code !== 200 ) {
+            $err = isset( $data['error']['message'] ) ? $data['error']['message'] : $resp_body;
+            error_log( "Gemini API error HTTP {$http_code} [{$current_model}]: {$err}" );
+            $last_error = new WP_Error( 'generate_api_error', "Gemini API エラー (HTTP {$http_code}): " . substr( $err, 0, 300 ) );
+            continue;
+        }
+
+        // 思考モデル対策: thought=true のパートを除いた最後のテキストを取得
+        $generated_text = '';
+        $parts_resp = $data['candidates'][0]['content']['parts'] ?? array();
+        foreach ( array_reverse( $parts_resp ) as $part ) {
+            if ( ! empty( $part['text'] ) && empty( $part['thought'] ) ) {
                 $generated_text = $part['text'];
                 break;
             }
         }
-    }
+        if ( empty( $generated_text ) ) {
+            foreach ( $parts_resp as $part ) {
+                if ( ! empty( $part['text'] ) ) {
+                    $generated_text = $part['text'];
+                    break;
+                }
+            }
+        }
 
-    $finish_reason = $data['candidates'][0]['finishReason'] ?? '';
-    if ( $finish_reason === 'MAX_TOKENS' ) {
-        error_log( 'Gemini: finishReason=MAX_TOKENS — 出力がトークン制限で切断されました。' );
-    }
+        $finish_reason = $data['candidates'][0]['finishReason'] ?? '';
+        if ( $finish_reason === 'MAX_TOKENS' ) {
+            error_log( "Gemini: finishReason=MAX_TOKENS [{$current_model}] — 出力がトークン制限で切断されました。" );
+        }
 
-    if ( empty( $generated_text ) ) {
-        return new WP_Error( 'empty_response', 'Gemini API から空のレスポンスが返されました。parts=' . count( $parts_resp ) );
-    }
+        if ( empty( $generated_text ) ) {
+            $last_error = new WP_Error( 'empty_response', 'Gemini API から空のレスポンスが返されました。parts=' . count( $parts_resp ) );
+            continue;
+        }
 
-    return $generated_text;
+        // 成功
+        error_log( "Gemini: [{$current_model}] 呼び出し成功" );
+        return $generated_text;
+
+    } // end foreach models
+
+    // 全モデル失敗
+    return $last_error ?? new WP_Error( 'all_models_failed', '全モデルの呼び出しに失敗しました。' );
 }
 
 // ============================================================
