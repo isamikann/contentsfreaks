@@ -658,11 +658,7 @@ function contentfreaks_find_sorted_matches( $query, $candidates, $threshold = 0.
         $scored[]            = $candidate;
     }
 
-    // スコア降順でソート
-    usort( $scored, function ( $a, $b ) {
-        return $b['_score'] <=> $a['_score'];
-    } );
-
+    // Wikipedia返却順を維持（OpenSearchはすでに関連度順のため、スコアはフィルタのみに使用）
     return $scored;
 }
 
