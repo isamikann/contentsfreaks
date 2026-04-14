@@ -273,6 +273,140 @@ function contentfreaks_wikipedia_get_page( $title ) {
 }
 
 // ============================================================
+// 4b. WikipediaキャストセクションからのWikitext解析
+// ============================================================
+
+/**
+ * Wikipediaページのキャストセクションからwikitextをパースして俳優名・キャラクター名を取得する。
+ * 「キャスト」「出演者」「登場人物」「キャラクター」「出演」の順でセクションを探す。
+ * ゲストセクションは除外して主要キャストのみ取得する。
+ *
+ * @param string $page_title Wikipediaページタイトル
+ * @return array ['cast_names' => string[], 'character_names' => string[]]
+ */
+function contentfreaks_wikipedia_get_cast_from_page( $page_title ) {
+    $result = [ 'cast_names' => [], 'character_names' => [] ];
+
+    // 1. セクション一覧を取得
+    $sections_url = 'https://ja.wikipedia.org/w/api.php?' . http_build_query( [
+        'action'  => 'parse',
+        'page'    => $page_title,
+        'prop'    => 'sections',
+        'format'  => 'json',
+    ] );
+    $sections_resp = wp_remote_get( $sections_url, [
+        'timeout'    => 10,
+        'user-agent' => 'ContentFreaks/1.0 (https://contentsfreaks.com)',
+    ] );
+    if ( is_wp_error( $sections_resp ) ) {
+        return $result;
+    }
+    $sections_data = json_decode( wp_remote_retrieve_body( $sections_resp ), true );
+    $sections = $sections_data['parse']['sections'] ?? [];
+
+    // 2. キャスト系セクションを優先順に検索（ゲスト・脚注等は対象外）
+    $cast_section_keywords = [ 'キャスト', '出演者', '登場人物', 'キャラクター', '出演' ];
+    $exclude_keywords      = [ 'ゲスト', 'スタッフ', '脚注', '外部', '参考' ];
+    $target_section_index  = null;
+
+    foreach ( $cast_section_keywords as $keyword ) {
+        foreach ( $sections as $section ) {
+            $line = $section['line'] ?? '';
+            // 除外キーワードを含むセクションはスキップ
+            $should_exclude = false;
+            foreach ( $exclude_keywords as $ex ) {
+                if ( mb_strpos( $line, $ex, 0, 'UTF-8' ) !== false ) {
+                    $should_exclude = true;
+                    break;
+                }
+            }
+            if ( $should_exclude ) continue;
+
+            if ( mb_strpos( $line, $keyword, 0, 'UTF-8' ) !== false ) {
+                $target_section_index = $section['index'];
+                error_log( '[CF ProperNoun] Wikipediaキャストセクション発見: ' . $line . ' (index=' . $target_section_index . ')' );
+                break 2;
+            }
+        }
+    }
+
+    if ( $target_section_index === null ) {
+        error_log( '[CF ProperNoun] Wikipediaキャストセクションなし: ' . $page_title );
+        return $result;
+    }
+
+    // 3. セクションのwikitextを取得
+    $wikitext_url = 'https://ja.wikipedia.org/w/api.php?' . http_build_query( [
+        'action'  => 'parse',
+        'page'    => $page_title,
+        'prop'    => 'wikitext',
+        'section' => $target_section_index,
+        'format'  => 'json',
+    ] );
+    $wikitext_resp = wp_remote_get( $wikitext_url, [
+        'timeout'    => 10,
+        'user-agent' => 'ContentFreaks/1.0 (https://contentsfreaks.com)',
+    ] );
+    if ( is_wp_error( $wikitext_resp ) ) {
+        return $result;
+    }
+    $wikitext_data = json_decode( wp_remote_retrieve_body( $wikitext_resp ), true );
+    $wikitext      = $wikitext_data['parse']['wikitext']['*'] ?? '';
+
+    if ( empty( $wikitext ) ) {
+        return $result;
+    }
+
+    // 4. ゲストセクション以降を除外（ゲスト出演者が混入しないように）
+    $guest_pos = mb_strpos( $wikitext, '=== ゲスト', 0, 'UTF-8' );
+    if ( $guest_pos === false ) {
+        $guest_pos = mb_strpos( $wikitext, '== ゲスト', 0, 'UTF-8' );
+    }
+    if ( $guest_pos !== false ) {
+        $wikitext = mb_substr( $wikitext, 0, $guest_pos, 'UTF-8' );
+    }
+
+    // 5. キャラクター名を抽出: 「; キャラクター名（ふりがな）」形式
+    //    例:「; 早瀬陸（はやせ りく）」→「早瀬陸」
+    $character_names = [];
+    if ( preg_match_all( '/^;\s*([^（\n\r〔\[]+)/mu', $wikitext, $char_matches ) ) {
+        foreach ( $char_matches[1] as $name ) {
+            $name = trim( $name );
+            if ( $name !== '' && mb_strlen( $name, 'UTF-8' ) >= 2 ) {
+                $character_names[] = $name;
+            }
+        }
+    }
+
+    // 6. 俳優名を抽出: 「演 - [[ページ名|表示名]]」または「演 - [[ページ名]]」形式
+    //    複数俳優（/ 区切り）にも対応
+    $cast_names = [];
+    // 「演 -」が含まれる行を対象に [[...]] を全て抽出
+    if ( preg_match_all( '/演.*?\[\[([^\]]+)\]\]/u', $wikitext, $actor_matches ) ) {
+        foreach ( $actor_matches[1] as $raw ) {
+            // 「ページ名|表示名」→ 表示名を使用
+            if ( mb_strpos( $raw, '|', 0, 'UTF-8' ) !== false ) {
+                $parts = explode( '|', $raw );
+                $name  = trim( end( $parts ) );
+            } else {
+                $name = trim( $raw );
+            }
+            // 表示名が2文字以上なら採用
+            if ( $name !== '' && mb_strlen( $name, 'UTF-8' ) >= 2 ) {
+                $cast_names[] = $name;
+            }
+        }
+    }
+
+    $result['cast_names']      = array_values( array_unique( $cast_names ) );
+    $result['character_names'] = array_values( array_unique( $character_names ) );
+
+    error_log( '[CF ProperNoun] Wikipediaキャスト取得: 俳優=' . count( $result['cast_names'] ) . '名, キャラ=' . count( $result['character_names'] ) . '名' );
+
+    return $result;
+}
+
+// ============================================================
 // 5. Wikidata検索
 // ============================================================
 
@@ -1062,6 +1196,21 @@ function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false, $c
 
                 error_log( '[CF ProperNoun] キャスト数: ' . count( $entity_details['cast_names'] ) . ', キャラ数: ' . count( $entity_details['character_names'] ) );
 
+                // WikipediaのキャストセクションはWikidataのP161より正確なため、
+                // ページタイトルが確定している場合はWikipediaキャストで上書きする
+                if ( ! empty( $page_detail['canonical_title'] ) ) {
+                    $wp_cast = contentfreaks_wikipedia_get_cast_from_page( $page_detail['canonical_title'] );
+                    if ( ! empty( $wp_cast['cast_names'] ) || ! empty( $wp_cast['character_names'] ) ) {
+                        if ( ! empty( $wp_cast['cast_names'] ) ) {
+                            $work_data['cast_names'] = $wp_cast['cast_names'];
+                        }
+                        if ( ! empty( $wp_cast['character_names'] ) ) {
+                            $work_data['character_names'] = $wp_cast['character_names'];
+                        }
+                        error_log( '[CF ProperNoun] WikipediaキャストでWikidataを上書き: 俳優=' . count( $work_data['cast_names'] ) . ', キャラ=' . count( $work_data['character_names'] ) );
+                    }
+                }
+
                 // キャスト名と人名ヒントを照合して確信度UP
                 if ( ! empty( $person_hints ) && ! empty( $work_data['cast_names'] ) ) {
                     $norm_cast    = array_map( 'contentfreaks_normalize_string', $work_data['cast_names'] );
@@ -1074,6 +1223,20 @@ function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false, $c
                         error_log( '[CF ProperNoun] キャスト照合: 一致なし（Wikidataにキャストデータがない可能性あり）' );
                     }
                 }
+            }
+        }
+
+        // Wikidataにキャストデータがない場合もWikipediaから直接取得を試みる
+        if ( empty( $work_data['cast_names'] ) && empty( $work_data['character_names'] ) ) {
+            $wp_cast = contentfreaks_wikipedia_get_cast_from_page( $page_detail['canonical_title'] );
+            if ( ! empty( $wp_cast['cast_names'] ) ) {
+                $work_data['cast_names'] = $wp_cast['cast_names'];
+            }
+            if ( ! empty( $wp_cast['character_names'] ) ) {
+                $work_data['character_names'] = $wp_cast['character_names'];
+            }
+            if ( ! empty( $wp_cast['cast_names'] ) || ! empty( $wp_cast['character_names'] ) ) {
+                error_log( '[CF ProperNoun] Wikidataなし→Wikipediaキャストで補完: 俳優=' . count( $work_data['cast_names'] ) . ', キャラ=' . count( $work_data['character_names'] ) );
             }
         }
     } else {
