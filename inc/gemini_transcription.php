@@ -966,6 +966,13 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
         error_log( "Gemini: 文字起こし完了 Post ID={$post_id} 文字数=" . mb_strlen( $transcription ) . " 要点文字数=" . mb_strlen( $key_points ) );
     }
 
+    // key_points が取得できた段階で作品情報を再解決（ジャンル・キャスト照合で精度向上）
+    if ( function_exists( 'contentfreaks_resolve_and_save_work_meta_for_post' ) ) {
+        update_post_meta( $post_id, 'episode_ai_debug', 'step2b:re_resolving_work_meta' );
+        contentfreaks_resolve_and_save_work_meta_for_post( $post_id, $title, true );
+        error_log( "Gemini: 作品情報を key_points 付きで再解決 Post ID={$post_id}" );
+    }
+
     update_post_meta( $post_id, 'episode_ai_debug', 'step3:generating_article key_points_len=' . mb_strlen( $key_points ) );
     error_log( "Gemini: 記事生成開始 Post ID={$post_id} 要点文字数=" . mb_strlen( $key_points ) );
 

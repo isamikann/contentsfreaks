@@ -550,6 +550,63 @@ function contentfreaks_fuzzy_score( $a, $b ) {
 }
 
 // ============================================================
+// 9a. コンテキスト解析（ジャンル検出・人名抽出）
+// ============================================================
+
+/**
+ * テキストからジャンルを検出してWikipedia記事タイトルの曖昧さ回避に使うキーワードを返す
+ *
+ * @param string $context 解析するテキスト
+ * @return string ジャンルキーワード（例: 'テレビドラマ'）、検出できなければ空文字列
+ */
+function contentfreaks_detect_genre_from_context( $context ) {
+    // キーワード → Wikipediaの括弧内キーワード のマッピング
+    $genre_map = [
+        'テレビドラマ' => ['ドラマ', 'テレビドラマ', '連続ドラマ', '連ドラ', 'NHK', 'TBS', 'フジテレビ', '日テレ', 'テレ朝', 'テレビ東京', '民放', '実写'],
+        'アニメ'       => ['アニメ', 'アニメーション', '声優', 'アニメ化'],
+        '映画'         => ['映画', '劇場版', '公開', '上映', '興行'],
+        '漫画'         => ['漫画', 'マンガ', 'コミック', '週刊', '月刊', '連載'],
+        '小説'         => ['小説', '原作小説', 'ノベル'],
+    ];
+
+    foreach ( $genre_map as $genre => $keywords ) {
+        foreach ( $keywords as $keyword ) {
+            if ( mb_strpos( $context, $keyword, 0, 'UTF-8' ) !== false ) {
+                return $genre;
+            }
+        }
+    }
+    return '';
+}
+
+/**
+ * テキストから人名候補を抽出する
+ *
+ * 【】内のスペース区切りテキストを人名として扱う（例:「【鈴木亮平 戸田恵梨香】」）
+ *
+ * @param string $context 解析するテキスト
+ * @return string[] 人名配列（重複排除済み）
+ */
+function contentfreaks_extract_persons_from_context( $context ) {
+    $persons = [];
+
+    // 【】内のテキストをスペース区切りで分割（例:「【鈴木亮平 戸田恵梨香】」）
+    if ( preg_match_all( '/【([^】]+)】/u', $context, $matches ) ) {
+        foreach ( $matches[1] as $m ) {
+            $parts = preg_split( '/[\s　]+/u', trim( $m ) );
+            foreach ( $parts as $part ) {
+                $part = trim( $part );
+                if ( mb_strlen( $part, 'UTF-8' ) >= 2 ) {
+                    $persons[] = $part;
+                }
+            }
+        }
+    }
+
+    return array_values( array_unique( $persons ) );
+}
+
+// ============================================================
 // 9. 最良マッチ探索
 // ============================================================
 
@@ -620,7 +677,7 @@ function contentfreaks_find_best_match( $query, $candidates, $threshold = 0.7 ) 
  * @param float  $threshold  最低スコア
  * @return array  _scoreキー付き候補の配列（スコア降順）
  */
-function contentfreaks_find_sorted_matches( $query, $candidates, $threshold = 0.6 ) {
+function contentfreaks_find_sorted_matches( $query, $candidates, $threshold = 0.6, $genre_hint = '' ) {
     if ( empty( $candidates ) ) {
         return [];
     }
@@ -656,6 +713,23 @@ function contentfreaks_find_sorted_matches( $query, $candidates, $threshold = 0.
 
         $candidate['_score'] = $score;
         $scored[]            = $candidate;
+    }
+
+    // ジャンルヒントがある場合、一致する候補を先頭に移動（Wikipedia返却順を壊さない安定ソート）
+    if ( ! empty( $genre_hint ) ) {
+        $matched   = [];
+        $unmatched = [];
+        foreach ( $scored as $item ) {
+            if ( mb_strpos( $item['title'], $genre_hint, 0, 'UTF-8' ) !== false ) {
+                $matched[] = $item;
+            } else {
+                $unmatched[] = $item;
+            }
+        }
+        $scored = array_merge( $matched, $unmatched );
+        if ( ! empty( $matched ) ) {
+            error_log( '[CF ProperNoun] ジャンルヒント「' . $genre_hint . '」で先頭移動: ' . $matched[0]['title'] );
+        }
     }
 
     // Wikipedia返却順を維持（OpenSearchはすでに関連度順のため、スコアはフィルタのみに使用）
@@ -869,8 +943,18 @@ function contentfreaks_upsert_work_to_cache( $work_data ) {
  * @param bool   $force_refresh trueのときキャッシュをスキップして再取得し、古いエントリを削除する
  * @return array 作品データ
  */
-function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false ) {
+function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false, $context = '' ) {
     error_log( '[CF ProperNoun] resolve_work_meta 開始: ' . $raw_title . ( $force_refresh ? ' [force_refresh]' : '' ) );
+
+    // コンテキストからヒントを抽出
+    $genre_hint   = contentfreaks_detect_genre_from_context( $context );
+    $person_hints = contentfreaks_extract_persons_from_context( $context );
+    if ( ! empty( $genre_hint ) ) {
+        error_log( '[CF ProperNoun] ジャンルヒント: ' . $genre_hint );
+    }
+    if ( ! empty( $person_hints ) ) {
+        error_log( '[CF ProperNoun] 人名ヒント: ' . implode( ', ', $person_hints ) );
+    }
 
     // デフォルト work_data
     $work_data = [
@@ -905,7 +989,7 @@ function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false ) {
     // 3. 候補をスコア順に取得してページ検証が通るまで順番に試す
     // 「リブート」→1位「リブート」(リダイレクト→再起動)が弾かれても
     // 2位「リブート (テレビドラマ)」にフォールスルーできるようにする
-    $sorted_matches = contentfreaks_find_sorted_matches( $raw_title, $search_results, 0.4 );
+    $sorted_matches = contentfreaks_find_sorted_matches( $raw_title, $search_results, 0.4, $genre_hint );
     $page_detail    = null;
     $confidence     = 0.0;
 
@@ -977,6 +1061,19 @@ function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false ) {
                 $work_data['character_names'] = $entity_details['character_names'];
 
                 error_log( '[CF ProperNoun] キャスト数: ' . count( $entity_details['cast_names'] ) . ', キャラ数: ' . count( $entity_details['character_names'] ) );
+
+                // キャスト名と人名ヒントを照合して確信度UP
+                if ( ! empty( $person_hints ) && ! empty( $work_data['cast_names'] ) ) {
+                    $norm_cast    = array_map( 'contentfreaks_normalize_string', $work_data['cast_names'] );
+                    $norm_persons = array_map( 'contentfreaks_normalize_string', $person_hints );
+                    $overlap      = array_intersect( $norm_cast, $norm_persons );
+                    if ( ! empty( $overlap ) ) {
+                        $work_data['confidence'] = min( 1.0, $work_data['confidence'] + 0.2 );
+                        error_log( '[CF ProperNoun] キャスト一致で confidence UP: ' . implode( ', ', $overlap ) . ' → ' . $work_data['confidence'] );
+                    } else {
+                        error_log( '[CF ProperNoun] キャスト照合: 一致なし（Wikidataにキャストデータがない可能性あり）' );
+                    }
+                }
             }
         }
     } else {
@@ -1179,7 +1276,26 @@ function contentfreaks_resolve_and_save_work_meta_for_post( $post_id, $episode_t
     $raw_title = $extracted_titles[0];
     error_log( '[CF ProperNoun] 抽出された作品名: ' . $raw_title );
 
-    $work_data = contentfreaks_resolve_work_meta( $raw_title, $force_refresh );
+    // コンテキストを収集: episode_title + post_excerpt + episode_category + key_points
+    $context_parts = [ $episode_title ];
+
+    $post = get_post( $post_id );
+    if ( $post && ! empty( $post->post_excerpt ) ) {
+        $context_parts[] = $post->post_excerpt;
+    }
+
+    $episode_category = get_post_meta( $post_id, 'episode_category', true );
+    if ( ! empty( $episode_category ) ) {
+        $context_parts[] = $episode_category;
+    }
+
+    $key_points = get_post_meta( $post_id, 'episode_ai_key_points', true );
+    if ( ! empty( $key_points ) ) {
+        $context_parts[] = $key_points;
+    }
+
+    $context   = implode( "\n", $context_parts );
+    $work_data = contentfreaks_resolve_work_meta( $raw_title, $force_refresh, $context );
 
     contentfreaks_save_work_meta_to_post( $post_id, $work_data );
 
