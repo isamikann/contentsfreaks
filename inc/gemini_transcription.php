@@ -943,7 +943,7 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
             if ( $code === 'rate_limit' ) {
                 if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
                     update_post_meta( $post_id, 'episode_ai_status', 'error' );
-                    update_post_meta( $post_id, 'episode_ai_error', $msg );
+                    update_post_meta( $post_id, 'episode_ai_error', '[文字起こし] ' . $msg );
                 } else {
                     update_post_meta( $post_id, 'episode_ai_status', 'pending' );
                 }
@@ -951,7 +951,7 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
                 return false;
             }
             update_post_meta( $post_id, 'episode_ai_status', 'error' );
-            update_post_meta( $post_id, 'episode_ai_error', $msg );
+            update_post_meta( $post_id, 'episode_ai_error', '[文字起こし] ' . $msg );
             error_log( "Gemini: 文字起こしエラー Post ID={$post_id}: {$msg}" );
             return false;
         }
@@ -983,7 +983,7 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
         if ( $code === 'rate_limit' ) {
             if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
                 update_post_meta( $post_id, 'episode_ai_status', 'error' );
-                update_post_meta( $post_id, 'episode_ai_error', $msg );
+                update_post_meta( $post_id, 'episode_ai_error', '[記事生成] ' . $msg );
             } else {
                 update_post_meta( $post_id, 'episode_ai_status', 'pending' );
             }
@@ -992,7 +992,7 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
         }
 
         update_post_meta( $post_id, 'episode_ai_status', 'error' );
-        update_post_meta( $post_id, 'episode_ai_error', $msg );
+        update_post_meta( $post_id, 'episode_ai_error', '[記事生成] ' . $msg );
         error_log( "Gemini: 記事生成エラー Post ID={$post_id}: {$msg}" );
         return false;
     }

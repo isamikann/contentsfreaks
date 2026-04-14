@@ -300,8 +300,9 @@ add_action('admin_footer', function() {
                             var m = d.error.match(/(\d+)秒後/);
                             if (m) sec = Math.max(parseInt(m[1], 10) + (is503 ? 5 : 10), sec);
                             var waitLabel = is503 ? 'モデル過負荷のため' : 'レート制限のため';
+                            var debugInfo = d.debug_step ? ' [' + d.debug_step + ']' : '';
                             $status.css('color','#b45309').text(
-                                '⏳ ' + waitLabel + ' ' + sec + ' 秒後に自動リトライします... (' + d.post_title + ')'
+                                '⏳ ' + waitLabel + ' ' + sec + ' 秒後に自動リトライします... (' + d.post_title + ')' + debugInfo
                             );
                             $btn.text('⏳ ' + sec + '秒後にリトライ...');
                             var countdown = sec;
@@ -432,7 +433,8 @@ add_action('admin_footer', function() {
                         if (m) sec = Math.max(parseInt(m[1], 10) + (is503 ? 5 : 10), sec);
                         var countdown = sec;
                         var waitLabel = is503 ? '⏳ 過負荷' : '⏳ レート制限';
-                        $status.css('color','#b45309').text('[' + progress + '] ' + waitLabel + ' → ' + sec + '秒後リトライ: ' + d.post_title);
+                        var debugInfo = d.debug_step ? ' [' + d.debug_step + ']' : '';
+                        $status.css('color','#b45309').text('[' + progress + '] ' + waitLabel + ' → ' + sec + '秒後リトライ: ' + d.post_title + debugInfo);
                         selCdTimer = setInterval(function(){
                             if (selStop) { clearInterval(selCdTimer); onDone('stopped'); return; }
                             countdown--;
