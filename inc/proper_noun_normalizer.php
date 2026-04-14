@@ -566,6 +566,7 @@ function contentfreaks_find_best_match( $query, $candidates, $threshold = 0.7 ) 
         return null;
     }
 
+    $norm_query     = contentfreaks_normalize_string( $query );
     $best_score     = -1.0;
     $best_candidate = null;
 
@@ -580,7 +581,21 @@ function contentfreaks_find_best_match( $query, $candidates, $threshold = 0.7 ) 
             continue;
         }
 
-        $score = contentfreaks_fuzzy_score( $query, $title );
+        $score      = contentfreaks_fuzzy_score( $query, $title );
+        $norm_title = contentfreaks_normalize_string( $title );
+
+        // 包含チェック: クエリが候補タイトルに含まれる、または候補タイトルがクエリに含まれる場合は
+        // 通常スコアをそのまま使う。どちらにも含まれない場合（例: 「リブート」vs「再起動」）は
+        // 高閾値 0.85 を要求してカタカナ→漢字語の誤マッチを防ぐ。
+        $has_containment = (
+            mb_strpos( $norm_title, $norm_query, 0, 'UTF-8' ) !== false ||
+            mb_strpos( $norm_query, $norm_title, 0, 'UTF-8' ) !== false
+        );
+
+        if ( ! $has_containment && $score < 0.85 ) {
+            error_log( '[CF ProperNoun] find_best_match: 包含なし・スコア不足でスキップ query=' . $query . ' title=' . $title . ' score=' . $score );
+            continue;
+        }
 
         if ( $score > $best_score ) {
             $best_score     = $score;
