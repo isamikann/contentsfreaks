@@ -149,6 +149,30 @@ add_action('wp_ajax_contentfreaks_requeue_episodes', function() {
 });
 
 // ============================================================
+// AJAX: 文字起こしキャッシュクリア
+// ============================================================
+add_action('wp_ajax_contentfreaks_clear_transcription_cache', function() {
+    check_ajax_referer('contentfreaks_gemini_ajax', 'nonce');
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('権限がありません');
+    }
+    $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    if ($post_id <= 0) {
+        wp_send_json_error('無効なpost_idです');
+    }
+    delete_post_meta($post_id, 'episode_ai_transcription');
+    delete_post_meta($post_id, 'episode_ai_key_points');
+    update_post_meta($post_id, 'episode_ai_status', 'pending');
+    delete_post_meta($post_id, 'episode_ai_error');
+    delete_post_meta($post_id, 'episode_ai_debug');
+
+    wp_send_json_success(array(
+        'post_id'    => $post_id,
+        'post_title' => get_the_title($post_id),
+    ));
+});
+
+// ============================================================
 // AJAX: key_points・transcription取得（デバッグ用）
 // ============================================================
 add_action('wp_ajax_contentfreaks_get_key_points', function() {
@@ -630,7 +654,35 @@ add_action('admin_footer', function() {
         $('#kp-tab-transcription').on('click', function(){ kpSwitchTab('transcription'); });
 
         // モーダルを閉じる
-        $('#ep-keypoints-close').on('click', function(){ $('#ep-keypoints-modal').hide(); });
+    // ── 文字起こしキャッシュクリア ───────────────────────
+    $(document).on('click', '.ep-clear-cache-btn', function(){
+        var postId    = $(this).data('post-id');
+        var postTitle = $(this).data('post-title');
+        if (!confirm('「' + postTitle + '」の文字起こしキャッシュを削除してpendingに戻します。\n次回AI記事化時に音声から全処理をやり直します。よろしいですか？')) return;
+        var $btn = $(this);
+        $btn.prop('disabled', true).text('処理中...');
+        $.ajax({
+            url: ajaxurl,
+            method: 'POST',
+            data: { action: 'contentfreaks_clear_transcription_cache', nonce: nonce, post_id: postId },
+            success: function(res) {
+                if (res.success) {
+                    $btn.closest('tr').find('.ep-status-badge').css('color','#2563eb').text('⏳ 待機');
+                    $btn.text('✅ クリア済み').prop('disabled', true);
+                } else {
+                    alert('エラー: ' + (res.data || '不明'));
+                    $btn.prop('disabled', false).text('🗑 キャッシュクリア');
+                }
+            },
+            error: function() {
+                alert('通信エラー');
+                $btn.prop('disabled', false).text('🗑 キャッシュクリア');
+            }
+        });
+    });
+
+    // モーダルを閉じる
+    $('#ep-keypoints-close').on('click', function(){ $('#ep-keypoints-modal').hide(); });
         $('#ep-keypoints-modal').on('click', function(e){
             if ($(e.target).is('#ep-keypoints-modal')) $(this).hide();
         });
@@ -1187,10 +1239,13 @@ function contentfreaks_unified_admin_page() {
                                         <br><small style="color:#dc2626;"><?php echo esc_html(mb_strimwidth($ep->ai_error, 0, 80, '…')); ?></small>
                                     <?php endif; ?>
                                     <?php if ($status === 'done'): ?>
-                                        <br><button type="button" class="button button-small ep-keypoints-btn" data-post-id="<?php echo (int)$ep->ID; ?>" style="margin-top:4px;font-size:11px;">📝 key_points確認</button>
+                                        <br><span style="display:inline-flex;gap:4px;margin-top:4px;flex-wrap:wrap;">
+                                            <button type="button" class="button button-small ep-keypoints-btn" data-post-id="<?php echo (int)$ep->ID; ?>" style="font-size:11px;">📝 key_points確認</button>
+                                            <button type="button" class="button button-small ep-clear-cache-btn" data-post-id="<?php echo (int)$ep->ID; ?>" data-post-title="<?php echo esc_attr($ep->post_title); ?>" style="font-size:11px;">🗑 キャッシュクリア</button>
+                                        </span>
                                     <?php endif; ?>
                                 </td>
-                                <td><span style="color:<?php echo $badge_color; ?>;font-weight:bold;font-size:12px;"><?php echo $badge_label; ?></span></td>
+                                <td><span class="ep-status-badge" style="color:<?php echo $badge_color; ?>;font-weight:bold;font-size:12px;"><?php echo $badge_label; ?></span></td>
                                 <td style="font-size:12px;color:#666;"><?php echo esc_html(date_i18n('Y/m/d', strtotime($ep->post_date))); ?></td>
                             </tr>
                             <?php endforeach; ?>
