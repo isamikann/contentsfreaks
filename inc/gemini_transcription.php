@@ -299,21 +299,74 @@ PROMPT
 }
 
 // ============================================================
-// Step 2: 文字起こしテキスト → 記事生成
+// Step 2.5: 文字起こしテキスト → 要点抽出（トークン削減）
 // ============================================================
 
 /**
- * 文字起こしテキストからブログ記事データを生成する。
+ * 文字起こしテキストから議論の要点を抽出し、コンパクトな構造化テキストに圧縮する。
+ * 記事生成への入力トークンを大幅に削減するための中間ステップ。
  *
  * @param string $transcription  文字起こし済みテキスト
  * @param string $episode_title
+ * @return string|WP_Error  要点テキスト（3,000〜5,000字程度）
+ */
+function contentfreaks_gemini_extract_key_points( $transcription, $episode_title ) {
+    $safe_title = wp_strip_all_tags( $episode_title );
+    // 要点抽出は全文を使う（出力が短いので入力が長くても安い）
+    $safe_trans = mb_substr( $transcription, 0, 60000 );
+
+    $prompt = <<<PROMPT
+以下は日本語ポッドキャスト「コンテンツフリークス」のエピソード「{$safe_title}」の文字起こしです。
+ホストはみっくんとあっきーの2人で、映画・ドラマの感想・考察をしています。
+
+この文字起こしから、ブログ記事を書くために必要な情報だけを抽出してください。
+
+■ 抽出ルール
+- 話された内容だけを抽出すること。推測や補完をしないこと
+- 各トピックで実際に発言された内容を要約すること
+- みっくん・あっきーの印象的な発言・意見はそのまま引用すること（「」で囲む）
+- 作品名・俳優名・キャラクター名は文字起こしに出てきたものだけ記載すること
+
+■ 出力フォーマット（このフォーマットで出力すること）
+【トピック1: トピック名】
+- 内容の要点
+- 「印象的な発言の引用」（みっくん）
+- 「印象的な発言の引用」（あっきー）
+
+【トピック2: トピック名】
+...
+
+【まとめ・全体の印象】
+- 2人の総評や締めのコメント
+
+■ 文字起こし
+{$safe_trans}
+PROMPT;
+
+    $parts = array( array( 'text' => $prompt ) );
+    return contentfreaks_gemini_call( $parts, array(
+        'temperature'     => 0.2,
+        'maxOutputTokens' => 4096,
+    ) );
+}
+
+// ============================================================
+// Step 3: 要点テキスト → 記事生成
+// ============================================================
+
+/**
+ * 要点テキストからブログ記事データを生成する。
+ *
+ * @param string $key_points     要点抽出済みテキスト（コンパクト）
+ * @param string $episode_title
  * @param string $episode_description
+ * @param int    $post_id
  * @return array|WP_Error
  */
-function contentfreaks_gemini_generate_from_transcript( $transcription, $episode_title, $episode_description, $post_id = 0 ) {
-    $safe_title = wp_strip_all_tags( $episode_title );
-    $safe_desc  = wp_strip_all_tags( wp_trim_words( $episode_description, 200, '' ) );
-    $safe_trans = mb_substr( $transcription, 0, 30000 ); // 長すぎる場合に切り詰め
+function contentfreaks_gemini_generate_from_transcript( $key_points, $episode_title, $episode_description, $post_id = 0 ) {
+    $safe_title  = wp_strip_all_tags( $episode_title );
+    $safe_desc   = wp_strip_all_tags( wp_trim_words( $episode_description, 200, '' ) );
+    $safe_points = mb_substr( $key_points, 0, 8000 ); // 要点なので8,000字で十分
 
     // 固有名詞コンテキストを取得
     $proper_noun_context = '';
@@ -324,7 +377,7 @@ function contentfreaks_gemini_generate_from_transcript( $transcription, $episode
 
     $prompt = <<<PROMPT
 あなたはエンタメ系ブログ「コンテンツフリークス」のライターです。
-以下のポッドキャスト文字起こしをもとに、読者向けのブログ記事を書いてください。
+以下のポッドキャスト要点メモをもとに、読者向けのブログ記事を書いてください。
 
 ■ ポッドキャスト情報
 - 番組名: コンテンツフリークス
@@ -333,12 +386,12 @@ function contentfreaks_gemini_generate_from_transcript( $transcription, $episode
 - エピソードタイトル: {$safe_title}
 - RSS概要: {$safe_desc}
 {$proper_noun_section}
-■ 文字起こし
-{$safe_trans}
+■ ポッドキャスト要点メモ
+{$safe_points}
 
 ■ 最重要ルール（厳守）
-- 上記の文字起こしに書かれた内容だけを記事にすること。文字起こしにない情報を追加・捏造してはいけない。
-- 登場人物名・俳優名・作品名は、文字起こしまたはタイトル・RSS概要に明記されているものだけ記載すること。
+- 上記の要点メモに書かれた内容だけを記事にすること。メモにない情報を追加・捏造してはいけない。
+- 登場人物名・俳優名・作品名は、要点メモまたはタイトル・RSS概要に明記されているものだけ記載すること。
 - 点数評価やランキング付けはしない
 
 ■ 記事ルール
@@ -716,11 +769,41 @@ function contentfreaks_generate_episode_article_inner( $post_id ) {
     }
 
     update_post_meta( $post_id, 'episode_ai_transcription', sanitize_textarea_field( $transcription ) );
-    update_post_meta( $post_id, 'episode_ai_debug', 'step3:generating_article len=' . mb_strlen($transcription) );
-    error_log( "Gemini: 記事生成開始 Post ID={$post_id} 文字起こし文字数=" . mb_strlen($transcription) );
+    update_post_meta( $post_id, 'episode_ai_debug', 'step3:extracting_key_points len=' . mb_strlen( $transcription ) );
+    error_log( "Gemini: 要点抽出開始 Post ID={$post_id} 文字起こし文字数=" . mb_strlen( $transcription ) );
 
-    // Step 4: 文字起こし → 記事生成（固有名詞コンテキスト付き）
-    $article_data = contentfreaks_gemini_generate_from_transcript( $transcription, $title, $description, $post_id );
+    // Step 3: 文字起こし → 要点抽出（トークン削減）
+    $key_points = contentfreaks_gemini_extract_key_points( $transcription, $title );
+
+    if ( is_wp_error( $key_points ) ) {
+        $msg  = $key_points->get_error_message();
+        $code = $key_points->get_error_code();
+        $msg  = mb_convert_encoding( $msg, 'UTF-8', 'UTF-8' );
+        $msg  = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $msg );
+        if ( empty( $msg ) ) { $msg = "要点抽出エラー (code: {$code})"; }
+        update_post_meta( $post_id, 'episode_ai_debug', 'step3:key_points_error' );
+        if ( $code === 'rate_limit' ) {
+            if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+                update_post_meta( $post_id, 'episode_ai_status', 'error' );
+                update_post_meta( $post_id, 'episode_ai_error', $msg );
+            } else {
+                update_post_meta( $post_id, 'episode_ai_status', 'pending' );
+            }
+            error_log( "Gemini: レート制限(要点抽出) Post ID={$post_id}: {$msg}" );
+            return false;
+        }
+        // 要点抽出失敗時は文字起こしの先頭8,000字で代替
+        error_log( "Gemini: 要点抽出失敗、文字起こし先頭8000字で代替 Post ID={$post_id}: {$msg}" );
+        $key_points = mb_substr( $transcription, 0, 8000 );
+    }
+
+    // 要点をpost_metaに保存（デバッグ・再利用用）
+    update_post_meta( $post_id, 'episode_ai_key_points', sanitize_textarea_field( $key_points ) );
+    update_post_meta( $post_id, 'episode_ai_debug', 'step4:generating_article key_points_len=' . mb_strlen( $key_points ) );
+    error_log( "Gemini: 記事生成開始 Post ID={$post_id} 要点文字数=" . mb_strlen( $key_points ) );
+
+    // Step 4: 要点 → 記事生成（固有名詞コンテキスト付き）
+    $article_data = contentfreaks_gemini_generate_from_transcript( $key_points, $title, $description, $post_id );
 
     update_post_meta( $post_id, 'episode_ai_debug', 'step4:article_done is_error=' . (is_wp_error($article_data) ? 'yes:' . $article_data->get_error_code() : 'no') );
 
