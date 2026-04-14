@@ -382,7 +382,7 @@ function contentfreaks_wikidata_get_entity_details( $wikidata_id ) {
     // P161: cast member（出演者）
     $cast_qids = [];
     if ( isset( $claims['P161'] ) ) {
-        foreach ( array_slice( $claims['P161'], 0, 10 ) as $claim ) {
+        foreach ( array_slice( $claims['P161'], 0, 5 ) as $claim ) {
             $qid = _cf_extract_qid_from_claim( $claim );
             if ( $qid ) {
                 $cast_qids[] = $qid;
@@ -393,7 +393,7 @@ function contentfreaks_wikidata_get_entity_details( $wikidata_id ) {
     // P674: characters（キャラクター）
     $character_qids = [];
     if ( isset( $claims['P674'] ) ) {
-        foreach ( array_slice( $claims['P674'], 0, 10 ) as $claim ) {
+        foreach ( array_slice( $claims['P674'], 0, 5 ) as $claim ) {
             $qid = _cf_extract_qid_from_claim( $claim );
             if ( $qid ) {
                 $character_qids[] = $qid;
@@ -407,9 +407,9 @@ function contentfreaks_wikidata_get_entity_details( $wikidata_id ) {
         $official_url = $claims['P856'][0]['mainsnak']['datavalue']['value'];
     }
 
-    // QID配列を名前解決
-    $cast_names      = ! empty( $cast_qids )      ? contentfreaks_wikidata_resolve_labels( $cast_qids,      10 ) : [];
-    $character_names = ! empty( $character_qids ) ? contentfreaks_wikidata_resolve_labels( $character_qids, 10 ) : [];
+    // QID配列を名前解決（上限5件に絞りAPIレスポンス時間を短縮）
+    $cast_names      = ! empty( $cast_qids )      ? contentfreaks_wikidata_resolve_labels( $cast_qids,      5 ) : [];
+    $character_names = ! empty( $character_qids ) ? contentfreaks_wikidata_resolve_labels( $character_qids, 5 ) : [];
 
     return [
         'label'           => $label,
@@ -1122,9 +1122,13 @@ function contentfreaks_render_work_meta_box( $post ) {
             data.append('post_id', postId);
             data.append('nonce',   nonce);
 
-            fetch(ajaxurl, { method: 'POST', body: data })
+            var controller = new AbortController();
+            var timeoutId  = setTimeout(function() { controller.abort(); }, 90000);
+
+            fetch(ajaxurl, { method: 'POST', body: data, signal: controller.signal })
                 .then(function(r) { return r.json(); })
                 .then(function(json) {
+                    clearTimeout(timeoutId);
                     if (json.success) {
                         status.textContent = '✅ 取得完了。ページをリロードしてください。';
                         status.style.color = 'green';
@@ -1135,7 +1139,12 @@ function contentfreaks_render_work_meta_box( $post ) {
                     btn.disabled = false;
                 })
                 .catch(function(e) {
-                    status.textContent = '❌ 通信エラー';
+                    clearTimeout(timeoutId);
+                    if (e.name === 'AbortError') {
+                        status.textContent = '❌ タイムアウト（90秒）: Wikipedia/Wikidataの応答が遅すぎます。しばらく後に再試行してください。';
+                    } else {
+                        status.textContent = '❌ 通信エラー: ' + e.message;
+                    }
                     status.style.color = 'red';
                     btn.disabled = false;
                 });
@@ -1180,6 +1189,9 @@ add_action( 'save_post', function ( $post_id ) {
  * AJAX: 作品情報再取得ハンドラー
  */
 add_action( 'wp_ajax_cf_resolve_work_meta', function () {
+    // 外部API複数呼び出しのため実行時間を延長
+    @set_time_limit( 120 );
+
     // nonceチェック
     if (
         ! isset( $_POST['nonce'] )
