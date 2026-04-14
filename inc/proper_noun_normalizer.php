@@ -864,6 +864,22 @@ function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false ) {
         if ( $page_detail !== null ) {
             error_log( '[CF ProperNoun] Wikipediaページ取得成功: ' . $page_detail['canonical_title'] );
 
+            // ページタイトル自体が raw_title と無関係なら丸ごと捨てる
+            // 例: 「リブート」で検索 → リダイレクトで「再起動」ページが返る場合
+            $norm_page  = contentfreaks_normalize_string( $page_detail['canonical_title'] );
+            $norm_raw_p = contentfreaks_normalize_string( $raw_title );
+            $page_has_containment = (
+                $norm_page === $norm_raw_p ||
+                mb_strpos( $norm_page,  $norm_raw_p, 0, 'UTF-8' ) !== false ||
+                mb_strpos( $norm_raw_p, $norm_page,  0, 'UTF-8' ) !== false
+            );
+            if ( ! $page_has_containment ) {
+                error_log( '[CF ProperNoun] Wikipediaページ不採用（包含なし）: raw=' . $raw_title . ' page=' . $page_detail['canonical_title'] );
+                $page_detail = null;
+            }
+        }
+
+        if ( $page_detail !== null ) {
             $work_data['canonical_title'] = $page_detail['canonical_title'];
             $work_data['wikipedia_url']   = $page_detail['wikipedia_url'];
             $work_data['wikidata_id']     = $page_detail['wikidata_id'];
@@ -918,6 +934,10 @@ function contentfreaks_resolve_work_meta( $raw_title, $force_refresh = false ) {
         error_log( '[CF ProperNoun] 最終バリデーション: canonical_title をフォールバック "' . $work_data['canonical_title'] . '" → "' . $raw_title . '"' );
         $work_data['canonical_title'] = $raw_title;
         $work_data['confidence']      = 0.0;
+        $work_data['wikipedia_url']   = null;
+        $work_data['wikidata_id']     = null;
+        $work_data['cast_names']      = [];
+        $work_data['character_names'] = [];
     }
 
     // 8. キャッシュ保存
