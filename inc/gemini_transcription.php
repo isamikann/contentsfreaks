@@ -1041,6 +1041,59 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
     $summary       = $article_data['summary']       ?? '';
     $tags          = $article_data['tags']          ?? array();
 
+    // AI生成タグを作品名・許可済み固有名詞のみに制限
+    if ( is_array( $tags ) ) {
+        $allowed_tags = array();
+        $work_meta    = function_exists( 'contentfreaks_get_work_meta_from_post' ) ? contentfreaks_get_work_meta_from_post( $post_id ) : null;
+
+        if ( ! empty( $work_meta['canonical_title'] ) ) {
+            $allowed_tags[] = contentfreaks_normalize_string( $work_meta['canonical_title'] );
+        }
+        if ( ! empty( $work_meta['aliases'] ) && is_array( $work_meta['aliases'] ) ) {
+            foreach ( $work_meta['aliases'] as $alias ) {
+                $allowed_tags[] = contentfreaks_normalize_string( $alias );
+            }
+        }
+        if ( ! empty( $work_meta['cast_names'] ) && is_array( $work_meta['cast_names'] ) ) {
+            foreach ( $work_meta['cast_names'] as $name ) {
+                $allowed_tags[] = contentfreaks_normalize_string( $name );
+            }
+        }
+        if ( ! empty( $work_meta['character_names'] ) && is_array( $work_meta['character_names'] ) ) {
+            foreach ( $work_meta['character_names'] as $name ) {
+                $allowed_tags[] = contentfreaks_normalize_string( $name );
+            }
+        }
+
+        $allowed_tags = array_values( array_unique( array_filter( $allowed_tags ) ) );
+
+        $filtered_tags = array();
+        foreach ( $tags as $tag ) {
+            $norm_tag = contentfreaks_normalize_string( (string) $tag );
+            if ( $norm_tag === '' ) {
+                continue;
+            }
+
+            foreach ( $allowed_tags as $allowed ) {
+                if (
+                    $norm_tag === $allowed ||
+                    mb_strpos( $norm_tag, $allowed, 0, 'UTF-8' ) !== false ||
+                    mb_strpos( $allowed, $norm_tag, 0, 'UTF-8' ) !== false
+                ) {
+                    $filtered_tags[] = sanitize_text_field( $tag );
+                    break;
+                }
+            }
+        }
+
+        if ( ! empty( $filtered_tags ) ) {
+            $tags = array_values( array_unique( $filtered_tags ) );
+        } else {
+            // 許可済みタグが1つも残らない場合は作品名だけを最低保証として付与
+            $tags = ! empty( $work_meta['canonical_title'] ) ? array( $work_meta['canonical_title'] ) : array();
+        }
+    }
+
     // 固有名詞の後処理修正
     if ( ! empty( $article_body ) && function_exists( 'contentfreaks_verify_and_fix_proper_nouns' ) ) {
         $work_data    = function_exists( 'contentfreaks_get_work_meta_from_post' ) ? contentfreaks_get_work_meta_from_post( $post_id ) : null;
