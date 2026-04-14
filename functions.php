@@ -1142,12 +1142,19 @@ function contentfreaks_unified_admin_page() {
                     </div>
                     <details style="margin-top:12px;border:1px solid #e5e5e5;border-radius:6px;padding:10px 14px;">
                         <summary style="cursor:pointer;font-size:13px;color:#444;font-weight:bold;user-select:none;">⚙️ モデルを手動指定（レート制限時など）</summary>
+                        <?php
+                        // 全モデルをまとめた共通リスト（重複排除・順序維持）
+                        $all_models = array_values( array_unique( array_merge(
+                            contentfreaks_get_transcription_model_fallback_list(),
+                            contentfreaks_get_article_model_fallback_list()
+                        ) ) );
+                        ?>
                         <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
                             <div>
                                 <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">🎙 文字起こしモデル</label>
                                 <select id="transcription-model-select" style="font-size:13px;padding:4px 8px;border:1px solid #ccc;border-radius:4px;">
                                     <option value="">自動（フォールバック）</option>
-                                    <?php foreach ( contentfreaks_get_transcription_model_fallback_list() as $m ): ?>
+                                    <?php foreach ( $all_models as $m ): ?>
                                         <option value="<?php echo esc_attr($m); ?>"><?php echo esc_html($m); ?></option>
                                     <?php endforeach; ?>
                                 </select>
@@ -1156,7 +1163,7 @@ function contentfreaks_unified_admin_page() {
                                 <label style="display:block;font-size:12px;color:#666;margin-bottom:4px;">✍️ 記事生成モデル</label>
                                 <select id="article-model-select" style="font-size:13px;padding:4px 8px;border:1px solid #ccc;border-radius:4px;">
                                     <option value="">自動（フォールバック）</option>
-                                    <?php foreach ( contentfreaks_get_article_model_fallback_list() as $m ): ?>
+                                    <?php foreach ( $all_models as $m ): ?>
                                         <option value="<?php echo esc_attr($m); ?>"><?php echo esc_html($m); ?></option>
                                     <?php endforeach; ?>
                                 </select>
