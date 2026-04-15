@@ -915,6 +915,8 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
     update_post_meta( $post_id, 'episode_ai_status', 'processing' );
     update_post_meta( $post_id, 'episode_ai_started_at', current_time( 'mysql' ) );
     delete_post_meta( $post_id, 'episode_ai_error' );
+    update_post_meta( $post_id, 'episode_ai_debug', 'step0:processing_started' );
+    error_log( "Gemini: 処理開始 Post ID={$post_id}" );
 
     $post        = get_post( $post_id );
     $title       = $post->post_title;
@@ -933,10 +935,12 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
         update_post_meta( $post_id, 'episode_ai_debug', 'step2:cache_hit transcription+key_points' );
         $transcription = is_string( $cached_transcription ) ? $cached_transcription : wp_json_encode( $cached_transcription, JSON_UNESCAPED_UNICODE );
         $key_points    = is_string( $cached_key_points ) ? $cached_key_points : wp_json_encode( $cached_key_points, JSON_UNESCAPED_UNICODE );
+        error_log( "Gemini: キャッシュ読み込み完了 Post ID={$post_id} transcription_type=" . gettype( $transcription ) . " key_points_type=" . gettype( $key_points ) );
 
         // キャッシュヒット時も作品情報を再解決（key_points付きで精度向上）
         if ( function_exists( 'contentfreaks_resolve_and_save_work_meta_for_post' ) ) {
             update_post_meta( $post_id, 'episode_ai_debug', 'step2b:re_resolving_work_meta(cache)' );
+            error_log( "Gemini: 作品情報再解決開始（キャッシュ使用） Post ID={$post_id}" );
             contentfreaks_resolve_and_save_work_meta_for_post( $post_id, $title, true );
             error_log( "Gemini: 作品情報を key_points 付きで再解決（キャッシュ使用） Post ID={$post_id}" );
         }
@@ -970,6 +974,7 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
             $msg  = preg_replace( '/[\x00-\x08\x0B\x0C\x0E-\x1F]/', '', $msg );
             if ( empty( $msg ) ) { $msg = "文字起こしエラー (code: {$code})"; }
             update_post_meta( $post_id, 'episode_ai_debug', 'step2:transcribe_error' );
+            error_log( "Gemini: 文字起こし失敗 Post ID={$post_id} code={$code} msg={$msg}" );
             if ( $code === 'rate_limit' ) {
                 if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
                     update_post_meta( $post_id, 'episode_ai_status', 'error' );
@@ -995,9 +1000,12 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
         error_log( "Gemini: 文字起こし完了 Post ID={$post_id} 文字数=" . mb_strlen( (string) $transcription ) . " 要点文字数=" . mb_strlen( (string) $key_points ) );
     }
 
+    error_log( "Gemini: 文字起こし/要点処理完了 Post ID={$post_id} transcription_type=" . gettype( $transcription ) . " key_points_type=" . gettype( $key_points ) );
+
     // key_points が取得できた段階で作品情報を再解決（ジャンル・キャスト照合で精度向上）
     if ( function_exists( 'contentfreaks_resolve_and_save_work_meta_for_post' ) ) {
         update_post_meta( $post_id, 'episode_ai_debug', 'step2b:re_resolving_work_meta' );
+        error_log( "Gemini: 作品情報再解決開始 Post ID={$post_id} key_points_type=" . gettype( $key_points ) );
         contentfreaks_resolve_and_save_work_meta_for_post( $post_id, $title, true );
         error_log( "Gemini: 作品情報を key_points 付きで再解決 Post ID={$post_id}" );
     }
@@ -1008,7 +1016,7 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
     }
 
     update_post_meta( $post_id, 'episode_ai_debug', 'step3:generating_article key_points_len=' . mb_strlen( (string) $key_points ) );
-    error_log( "Gemini: 記事生成開始 Post ID={$post_id} 要点文字数=" . mb_strlen( (string) $key_points ) );
+    error_log( "Gemini: 記事生成開始 Post ID={$post_id} 要点文字数=" . mb_strlen( (string) $key_points ) . " article_model=" . ( $article_model ?: 'auto' ) );
 
     // Step 3: 要点 → 記事生成（固有名詞コンテキスト付き）
     $article_data = contentfreaks_gemini_generate_from_transcript( $key_points, $title, $description, $post_id, $article_model );
@@ -1041,6 +1049,7 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
 
     // Step 5: 投稿を更新
     update_post_meta( $post_id, 'episode_ai_debug', 'step5:parsing_article keys=' . implode(',', array_keys($article_data)) );
+    error_log( "Gemini: 記事データ解析完了 Post ID={$post_id} keys=" . implode( ',', array_keys( $article_data ) ) );
 
     $article_body  = isset( $article_data['article_body'] ) ? (string) $article_data['article_body'] : '';
     $summary       = isset( $article_data['summary'] ) ? (string) $article_data['summary'] : '';
@@ -1153,6 +1162,7 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
     update_post_meta( $post_id, 'episode_ai_status', 'done' );
     update_post_meta( $post_id, 'episode_ai_generated_at', current_time( 'mysql' ) );
     update_post_meta( $post_id, 'episode_ai_summary', sanitize_textarea_field( $summary ) );
+    error_log( "Gemini: 投稿更新完了 Post ID={$post_id} tags=" . ( is_array( $tags ) ? count( $tags ) : 0 ) );
 
     error_log( "Gemini: 完了 Post ID={$post_id}" );
     return true;
