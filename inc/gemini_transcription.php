@@ -511,17 +511,20 @@ PROMPT
     $data = json_decode( $text, true );
 
     if ( json_last_error() === JSON_ERROR_NONE && ! empty( $data['transcription'] ) ) {
+        $transcription = is_string( $data['transcription'] ) ? $data['transcription'] : wp_json_encode( $data['transcription'], JSON_UNESCAPED_UNICODE );
+        $key_points    = isset( $data['key_points'] ) ? $data['key_points'] : mb_substr( $transcription, 0, 8000 );
+
         return array(
-            'transcription' => $data['transcription'],
-            'key_points'    => $data['key_points'] ?? mb_substr( $data['transcription'], 0, 8000 ),
+            'transcription' => is_string( $transcription ) ? $transcription : '',
+            'key_points'    => is_string( $key_points ) ? $key_points : wp_json_encode( $key_points, JSON_UNESCAPED_UNICODE ),
         );
     }
 
     // JSONパース失敗 → テキスト全体を文字起こしとして扱う
     error_log( 'Gemini: transcribe_and_extract JSONパース失敗、テキストとして処理' );
     return array(
-        'transcription' => $text,
-        'key_points'    => mb_substr( $text, 0, 8000 ),
+        'transcription' => is_string( $text ) ? $text : wp_json_encode( $text, JSON_UNESCAPED_UNICODE ),
+        'key_points'    => is_string( mb_substr( $text, 0, 8000 ) ) ? mb_substr( $text, 0, 8000 ) : '',
     );
 }
 
