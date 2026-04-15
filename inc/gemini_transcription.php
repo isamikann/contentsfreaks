@@ -931,8 +931,8 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
         // 文字起こし・要点ともにキャッシュあり → 音声処理を完全スキップ
         error_log( "Gemini: キャッシュ使用（音声処理スキップ） Post ID={$post_id}" );
         update_post_meta( $post_id, 'episode_ai_debug', 'step2:cache_hit transcription+key_points' );
-        $transcription = $cached_transcription;
-        $key_points    = $cached_key_points;
+        $transcription = is_string( $cached_transcription ) ? $cached_transcription : wp_json_encode( $cached_transcription, JSON_UNESCAPED_UNICODE );
+        $key_points    = is_string( $cached_key_points ) ? $cached_key_points : wp_json_encode( $cached_key_points, JSON_UNESCAPED_UNICODE );
 
         // キャッシュヒット時も作品情報を再解決（key_points付きで精度向上）
         if ( function_exists( 'contentfreaks_resolve_and_save_work_meta_for_post' ) ) {
@@ -992,7 +992,7 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
         // キャッシュ保存
         update_post_meta( $post_id, 'episode_ai_transcription', sanitize_textarea_field( $transcription ) );
         update_post_meta( $post_id, 'episode_ai_key_points',    sanitize_textarea_field( $key_points ) );
-        error_log( "Gemini: 文字起こし完了 Post ID={$post_id} 文字数=" . mb_strlen( $transcription ) . " 要点文字数=" . mb_strlen( $key_points ) );
+        error_log( "Gemini: 文字起こし完了 Post ID={$post_id} 文字数=" . mb_strlen( (string) $transcription ) . " 要点文字数=" . mb_strlen( (string) $key_points ) );
     }
 
     // key_points が取得できた段階で作品情報を再解決（ジャンル・キャスト照合で精度向上）
@@ -1002,8 +1002,13 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
         error_log( "Gemini: 作品情報を key_points 付きで再解決 Post ID={$post_id}" );
     }
 
-    update_post_meta( $post_id, 'episode_ai_debug', 'step3:generating_article key_points_len=' . mb_strlen( $key_points ) );
-    error_log( "Gemini: 記事生成開始 Post ID={$post_id} 要点文字数=" . mb_strlen( $key_points ) );
+    $key_points = is_string( $key_points ) ? $key_points : wp_json_encode( $key_points, JSON_UNESCAPED_UNICODE );
+    if ( ! is_string( $key_points ) ) {
+        $key_points = '';
+    }
+
+    update_post_meta( $post_id, 'episode_ai_debug', 'step3:generating_article key_points_len=' . mb_strlen( (string) $key_points ) );
+    error_log( "Gemini: 記事生成開始 Post ID={$post_id} 要点文字数=" . mb_strlen( (string) $key_points ) );
 
     // Step 3: 要点 → 記事生成（固有名詞コンテキスト付き）
     $article_data = contentfreaks_gemini_generate_from_transcript( $key_points, $title, $description, $post_id, $article_model );
@@ -1037,9 +1042,9 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
     // Step 5: 投稿を更新
     update_post_meta( $post_id, 'episode_ai_debug', 'step5:parsing_article keys=' . implode(',', array_keys($article_data)) );
 
-    $article_body  = $article_data['article_body']  ?? '';
-    $summary       = $article_data['summary']       ?? '';
-    $tags          = $article_data['tags']          ?? array();
+    $article_body  = isset( $article_data['article_body'] ) ? (string) $article_data['article_body'] : '';
+    $summary       = isset( $article_data['summary'] ) ? (string) $article_data['summary'] : '';
+    $tags          = isset( $article_data['tags'] ) ? $article_data['tags'] : array();
 
     // AI生成タグを作品名・許可済み固有名詞のみに制限
     if ( is_array( $tags ) ) {
@@ -1092,6 +1097,16 @@ function contentfreaks_generate_episode_article_inner( $post_id, $transcription_
             // 許可済みタグが1つも残らない場合は作品名だけを最低保証として付与
             $tags = ! empty( $work_meta['canonical_title'] ) ? array( $work_meta['canonical_title'] ) : array();
         }
+    }
+
+    if ( ! is_string( $article_body ) ) {
+        $article_body = wp_json_encode( $article_body, JSON_UNESCAPED_UNICODE );
+    }
+    if ( ! is_string( $summary ) ) {
+        $summary = wp_json_encode( $summary, JSON_UNESCAPED_UNICODE );
+    }
+    if ( ! is_array( $tags ) ) {
+        $tags = array();
     }
 
     // 固有名詞の後処理修正
