@@ -1249,45 +1249,55 @@ function contentfreaks_unified_admin_page() {
                                 <th style="width:30px;"><input type="checkbox" id="ep-select-all" /></th>
                                 <th>エピソード</th>
                                 <th style="width:70px;">ステータス</th>
+                                <th style="width:140px;">debug</th>
                                 <th style="width:100px;">日付</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($all_episodes as $ep):
-                                $status = $ep->ai_status ?: '未処理';
-                                $badge_color = match($status) {
-                                    'done'       => '#059669',
-                                    'pending'    => '#2563eb',
-                                    'processing' => '#d97706',
-                                    'error'      => '#dc2626',
-                                    default      => '#888',
-                                };
-                                $badge_label = match($status) {
-                                    'done'       => '✅ 完了',
-                                    'pending'    => '⏳ 待機',
-                                    'processing' => '⚙️ 処理中',
-                                    'error'      => '❌ エラー',
-                                    default      => '— 未処理',
-                                };
-                            ?>
-                            <tr>
-                                <td><input type="checkbox" class="ep-checkbox" value="<?php echo (int)$ep->ID; ?>" /></td>
-                                <td>
-                                    <a href="<?php echo esc_url(get_edit_post_link($ep->ID)); ?>"><?php echo esc_html($ep->post_title); ?></a>
-                                    <?php if ($status === 'error' && $ep->ai_error): ?>
-                                        <br><small style="color:#dc2626;"><?php echo esc_html(mb_strimwidth($ep->ai_error, 0, 80, '…')); ?></small>
-                                    <?php endif; ?>
-                                    <?php if ($status === 'done'): ?>
-                                        <br><span style="display:inline-flex;gap:4px;margin-top:4px;flex-wrap:wrap;">
-                                            <button type="button" class="button button-small ep-keypoints-btn" data-post-id="<?php echo (int)$ep->ID; ?>" style="font-size:11px;">📝 key_points確認</button>
-                                            <button type="button" class="button button-small ep-clear-cache-btn" data-post-id="<?php echo (int)$ep->ID; ?>" data-post-title="<?php echo esc_attr($ep->post_title); ?>" style="font-size:11px;">🗑 キャッシュクリア</button>
-                                        </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td><span class="ep-status-badge" style="color:<?php echo $badge_color; ?>;font-weight:bold;font-size:12px;"><?php echo $badge_label; ?></span></td>
-                                <td style="font-size:12px;color:#666;"><?php echo esc_html(date_i18n('Y/m/d', strtotime($ep->post_date))); ?></td>
-                            </tr>
-                            <?php endforeach; ?>
+                            $status = $ep->ai_status ?: '未処理';
+                            $badge_color = match($status) {
+                                'done'       => '#059669',
+                                'pending'    => '#2563eb',
+                                'processing' => '#d97706',
+                                'error'      => '#dc2626',
+                                default      => '#888',
+                            };
+                            $badge_label = match($status) {
+                                'done'       => '✅ 完了',
+                                'pending'    => '⏳ 待機',
+                                'processing' => '⚙️ 処理中',
+                                'error'      => '❌ エラー',
+                                default      => '— 未処理',
+                            };
+                        ?>
+                        <tr>
+                            <td><input type="checkbox" class="ep-checkbox" value="<?php echo (int)$ep->ID; ?>" /></td>
+                            <td>
+                                <a href="<?php echo esc_url(get_edit_post_link($ep->ID)); ?>"><?php echo esc_html($ep->post_title); ?></a>
+                                <?php if ($status === 'processing' && !empty($ep->ai_debug)): ?>
+                                    <br><small style="color:#b45309;">進行中: <?php echo esc_html(mb_strimwidth($ep->ai_debug, 0, 80, '…')); ?></small>
+                                <?php elseif ($status === 'error' && $ep->ai_error): ?>
+                                    <br><small style="color:#dc2626;"><?php echo esc_html(mb_strimwidth($ep->ai_error, 0, 80, '…')); ?></small>
+                                <?php endif; ?>
+                                <?php if ($status === 'done'): ?>
+                                    <br><span style="display:inline-flex;gap:4px;margin-top:4px;flex-wrap:wrap;">
+                                        <button type="button" class="button button-small ep-keypoints-btn" data-post-id="<?php echo (int)$ep->ID; ?>" style="font-size:11px;">📝 key_points確認</button>
+                                        <button type="button" class="button button-small ep-clear-cache-btn" data-post-id="<?php echo (int)$ep->ID; ?>" data-post-title="<?php echo esc_attr($ep->post_title); ?>" style="font-size:11px;">🗑 キャッシュクリア</button>
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td><span class="ep-status-badge" style="color:<?php echo $badge_color; ?>;font-weight:bold;font-size:12px;"><?php echo $badge_label; ?></span></td>
+                            <td style="font-size:11px;color:#666;word-break:break-all;">
+                                <?php if ( ! empty( $ep->ai_debug ) ) : ?>
+                                    <?php echo esc_html( mb_strimwidth( $ep->ai_debug, 0, 120, '…' ) ); ?>
+                                <?php else : ?>
+                                    —
+                                <?php endif; ?>
+                            </td>
+                            <td style="font-size:12px;color:#666;"><?php echo esc_html(date_i18n('Y/m/d', strtotime($ep->post_date))); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
                         </tbody>
                     </table>
                     <p style="margin-top:8px;color:#666;font-size:12px;">
