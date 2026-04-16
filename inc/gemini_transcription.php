@@ -631,16 +631,18 @@ PROMPT;
     $generated_text = preg_replace( '/^```(?:json)?\s*/i', '', trim( $generated_text ) );
     $generated_text = preg_replace( '/\s*```$/', '', $generated_text );
 
-    $article_data = json_decode( $generated_text, true );
+    // JSON文字列値内のリテラル制御文字（改行等）をエスケープしてからパース
+    $sanitized_text = contentfreaks_fix_json_control_chars( $generated_text );
+    $article_data   = json_decode( $sanitized_text, true );
 
     if ( json_last_error() !== JSON_ERROR_NONE ) {
-        if ( preg_match( '/\{.*\}/s', $generated_text, $m ) ) {
-            $article_data = json_decode( $m[0], true );
+        if ( preg_match( '/\{.*\}/s', $sanitized_text, $m ) ) {
+            $article_data = json_decode( contentfreaks_fix_json_control_chars( $m[0] ), true );
         }
     }
 
     if ( json_last_error() !== JSON_ERROR_NONE ) {
-        $repaired = contentfreaks_repair_truncated_json( $generated_text );
+        $repaired = contentfreaks_repair_truncated_json( $sanitized_text );
         if ( $repaired !== null ) {
             $article_data = $repaired;
             error_log( 'Gemini: 切れたJSONを修復しました。' );
@@ -648,6 +650,7 @@ PROMPT;
     }
 
     if ( json_last_error() !== JSON_ERROR_NONE || empty( $article_data ) ) {
+        error_log( 'Gemini: JSON パース失敗 raw=' . substr( $generated_text, 0, 300 ) );
         return new WP_Error( 'json_parse_error', 'JSON パース失敗: ' . substr( $generated_text, 0, 200 ) );
     }
 
@@ -815,36 +818,155 @@ function contentfreaks_remove_repetition( $text ) {
 // 切れたJSONの修復
 // ============================================================
 
+/**
+ * JSON文字列値内のリテラル制御文字（改行・タブ等）をJSONエスケープに変換する。
+ * Geminiが responseMimeType=application/json 指定でも稀にリテラル改行を含む文字列を
+ * 返すことへの対策。バイト単位でスキャンするためUTF-8マルチバイト文字にも安全。
+ */
+function contentfreaks_fix_json_control_chars( $text ) {
+    $result    = '';
+    $in_string = false;
+    $escape    = false;
+    $len       = strlen( $text );
+
+    for ( $i = 0; $i < $len; $i++ ) {
+        $byte = $text[ $i ];
+        $ord  = ord( $byte );
+
+        if ( $escape ) {
+            $result .= $byte;
+            $escape  = false;
+            continue;
+        }
+
+        if ( $byte === '\\' && $in_string ) {
+            $result .= $byte;
+            $escape  = true;
+            continue;
+        }
+
+        if ( $byte === '"' ) {
+            $in_string = ! $in_string;
+            $result   .= $byte;
+            continue;
+        }
+
+        if ( $in_string ) {
+            if ( $ord === 0x0A ) {          // 改行 LF
+                $result .= '\\n';
+                continue;
+            }
+            if ( $ord === 0x0D ) {          // 改行 CR
+                $result .= '\\r';
+                continue;
+            }
+            if ( $ord === 0x09 ) {          // タブ
+                $result .= '\\t';
+                continue;
+            }
+            if ( $ord < 0x20 ) {            // その他の制御文字 → 除去
+                continue;
+            }
+        }
+
+        $result .= $byte;
+    }
+
+    return $result;
+}
+
+/**
+ * 切り捨てられたJSONを修復して連想配列として返す。
+ * 以下の順で修復を試みる:
+ *   1. シンプルな閉じ括弧の追加
+ *   2. article_body の部分文字列抽出（HTMLの最後の閉じタグまで）
+ *   3. 括弧カウントによるブルートフォース補完
+ */
 function contentfreaks_repair_truncated_json( $text ) {
     $text = trim( $text );
-    // 先頭が { でなければ抽出
-    if ( $text[0] !== '{' && preg_match( '/\{.*/s', $text, $m ) ) {
-        $text = $m[0];
+    if ( strlen( $text ) === 0 ) {
+        return null;
     }
-    // 末尾に閉じ括弧を段階的に追加して試行
-    $closers = array( '"', '"]', '"}', ']}', '"}' );
+
+    // 先頭が { でなければ { から抽出
+    if ( $text[0] !== '{' ) {
+        if ( preg_match( '/\{.*/s', $text, $m ) ) {
+            $text = $m[0];
+        } else {
+            return null;
+        }
+    }
+
+    // --- ① シンプルな閉じ括弧の追加 ---
+    $closers = array( '"', '"}', '"]}', '","summary":"","tags":[]}' );
     foreach ( $closers as $c ) {
-        $try = $text . $c;
+        $try     = $text . $c;
         $decoded = json_decode( $try, true );
         if ( json_last_error() === JSON_ERROR_NONE && ! empty( $decoded ) ) {
+            error_log( 'Gemini repair: simple closer worked: ' . $c );
             return $decoded;
         }
     }
-    // ブルートフォース: 開き括弧を数えて閉じる
-    $opens = substr_count( $text, '{' ) - substr_count( $text, '}' );
+
+    // --- ② article_body の部分文字列を抽出して最低限のJSONを組み立てる ---
+    if ( preg_match( '/"article_body"\s*:\s*"(.*)/s', $text, $m ) ) {
+        $partial = $m[1];
+
+        // 末尾の中途半端なエスケープシーケンスを除去
+        $partial = preg_replace( '/\\\\[a-z]?$/u', '', $partial );
+
+        // 最後の完全な閉じHTMLタグまで切り詰める（p, li, ul, h2-h6, div, blockquote）
+        if ( preg_match( '/^(.*<\/(?:p|li|ul|ol|h[2-6]|div|blockquote|section)>)/su', $partial, $mm ) ) {
+            $partial = $mm[1];
+        } else {
+            // 閉じタグが見つからない場合は最後の > の直後まで
+            $last_gt = mb_strrpos( $partial, '>' );
+            if ( $last_gt !== false ) {
+                $partial = mb_substr( $partial, 0, $last_gt + 1 );
+            }
+        }
+
+        // ポッドキャスト誘導文が欠落している場合は追加
+        $cta = '\n<p>この話題はポッドキャスト「コンテンツフリークス」でさらに詳しく語っています。ぜひお聴きください！</p>';
+        if ( mb_strpos( $partial, 'ぜひお聴きください' ) === false ) {
+            $partial .= $cta;
+        }
+
+        // partial を JSON 文字列としてデコードしてから配列に組み込む
+        $html = json_decode( '"' . $partial . '"', true );
+        if ( $html === null ) {
+            // フォールバック: 手動エスケープ解除
+            $html = str_replace(
+                array( '\\n', '\\r', '\\t', '\\"', '\\\\', '\\/' ),
+                array( "\n",  "\r",  "\t",  '"',   '\\',   '/'   ),
+                $partial
+            );
+        }
+
+        if ( ! empty( $html ) ) {
+            error_log( 'Gemini repair: partial article_body extracted, len=' . mb_strlen( $html ) );
+            return array(
+                'article_body' => $html,
+                'summary'      => '',
+                'tags'         => array(),
+            );
+        }
+    }
+
+    // --- ③ ブルートフォース: 開き括弧をカウントして閉じる ---
+    $opens    = substr_count( $text, '{' ) - substr_count( $text, '}' );
     $open_arr = substr_count( $text, '[' ) - substr_count( $text, ']' );
-    $suffix = str_repeat( ']', max( 0, $open_arr ) ) . str_repeat( '}', max( 0, $opens ) );
-    // 文字列が途中で切れていたら閉じる
-    $try = $text . '"' . $suffix;
-    $decoded = json_decode( $try, true );
-    if ( json_last_error() === JSON_ERROR_NONE && ! empty( $decoded ) ) {
-        return $decoded;
+    $suffix   = str_repeat( ']', max( 0, $open_arr ) ) . str_repeat( '}', max( 0, $opens ) );
+
+    foreach ( array( '"' . $suffix, $suffix ) as $sfx ) {
+        $try     = $text . $sfx;
+        $decoded = json_decode( $try, true );
+        if ( json_last_error() === JSON_ERROR_NONE && ! empty( $decoded ) ) {
+            error_log( 'Gemini repair: brute-force closer worked' );
+            return $decoded;
+        }
     }
-    $try = $text . $suffix;
-    $decoded = json_decode( $try, true );
-    if ( json_last_error() === JSON_ERROR_NONE && ! empty( $decoded ) ) {
-        return $decoded;
-    }
+
     return null;
 }
 
