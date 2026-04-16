@@ -18,11 +18,60 @@ if ( ! defined( 'ABSPATH' ) ) {
 // API キー取得
 // ============================================================
 
-function contentfreaks_get_gemini_api_key() {
+function contentfreaks_get_gemini_api_keys() {
     if ( defined( 'CONTENTFREAKS_GEMINI_API_KEY' ) && CONTENTFREAKS_GEMINI_API_KEY !== '' ) {
-        return CONTENTFREAKS_GEMINI_API_KEY;
+        $keys = preg_split( '/\R+/', (string) CONTENTFREAKS_GEMINI_API_KEY );
+        $keys = array_values( array_filter( array_map( 'trim', (array) $keys ) ) );
+        if ( ! empty( $keys ) ) {
+            return $keys;
+        }
     }
-    return get_option( 'contentfreaks_gemini_api_key', '' );
+
+    $stored_keys = get_option( 'contentfreaks_gemini_api_keys', '' );
+    if ( empty( $stored_keys ) ) {
+        $legacy_key = get_option( 'contentfreaks_gemini_api_key', '' );
+        return ! empty( $legacy_key ) ? array( trim( (string) $legacy_key ) ) : array();
+    }
+
+    $keys = preg_split( '/\R+/', (string) $stored_keys );
+    return array_values( array_filter( array_map( 'trim', (array) $keys ) ) );
+}
+
+function contentfreaks_get_gemini_api_key() {
+    $keys = contentfreaks_get_gemini_api_keys();
+    return ! empty( $keys ) ? $keys[0] : '';
+}
+
+function contentfreaks_get_available_gemini_api_key() {
+    $keys = contentfreaks_get_gemini_api_keys();
+    if ( empty( $keys ) ) {
+        return '';
+    }
+
+    foreach ( $keys as $index => $api_key ) {
+        $cache_key = 'cf_gemini_api_key_rl_' . $index . '_' . substr( md5( $api_key ), 0, 12 );
+        if ( ! get_transient( $cache_key ) ) {
+            return $api_key;
+        }
+    }
+
+    return $keys[0];
+}
+
+function contentfreaks_mark_gemini_api_key_rate_limited( $api_key ) {
+    if ( empty( $api_key ) ) {
+        return;
+    }
+
+    $keys = contentfreaks_get_gemini_api_keys();
+    foreach ( $keys as $index => $stored_key ) {
+        if ( hash_equals( $stored_key, $api_key ) ) {
+            $cache_key = 'cf_gemini_api_key_rl_' . $index . '_' . substr( md5( $stored_key ), 0, 12 );
+            set_transient( $cache_key, 1, HOUR_IN_SECONDS );
+            error_log( 'Gemini: API Key [' . $index . '] をレート制限としてマーク（1時間）' );
+            break;
+        }
+    }
 }
 
 // ============================================================
@@ -36,7 +85,7 @@ function contentfreaks_get_gemini_api_key() {
  * @return array|WP_Error  成功時: array( 'uri', 'name', 'mime_type' ) / 失敗時: WP_Error
  */
 function contentfreaks_gemini_upload_audio( $audio_url ) {
-    $api_key = contentfreaks_get_gemini_api_key();
+    $api_key = contentfreaks_get_available_gemini_api_key();
     if ( empty( $api_key ) ) {
         return new WP_Error( 'no_api_key', 'Gemini API Key が設定されていません。管理画面 → 設定 から入力してください。' );
     }
@@ -313,7 +362,7 @@ function contentfreaks_gemini_call( array $parts, array $generation_config = arr
     $last_error = null;
 
     foreach ( $models_to_try as $current_model ) {
-        $api_key = contentfreaks_get_gemini_api_key();
+        $api_key = contentfreaks_get_available_gemini_api_key();
         if ( empty( $api_key ) ) {
             return new WP_Error( 'no_api_key', 'Gemini API Key が設定されていません。' );
         }
@@ -359,8 +408,9 @@ function contentfreaks_gemini_call( array $parts, array $generation_config = arr
             }
             error_log( "Gemini 429 [{$current_model}]: {$err}" );
 
-            // このモデルをレート制限としてマークして次のモデルへ
+            // このモデルとAPI Keyをレート制限としてマークして次のモデルへ
             contentfreaks_mark_model_rate_limited( $current_model );
+            contentfreaks_mark_gemini_api_key_rate_limited( $api_key );
 
             $last_error = new WP_Error(
                 'rate_limit',
@@ -671,7 +721,7 @@ function contentfreaks_gemini_generate_article( $file_uri, $mime_type, $episode_
     return new WP_Error( 'deprecated', 'contentfreaks_gemini_generate_article は廃止されました。2ステップ処理を使用してください。' );
 }
 
-    $api_key = contentfreaks_get_gemini_api_key();
+    $api_key = contentfreaks_get_available_gemini_api_key();
     if ( empty( $api_key ) ) {
         return new WP_Error( 'no_api_key', 'Gemini API Key が設定されていません。' );
     }
@@ -979,7 +1029,7 @@ function contentfreaks_gemini_delete_file( $file_name ) {
     if ( empty( $file_name ) ) {
         return false;
     }
-    $api_key = contentfreaks_get_gemini_api_key();
+    $api_key = contentfreaks_get_available_gemini_api_key();
     if ( empty( $api_key ) ) {
         return false;
     }
@@ -1303,7 +1353,7 @@ function contentfreaks_gemini_is_paused() {
 }
 
 function contentfreaks_process_pending_transcriptions() {
-    if ( empty( contentfreaks_get_gemini_api_key() ) ) {
+    if ( empty( contentfreaks_get_gemini_api_keys() ) ) {
         return;
     }
 

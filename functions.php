@@ -819,14 +819,18 @@ function contentfreaks_handle_admin_posts() {
 
     // Gemini API設定保存
     if (isset($_POST['save_gemini_settings']) && isset($_POST['gemini_settings_nonce']) && wp_verify_nonce($_POST['gemini_settings_nonce'], 'contentfreaks_gemini_settings')) {
-        $gemini_key = sanitize_text_field($_POST['gemini_api_key'] ?? '');
-        update_option('contentfreaks_gemini_api_key', $gemini_key);
+        $gemini_key_raw = sanitize_textarea_field($_POST['gemini_api_keys'] ?? $_POST['gemini_api_key'] ?? '');
+        $gemini_keys = array_values(array_filter(array_map('trim', preg_split('/\R+/', $gemini_key_raw))));
+        update_option('contentfreaks_gemini_api_keys', implode("\n", $gemini_keys));
+        if (!empty($gemini_keys)) {
+            update_option('contentfreaks_gemini_api_key', $gemini_keys[0]);
+        } else {
+            delete_option('contentfreaks_gemini_api_key');
+        }
         set_transient('contentfreaks_admin_message', array(
             'type'    => 'success',
-            'message' => 'Gemini API 設定を保存しました！',
+            'message' => 'Gemini 設定を保存しました。',
         ), 30);
-        wp_safe_remote_get(add_query_arg('tab', 'settings', admin_url('tools.php?page=contentfreaks-podcast-management')));
-        return;
     }
 
     // Gemini: 全エピソードをキューに追加
@@ -1432,12 +1436,12 @@ function contentfreaks_unified_admin_page() {
                         <?php wp_nonce_field('contentfreaks_gemini_settings', 'gemini_settings_nonce'); ?>
                         <table class="form-table">
                             <tr>
-                                <th scope="row"><label for="gemini_api_key">Gemini API Key</label></th>
+                                <th scope="row"><label for="gemini_api_keys">Gemini API Keys</label></th>
                                 <td>
-                                    <input type="password" id="gemini_api_key" name="gemini_api_key" class="regular-text"
-                                           value="<?php echo esc_attr(get_option('contentfreaks_gemini_api_key', '')); ?>" autocomplete="off" />
+                                    <textarea id="gemini_api_keys" name="gemini_api_keys" class="large-text" rows="5" autocomplete="off"><?php echo esc_textarea(get_option('contentfreaks_gemini_api_keys', get_option('contentfreaks_gemini_api_key', ''))); ?></textarea>
                                     <p class="description">
-                                        <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener">Google AI Studio</a> で無料発行できます。<br>
+                                        1行に1つずつ API Key を入力してください。<br>
+                                        先頭のキーを優先し、レート制限時は次のキーへフォールバックします。<br>
                                         セキュリティ強化のため、wp-config.php に<code>define('CONTENTFREAKS_GEMINI_API_KEY', 'AIzaSy...');</code>と記載する方法も推奨します（その場合はここへの入力不要）。
                                     </p>
                                 </td>
@@ -1451,7 +1455,7 @@ function contentfreaks_unified_admin_page() {
                         </div>
                         <?php else: ?>
                         <div style="background:#f0f8ff;padding:10px 15px;border-left:4px solid #2196F3;border-radius:4px;margin-bottom:15px;">
-                            ℹ️ API Key を入力すると、ポッドキャスト音声から自動でブログ記事が生成されます（Gemini 1.5 Flash 無料枠）。
+                            ℹ️ API Key を入力すると、ポッドキャスト音声から自動でブログ記事が生成されます。
                         </div>
                         <?php endif; ?>
                         <?php submit_button('Gemini 設定を保存', 'primary', 'save_gemini_settings'); ?>
