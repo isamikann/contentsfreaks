@@ -33,6 +33,10 @@ function contentfreaks_get_gemini_api_keys() {
         return ! empty( $legacy_key ) ? array( trim( (string) $legacy_key ) ) : array();
     }
 
+    if ( is_array( $stored_keys ) ) {
+        return array_values( array_filter( array_map( 'trim', $stored_keys ) ) );
+    }
+
     $keys = preg_split( '/\R+/', (string) $stored_keys );
     return array_values( array_filter( array_map( 'trim', (array) $keys ) ) );
 }

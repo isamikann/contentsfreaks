@@ -819,9 +819,13 @@ function contentfreaks_handle_admin_posts() {
 
     // Gemini API設定保存
     if (isset($_POST['save_gemini_settings']) && isset($_POST['gemini_settings_nonce']) && wp_verify_nonce($_POST['gemini_settings_nonce'], 'contentfreaks_gemini_settings')) {
-        $gemini_key_raw = sanitize_textarea_field($_POST['gemini_api_keys'] ?? $_POST['gemini_api_key'] ?? '');
-        $gemini_keys = array_values(array_filter(array_map('trim', preg_split('/\R+/', $gemini_key_raw))));
-        update_option('contentfreaks_gemini_api_keys', implode("\n", $gemini_keys));
+        $gemini_key_raw = wp_unslash($_POST['gemini_api_keys'] ?? $_POST['gemini_api_key'] ?? '');
+        $gemini_lines = preg_split('/\R+/', (string) $gemini_key_raw);
+        $gemini_keys = array_values(array_filter(array_map(function ($key) {
+            return sanitize_text_field(trim($key));
+        }, $gemini_lines)));
+
+        update_option('contentfreaks_gemini_api_keys', $gemini_keys);
         if (!empty($gemini_keys)) {
             update_option('contentfreaks_gemini_api_key', $gemini_keys[0]);
         } else {
@@ -1457,7 +1461,14 @@ function contentfreaks_unified_admin_page() {
                             <tr>
                                 <th scope="row"><label for="gemini_api_keys">Gemini API Keys</label></th>
                                 <td>
-                                    <textarea id="gemini_api_keys" name="gemini_api_keys" class="large-text" rows="5" autocomplete="off"><?php echo esc_textarea(get_option('contentfreaks_gemini_api_keys', get_option('contentfreaks_gemini_api_key', ''))); ?></textarea>
+                                    <textarea id="gemini_api_keys" name="gemini_api_keys" class="large-text" rows="5" autocomplete="off"><?php
+                                    $saved_gemini_keys = get_option('contentfreaks_gemini_api_keys', '');
+                                    if (is_array($saved_gemini_keys)) {
+                                        echo esc_textarea(implode("\n", $saved_gemini_keys));
+                                    } else {
+                                        echo esc_textarea($saved_gemini_keys !== '' ? $saved_gemini_keys : get_option('contentfreaks_gemini_api_key', ''));
+                                    }
+                                    ?></textarea>
                                     <p class="description">
                                         1行に1つずつ API Key を入力してください。<br>
                                         先頭のキーを優先し、レート制限時は次のキーへフォールバックします。<br>
