@@ -1364,6 +1364,25 @@ function contentfreaks_unified_admin_page() {
                 echo '<p>⏱️ 次回Cron: ' . ($cron_next ? esc_html(date_i18n('Y-m-d H:i:s', $cron_next)) . '（' . human_time_diff($cron_next) . '後）' : '<strong style="color:red;">未登録</strong>') . '</p>';
                 echo '<p>⏸ 一時停止: ' . ($gemini_paused ? '<strong style="color:#b45309;">はい</strong>' : 'いいえ') . '</p>';
 
+                // Gemini API Key 状況
+                if ( function_exists( 'contentfreaks_get_gemini_api_keys' ) ) {
+                    $gemini_keys = contentfreaks_get_gemini_api_keys();
+                    echo '<p>🔑 <strong>Gemini API Key 状況:</strong> ' . esc_html( count( $gemini_keys ) ) . '個登録</p>';
+                    if ( ! empty( $gemini_keys ) ) {
+                        echo '<ul>';
+                        foreach ( $gemini_keys as $idx => $key ) {
+                            $masked = substr( $key, 0, 8 ) . '…' . substr( $key, -4 );
+                            $cache_key = 'cf_gemini_api_key_rl_' . $idx . '_' . substr( md5( $key ), 0, 12 );
+                            $is_rl = (bool) get_transient( $cache_key );
+                            $status = $is_rl ? 'レート制限中（最大1時間）' : '利用可能';
+                            $color = $is_rl ? '#b45309' : 'green';
+                            $icon = $is_rl ? '🔴' : '✅';
+                            echo '<li>' . $icon . ' <code>' . esc_html( $masked ) . '</code>: <span style="color:' . esc_attr( $color ) . ';">' . esc_html( $status ) . '</span></li>';
+                        }
+                        echo '</ul>';
+                    }
+                }
+
                 // Gemini モデル使用状況
                 if ( function_exists( 'contentfreaks_get_model_status' ) ) {
                     echo '<p>🤖 <strong>Geminiモデル状況:</strong></p><ul>';
@@ -1448,10 +1467,17 @@ function contentfreaks_unified_admin_page() {
                             </tr>
                         </table>
                         <?php
+                        $gemini_keys = function_exists('contentfreaks_get_gemini_api_keys') ? contentfreaks_get_gemini_api_keys() : array();
                         $gemini_key_check = contentfreaks_get_gemini_api_key();
                         if (!empty($gemini_key_check)): ?>
                         <div style="background:#f0fff0;padding:10px 15px;border-left:4px solid #4CAF50;border-radius:4px;margin-bottom:15px;">
                             ✅ API Key が設定されています。新規エピソードは RSS 同期後に自動でキューに追加され、5分毎に記事化されます。
+                        </div>
+                        <div style="background:#fff8e6;padding:10px 15px;border-left:4px solid #f59e0b;border-radius:4px;margin-bottom:15px;">
+                            🔑 登録済みキー数: <strong><?php echo esc_html(count($gemini_keys)); ?></strong> 個
+                            <?php if (count($gemini_keys) > 0): ?>
+                                <br>先頭キーが優先され、失敗時は次のキーに切り替わります。
+                            <?php endif; ?>
                         </div>
                         <?php else: ?>
                         <div style="background:#f0f8ff;padding:10px 15px;border-left:4px solid #2196F3;border-radius:4px;margin-bottom:15px;">
